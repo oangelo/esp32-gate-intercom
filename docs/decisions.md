@@ -179,3 +179,20 @@ out, cools, and pulls humid air back in through every gap (thermal pumping). A p
 not a certified mains enclosure, so putting mains inside would demand a separate compartment with
 barriers, a fuse and its own glands. Keeping the supply outside removes the hazard and most of the
 moisture cycle in one move.
+
+## ADR-017: moisture strategy - sealed, vented, coated
+
+**Decision:** the case is sealed at every intentional opening and the moisture strategy has three layers:
+a breathable membrane vent to equalise pressure, hydrophobic acoustic membranes over the microphone ports
+and behind the speaker grille, and conformal coating on the board. Outer walls 3 mm with four or more
+perimeters, a smooth gasket land, silicone gasket at about 30 percent compression, and stainless A2
+fasteners into brass inserts. The target is rain and splash, not immersion: IP67 is not claimed for an FDM
+part.
+
+**Why:** the failure mode outdoors is not the rain that lands on the box, it is thermal pumping. The box
+heats in the sun, expels air, then cools and pulls humid air back in through every gap, once per day,
+forever. The vent removes the pressure differential that drives that cycle; the hydrophobic membranes keep
+water out of the two acoustic paths without blocking sound; the coating is the insurance for the day the
+first two are defeated. Layer lines are capillary paths, so wall thickness, perimeters and a smooth gasket
+land matter as much as the gasket itself. Acetone smoothing works on ASA but is less predictable than a 2K
+clear coat or a silicone spray, so the sealing step is specified as a coating.

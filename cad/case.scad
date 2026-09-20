@@ -2,9 +2,11 @@
 // Parametric case for a Waveshare ESP32-S3-AUDIO-Board with the speaker integrated
 // in an acoustic chamber. Printed in ASA (see docs/decisions.md, ADR-009).
 //
-// STATUS: v0.0 scaffold. Every value marked TODO is a placeholder and must be
-// replaced with a caliper measurement before anything is printed. See
-// docs/dimensions.md for the measurement list.
+// STATUS: v0.0 scaffold, and the geometry in this file is SUPERSEDED. It was written
+// around a placeholder rectangular board (60 x 40) before the vendor drawing was
+// measured. The board is actually round, 58 mm, with three holes at 120 degrees, and
+// the front face is a capsule (see ADR-014 and ADR-015). Do not print anything from
+// this file. It is kept in the repository only as scaffolding, and F2 rewrites it.
 //
 // Usage:
 //   openscad -D 'part="base"'      -o base.stl cad/case.scad
@@ -12,6 +14,24 @@
 //   openscad -D 'part="assembly"'  -o assembly.stl cad/case.scad
 //
 // Convention: millimetres. Variable names are ASCII only (the parser breaks on accents).
+
+// ------------------------------------------- measured facts (vendor DXF, 2026-09-20)
+// Source and method: docs/dimensions.md. These are the numbers the rewrite starts from.
+// Anything not listed here is still a TODO and needs a caliper.
+
+board_dia    = 58.00;         // board is ROUND (DIMENSION 58.0 plus a CIRCLE of d=58.00)
+board_hole_d =  4.00;         // three mounting holes (each with a 4.80 mm ring)
+board_hole_r = 23.75;         // holes sit on this radius from the board centre
+board_hole_a = 120.0;         // and are 120 degrees apart
+spk_face_od  = 57.04;         // concentric circles on the speaker face, largest first
+spk_face_2   = 52.00;
+spk_face_3   = 48.50;
+spk_face_4   = 46.20;
+spk_face_5   = 44.82;
+stack_h      = 37.60;         // assembly heights in the section view, smallest first
+stack_h2     = 42.60;
+stack_h3     = 44.30;
+stack_h4     = 47.00;
 
 // ---------------------------------------------------------------- parameters
 
