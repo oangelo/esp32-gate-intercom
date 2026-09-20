@@ -105,8 +105,8 @@ injection molded with UV stabilisers and remains a valid option.
 ## ADR-010: enclosure rules for the gate
 
 **Decision:** the enclosure is a plastic (ASA printed, or a molded ABS/PC box), never metal. The
-microphone sits behind a hydrophobic membrane, the speaker grille faces down, and there is a
-cable gland, not an open hole.
+microphone sits behind a hydrophobic membrane, the speaker grille faces **down or forward with a drip
+lip** (see ADR-014: the speaker ended up on the front face), and there is a cable gland, not an open hole.
 
 **Why:** the board already sits at -73 to -80 dBm; a metal box kills 2.4 GHz. A microphone behind a
 small port with a hydrophobic membrane resists water without blocking sound, a downward-facing grille
@@ -141,3 +141,41 @@ numbers keeps the design reproducible without shipping someone else's files.
 
 **Why:** the repository is public. The ESPHome API encryption key and the OTA password in particular
 grant access to the device to anyone who can reach it.
+
+## ADR-014: acoustic layout - speaker forward, microphones at the back and low
+
+**Decision:** the speaker faces the person arriving at the gate, and the microphone ports are on the
+back and low side (facing down where the geometry allows), on the opposite side of the case from the
+speaker.
+
+**Why:** the microphones and the speaker were on opposite faces of the vendor's cylinder, and keeping
+them far apart physically is worth more than any firmware tuning, because the echo path is direct
+acoustic coupling rather than a software problem. The measured baseline is unattenuated coupling: a
+tone at -13.7 dBFS on the DAC came back at -7.7 dB peak on the microphone (2026-09-19), which is why the
+AEC has to work so hard. Every decibel the geometry removes is a decibel the AEC does not have to fight,
+and it can be measured after the case is mounted. Water does not enter a downward-facing port by
+gravity, so the acoustic decision and the rain decision point the same way.
+
+## ADR-015: the front profile is a capsule
+
+**Decision:** the front face is a capsule: a semicircle on top, two parallel straight sides, a
+semicircle on the bottom. The speaker grille occupies the upper semicircle and the illuminated round
+button sits in the middle of the straight section.
+
+**Why:** it keeps the round language of the reference product while standing vertically at the gate, and
+a round bottom sheds water better than a square corner. Open items, to be fixed with the caliper
+numbers and a photograph of the board: the radius (driven by the board's 58 mm plus clearance) and the
+height of the straight section.
+
+## ADR-016: mains conversion stays outside the printed enclosure
+
+**Decision (recommendation, awaiting confirmation of where the 220 V comes from):** the 220 V to 5 V
+USB-C supply lives outside the printed part. Power enters the case as 5 V through a sealed cable gland,
+or through an IP67 USB-C panel socket, and never as mains.
+
+**Why:** a mains supply inside a sealed printed box puts 220 V and condensate in the same volume, and it
+adds a permanent heat source. Heat is what actually wets an outdoor enclosure: the box warms, pushes air
+out, cools, and pulls humid air back in through every gap (thermal pumping). A printed ASA part is also
+not a certified mains enclosure, so putting mains inside would demand a separate compartment with
+barriers, a fuse and its own glands. Keeping the supply outside removes the hazard and most of the
+moisture cycle in one move.
