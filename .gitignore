@@ -1,0 +1,37 @@
+# Build artifacts
+*.stl
+*.3mf
+*.gcode
+*.stp
+*.step
+*.dxf
+build/
+
+# ESPHome
+.esphome/
+*.bin
+*.elf
+*.map
+build_info.json
+
+# Credentials - NEVER commit these
+secrets.yaml
+*secrets*.yaml
+!secrets.example.yaml
+*.key
+.env
+
+# Firmware dumps / backups
+backup/
+*.bak
+*.bak-*
+*.orig
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editors
+.DS_Store
+*.swp
