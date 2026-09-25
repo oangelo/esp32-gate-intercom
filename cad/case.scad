@@ -60,6 +60,29 @@ part    = "review";     // the one selector: review | inside | assembly | inside
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
+// ------------------------------------------------------- what the review view draws
+// The switches below belong to the `review` view (and its alias `screwplan2`) -- `part` chooses WHICH
+// view, these choose WHAT it draws. They are annotated for the CUSTOMIZER: OpenSCAD's Customizer panel
+// (or View > Customizer) shows them as tick boxes, and F5 redraws as you tick. An untouched file draws
+// everything, exactly as before.
+//
+// Why they exist: the review view is the joint seen through the shell, and six solids at once is a lot
+// to read. Un-tick what is in the way -- the unit to look at the pillar against the switch, the screws
+// to look at the holes they will sit in, both shells to look at the marker set alone.
+//
+// One trap, measured: the shell is a % (background) object and `--render` does not draw those at all --
+// that is exactly why the markers come out visible in the PNGs. So un-ticking the shells changes F5 (the
+// preview you work in) and changes nothing in a `make review` PNG; in a PNG the shell only appears with
+// `show_solid`, which draws it as an ordinary opaque object instead.
+/* [The review view] */
+show_lid      = true;   // [true,false]  the front shell, with its grille and the button
+show_base     = true;   // [true,false]  the back tray, with the bosses and the pillars
+show_solid    = false;  // [true,false]  the shell solid and opaque, instead of a % (background) object
+show_unit     = true;   // [true,false]  the assembled Waveshare, as a ghost
+show_screws   = true;   // [true,false]  the two M3, their pillars and the brass inserts
+show_collar   = true;   // [true,false]  the unit's collar on the floor (a marker: not cut yet)
+show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not cut yet)
+
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
 // microphone ducting come with it. The case is built around that, which is what the depth above and
@@ -364,14 +387,13 @@ lip_od    = 63.0;       // 2.3 mm of rim: wide enough to bite, thin enough to pr
 lip_h     = unit_pad_h;
 
 module screw_markers2() {
-    // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars, their inserts and the
-    // collar. All of them are the SAME solids the fit check below bites into, so what you look at and
-    // what the boolean tests cannot drift apart. The pillar goes translucent so the brass insert in
-    // its top reads through it.
+    // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
+    // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
+    // tests cannot drift apart. The pillar goes translucent so the brass insert in its top reads
+    // through it. The collar is NOT here: it has its own switch, since it is a marker too.
     color("blue", 0.35)  m3b_points() m3_pillar();
     color("gold", 0.95)  m3b_points() m3_insert();
     color("red", 0.95)   m3b_points() m3_screw();
-    color("green", 0.85) unit_collar();
 }
 
 fc = "all";             // narrows fitcheck_joint: all | screw | neighbours
@@ -594,17 +616,30 @@ module wall_markers() {
 }
 
 module review_view() {
-    // What you see when you open this file, and what part = "review" / "screwplan2" renders: the plan, in
-    // one piece, with nothing cut away. The shell goes in as a % (background) object, which does not
-    // occlude, so the screws, the ribs and the collar -- drawn after it, opaque -- stay visible straight
-    // through it. One background object only: --render culls the rest (measured here the hard way).
+    // What you see when you open this file, and what part = "review" / "screwplan2" renders: the joint in
+    // one piece, with nothing cut away. Everything it draws is switchable from the Customizer -- the
+    // show_* block at the top of the file -- and with the switches untouched this is the view exactly as
+    // it always was.
+    //
+    // The shell goes in as a % (background) object, which does not occlude, so the markers -- drawn after
+    // it, opaque -- stay visible straight through it. One background object only: --render culls the rest
+    // (measured here the hard way). `show_solid` is the way out of that: the same shell drawn opaque, for
+    // looking at the outer form and for checking the markers against a real surface.
     // The unit as the ordinary ghost, NOT a % one: --render only carries one background object, and with
     // the unit also a % it vanished. Opaque, it still lets the collar's rim read -- O63 against its O58 --
-    // as a ring around it, which is exactly what the lap looks like from the front.
-    %union() { base(); lid(); }
-    ghosts("unit");
-    screw_markers2();
-    wall_markers();
+    // as a ring around it, which is what the lap looks like from the front.
+    if (show_lid || show_base) {
+        if (show_solid) {
+            if (show_base) color("grey", 0.85) base();
+            if (show_lid)  color("silver", 0.85) lid();
+        } else {
+            %union() { if (show_base) base(); if (show_lid) lid(); }
+        }
+    }
+    if (show_unit)   ghosts("unit");
+    if (show_screws) screw_markers2();
+    if (show_collar) color("green", 0.85) unit_collar();
+    if (show_m4)     wall_markers();
 }
 
 module translucent(which) {

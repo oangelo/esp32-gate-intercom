@@ -34,6 +34,13 @@ the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its 
 head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and `-D
 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
 
+Everything that view draws is switchable, without editing the file: OpenSCAD's **Customizer** panel
+(the `show_*` block at the top of `case.scad`) gives a tick box each for the lid, the base, the unit,
+the screws, the collar and the M4, plus `show_solid` for the shell drawn opaque instead of as a
+background object. All of them default to on, so an untouched file opens exactly as it always did.
+Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
+markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
+
 Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
 the cable route to the unit's USB-C, and the rest of the joint (the lip and the gasket groove).
 
