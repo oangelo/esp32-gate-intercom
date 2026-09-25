@@ -180,6 +180,16 @@ not a certified mains enclosure, so putting mains inside would demand a separate
 barriers, a fuse and its own glands. Keeping the supply outside removes the hazard and most of the
 moisture cycle in one move.
 
+**Settled chain (2026-09-21):** two stages, both from the shelf, because a potted 5 V mains unit is scarce
+while a 12 V one is a commodity — an **IP67 potted 220 V to 12 V driver outside** the printed part (the
+gate's electrical box, or strapped to the post; its own IP rating does the weatherproofing), then a
+**12 V to 5 V 3 A buck module inside the case**, then a **USB-C pigtail into the board's USB-C** so the
+charger path and the input protection stay as Waveshare designed them. 12 V is also the better voltage to
+run over any distance between the 220 V point and the gate, which settles the cable loss before it starts.
+Parts, sizes and the power budget: `hardware/bom.md`. The alternative single stage — a certified 5 V 2 A
+adapter in its own IP65 junction box outside, 5 V through the gland — trades one more enclosure for one
+fewer part and only works if the 220 V point is close enough that 5 V does not sag over the run.
+
 ## ADR-017: moisture strategy - sealed, vented, coated
 
 **Decision:** the case is sealed at every intentional opening and the moisture strategy has three layers:
@@ -196,3 +206,61 @@ water out of the two acoustic paths without blocking sound; the coating is the i
 first two are defeated. Layer lines are capillary paths, so wall thickness, perimeters and a smooth gasket
 land matter as much as the gasket itself. Acetone smoothing works on ASA but is less predictable than a 2K
 clear coat or a silicone spray, so the sealing step is specified as a coating.
+
+## ADR-018: button above, speaker grille below (reverses the front face of ADR-015)
+
+**Decision:** on the front face of the capsule the illuminated button sits in the upper half and the
+speaker grille in the lower half. ADR-015 had the grille in the upper semicircle with the button in the
+middle of the straight section; this record replaces that arrangement. Everything else in ADR-015 (a
+capsule profile, a round bottom that sheds water) stands.
+
+**Why:** it is the arrangement chosen from the concept render, and it is the better one for a person
+standing at the gate. The button lands at hand height, and its lit ring is the element at eye level,
+which is what someone arriving after dark looks for; the perforated field below reads unmistakably as a
+speaker. ADR-014 is untouched by the swap — the microphones stay on the back and low side, so speaker and
+microphones remain on opposite faces of the case, which is the part of that decision that matters for the
+echo path.
+
+**Consequences, all of them for the print:**
+
+- **Water.** The front face is a convex vertical capsule, so rain runs down it, and with the grille in the
+  lower half the water now reaches the grille. The grille is therefore a recessed field of holes behind a
+  drip lip, holes drilled with a downward angle, with the hydrophobic membrane behind it (ADR-017). A
+  flat perforated field flush with the lower face is not acceptable.
+- **Acoustic separation.** The speaker moved lower and forward while the microphones stay high at the back,
+  so the direct coupling path changed. The pre-case baseline was a tone at -13.7 dBFS on the DAC coming
+  back at -7.7 dB peak on the microphone (2026-09-19). The same measurement has to be repeated with the
+  case mounted and the number recorded in F4; if the geometry made the AEC's job harder, the grille goes
+  back up and this ADR is superseded.
+- **The button is an external panel switch, wired, not a plunger.** The front button is a bought 22 mm
+  metal momentary switch (red, IP65, LED rated 3-9 V, so it runs off 5 V with its own built-in
+  resistor), mounted through the case wall and wired to the board inside the same case. The tactile
+  switches on the PCB are left alone and their positions stop mattering. A plunger acting on the
+  board's BOOT switch was rejected: it would tie the board's position to the button's position and add a
+  mechanism for a part that already exists as a panel item with its own IP65 gasket. Wiring: the
+  contacts go between GPIO0 and GND, which is what the on-board BOOT switch does, so the firmware keeps
+  its gate-bell input unchanged and the existing pull-up holds the line high when released. GPIO0 is a
+  strapping pin, so the loop stays short and inside the case, with a 1 k series resistor and 100 nF to
+  GND at the board end against contact noise; a long cable to a remote button would risk a boot into
+  download mode and is not part of this design. The LED takes the same 5 V rail that feeds the board.
+  The cutout is 22 mm; the head diameter and the body depth behind the panel come from the part, and the
+  seller's listing carries no drawing, so both are measured on arrival.
+- **The cutout needs a flat land, and the front face is convex.** A panel switch seals with its gasket
+  compressed between the nut and a *flat* panel, so the capsule's curved face cannot be the sealing
+  surface: the geometry carries a spot-faced flat boss around the Ø22 mm cutout, flush or slightly
+  recessed, with enough diameter for the switch gasket and a smooth surface (layer lines are leak paths,
+  ADR-017). The boss also gives the water running down the face something to drip from instead of
+  creeping into the cutout. Silicon grease or a smear of neutral silicone on the gasket is the
+  belt-and-braces step at assembly.
+- **Why the button above the grille pays off twice.** The upper half of the capsule holds the button,
+  the lower half holds the speaker chamber, so the ~30 mm the switch needs behind the panel sits in a
+  volume the speaker would otherwise have contested. The ADR-015 arrangement (grille up) would have put
+  the speaker chamber exactly where the switch body has to go.
+- **The LED ring.** The board's seven RGB LEDs are on the solder side, so whichever way the board is
+  mounted they face the inside of the case. The plan is the board lying flat at the bottom with the
+  components down — which is also what the acoustic ports require (measured: they open on the component
+  side) — leaving the LED ring facing up, where it can serve as a status light behind the button or a
+  diffuser.
+- **The microphone ports follow the board, not the face.** With the board flat and its components down,
+  both acoustic ports point at the floor: two Ø3 to Ø4 mm openings at r = 26.8 mm and ±47.2° / 132.8° in
+  the board's own frame (see `docs/dimensions.md`), each behind its own hydrophobic membrane.
