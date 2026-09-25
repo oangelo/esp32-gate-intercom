@@ -1,0 +1,405 @@
+# =============================================================================
+# Gate Intercom - v2: intercom_api stack + i2s_audio_duplex + esp_aec
+# =============================================================================
+# Fork: github.com/samuelthng/intercom-api @ 7d2405272e73326fa333e7c16dbe09f432906e17
+#       (fork of n-IA-hane/esphome-intercom, 246 commits ahead of what we used)
+# Components vendored in ../vendor/intercom-api (no github@main in the build).
+#
+# WHY THIS VERSION EXISTS
+#   The echo measured on 19/09 (600 Hz tone at -10 dBFS coming back through the mic
+#   with a peak of -7.7 dB, ~6 dB ABOVE the electrical signal itself, against a
+#   floor of -52 dB) is loudspeaker->mic coupling with no cancellation at all:
+#   i2s_audio_udp sent to the network everything the mic heard, always.
+#   This board HAS a hardware AEC reference: in the official schematic (v1.1) the
+#   block labeled "AEC" connects OUTP/OUTN of the ES8311 (R37/R75 2.2k + filter) to
+#   MIC3P/MIC3N of the ES7210. With the ES7210 in TDM, channel MIC3 is the
+#   sample-aligned reference of what is playing, the best kind of reference there is.
+#   The ESPHome driver hardcodes enable_tdm_=false, so the TDM registers are
+#   written by hand in on_boot (priority 200 = after the ES7210 setup, 600).
+#
+# WHAT CHANGED FROM THE PREVIOUS YAML (i2s_audio_udp + go2rtc)
+#   - audio NO LONGER goes through UDP/go2rtc/WebRTC: the ESP is a TCP server on
+#     6054 (protocol in intercom_protocol.h; PCM s16le 16 kHz mono, 512 samples/chunk)
+#   - the microphone handed to intercom is mic_aec (POST-cancellation); there is
+#     also mic_raw (pre-AEC) for diagnostics
+#   - VA (voice assistant) and wake word WERE CUT on purpose: a wake word at the
+#     gate wakes up on street noise and burns CPU/flash that the AEC needs
+#   - speech pipeline: 48 kHz on the I2S bus (native rate of both codecs),
+#     with FIR x3 decimation to 16 kHz in mic/AEC
+#   - the "Pacotes Enviados/Recebidos" and "Modo de Audio" counters NO LONGER
+#     exist (they were from the old component); the HA dashboard must be adjusted
+#
+# ROLLBACK (one line, over OTA)
+#   esphome upload interfone-portao.yaml --device <intercom-ip>   # the old YAML
+#   is still intact in this directory; its build is also still in .esphome/
+#
+# KNOWN PENDING ITEMS
+#   1) RESOLVED (19/09): esp-sr 2.3.0 does NOT have the fd_low_cost/fd_high_perf modes
+#      nor an NLP API: the fd_* options were removed from the select (with them aec_create fails and bails out).
+#   2) RESOLVED (19/09): the mode is what decides the echo. sr_low_cost cancels nothing
+#      (~0 dB, and the filter goes unstable: -78 dB in one run, -52 in the other);
+#      voip_low_cost cancels 47.3 dB. The firmware boots in voip_low_cost (initial_option).
+#   3) The AEC select restarts the audio path (stop/start of i2s_duplex); it is the
+#      most delicate path in the component; change mode with the board idle.
+#   4) intercom_api sending truncates a message when the socket gets tight
+#      (`send_message_` gives up at the 20 ms timeout and the protocol has no
+#      magic/CRC): the client falls out of sync. The harness resyncs, but the HA
+#      card can suffer on a bad network; not measured on the card yet.
+#   5) Mic gain is at 0 dB (runtime number); the ES7210 of the old stack used 24 dB.
+#      Only raise it with measurement: it affects AEC convergence and voice level.
+# =============================================================================
+
+substitutions:
+  name: interfone-portao
+  friendly_name: Interfone Portao
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.2.0
+  platformio_options:
+    board_build.flash_mode: dio
+  on_boot:
+    # priority 200 runs AFTER the ES7210 setup (600): the ESPHome driver hardcodes
+    # enable_tdm_=false and it is left to us to turn on TDM and the MIC3 gain.
+    priority: 200
+    then:
+      - switch.turn_on: speaker_enable
+      - delay: 200ms
+      # Writing the ES7210 TDM registers (MIC3 as reference) was removed from this
+      # file: with `use_tdm_reference: false` the ES7210 has to stay in the
+      # standard ESPHome I2S mode. The reference value that proved useful is the
+      # delay buffer of the component itself. The 19/09 measurement that motivated
+      # the change: with TDM on the echo did not drop (and the stream still fell
+      # out of sync from CPU load); see the header and the A/B in tools/interfone_aec_ab.py.
+      # Sync the ES8311 volume with the "Speaker Volume" number
+      - lambda: |-
+          float vol = 0.15 + (id(speaker_volume).state / 100.0) * 0.60;
+          id(es8311_dac).set_volume(vol);
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    version: recommended
+    sdkconfig_options:
+      # Bootloader rollback: a build that crashes before WiFi comes back on its own
+      # to the previous slot (learned the hard way on 19/09: ALWAYS check the
+      # compilation_time after OTA).
+      CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE: "y"
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: "y"
+      CONFIG_SPIRAM_RODATA: "y"
+      CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC: "y"
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+  level: DEBUG
+
+api:
+  encryption:
+    key: !secret intercom_api_key
+  services:
+    # Same "kick" as on_streaming, but on demand: rewrites the ES8311 volume and
+    # unmutes, with no call needed. Used to test the loudspeaker.
+    - service: kick_dac
+      then:
+        - lambda: |-
+            float vol = 0.15 + (id(speaker_volume).state / 100.0) * 0.60;
+            id(es8311_dac).set_volume(vol);
+        - audio_dac.mute_off: es8311_dac
+        - logger.log: "ES8311: volume reescrito + unmute (kick_dac)"
+    - service: codec_dump
+      then:
+        - lambda: |-
+            uint8_t r00 = 0, r01 = 0, r12 = 0, r45 = 0, r46 = 0, r4b = 0;
+            id(es7210_adc).read_byte(0x00, &r00);
+            id(es7210_adc).read_byte(0x01, &r01);
+            id(es7210_adc).read_byte(0x12, &r12);
+            id(es7210_adc).read_byte(0x45, &r45);
+            id(es7210_adc).read_byte(0x46, &r46);
+            id(es7210_adc).read_byte(0x4B, &r4b);
+            ESP_LOGI("codec_dump", "ES7210: 00=0x%02X 01=0x%02X 12=0x%02X 45=0x%02X 46=0x%02X 4B=0x%02X",
+                     r00, r01, r12, r45, r46, r4b);
+  on_client_connected:
+    - lambda: |-
+        id(intercom).publish_entity_states();
+
+ota:
+  - platform: esphome
+    password: !secret intercom_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: none
+  fast_connect: true
+  reboot_timeout: 15min
+  ap:
+    ssid: "Interfone Portao Fallback"
+    password: !secret ap_password
+
+captive_portal:
+
+external_components:
+  # Vendored and pinned (see vendor/INTERCOM_API_COMMIT). We prefer local over
+  # `github://` so the build does not depend on the network or change by itself.
+  - source:
+      type: local
+      path: ../vendor/intercom-api
+    components: [intercom_api, i2s_audio_duplex, esp_aec]
+
+# =============================================================================
+# I2C (shared bus) + TCA9555 expander
+# =============================================================================
+i2c:
+  - id: internal_i2c
+    sda: GPIO11
+    scl: GPIO10
+    scan: true
+
+tca9555:
+  - id: io_expander
+    address: 0x20
+    i2c_id: internal_i2c
+
+# =============================================================================
+# Codecs: here only I2C init; I2S belongs to i2s_audio_duplex
+# =============================================================================
+audio_dac:
+  - platform: es8311
+    id: es8311_dac
+    i2c_id: internal_i2c
+    address: 0x18
+    bits_per_sample: 16bit
+    sample_rate: 48000          # matches the bus rate
+    use_mclk: true
+
+audio_adc:
+  - platform: es7210
+    id: es7210_adc
+    i2c_id: internal_i2c
+    address: 0x40
+    bits_per_sample: 16bit
+    sample_rate: 48000          # matches the bus rate
+    mic_gain: 24dB              # MIC1/MIC2; MIC3 is set in the boot lambda
+
+# =============================================================================
+# AEC (ESP-SR): linear + adaptive filter; mode switchable at runtime
+# =============================================================================
+esp_aec:
+  id: aec_processor
+  sample_rate: 16000            # AEC always at 16 kHz
+  # MEASURED on 19/09 (interleaved A/B, 600 Hz tone, same stimulus):
+  #   sr_low_cost   -> ~0 dB of suppression (unstable filter: -78 in one run, -52 in the other)
+  #   voip_low_cost -> 47.3 dB of suppression, stable, 0 resync
+  # This is the mode the component creates at boot; it has to match the initial_option
+  # of the "AEC Mode" select, otherwise the dashboard shows one mode and AEC runs another.
+  mode: voip_low_cost
+  filter_length: 4              # ~64 ms of echo tail
+
+i2s_audio_duplex:
+  id: i2s_duplex
+  i2s_lrclk_pin: GPIO14
+  i2s_bclk_pin: GPIO13
+  i2s_mclk_pin: GPIO12
+  i2s_din_pin: GPIO15           # from the ES7210 (ADC)
+  i2s_dout_pin: GPIO16          # to the ES8311 (DAC)
+  sample_rate: 48000            # bus at the codecs native rate
+  output_sample_rate: 16000     # mic/AEC at 16 kHz via FIR x3
+  aec_id: aec_processor
+  # AEC reference = DELAY BUFFER of the component itself (generic path, no
+  # dependency on the codec). The TDM/MIC3 path was turned off on 19/09: with it
+  # the echo did not drop at all in the A/B and the stream fell out of sync (extra CPU, no benefit).
+  use_tdm_reference: false
+  aec_reference_delay_ms: 80    # delay between writing to I2S and the echo coming back on the mic
+  buffers_in_psram: true        # 512-sample frames do not fit in internal RAM
+
+# =============================================================================
+# Microphone and loudspeaker
+# =============================================================================
+microphone:
+  - platform: i2s_audio_duplex
+    id: mic_aec                    # POST-AEC: this is the one sent to the network
+
+speaker:
+  - platform: i2s_audio_duplex
+    id: hw_speaker
+    i2s_audio_duplex_id: i2s_duplex
+    sample_rate: 48000
+
+  # No mixer: the ESPHome mixer requires 2 or more sources and here there is only
+  # the intercom (VA/TTS/media were cut). The resampler talks straight to I2S.
+  - platform: resampler
+    id: intercom_speaker            # 16 kHz from the network -> 48 kHz on the bus
+    output_speaker: hw_speaker
+    task_stack_in_psram: true
+
+# =============================================================================
+# Intercom
+# =============================================================================
+intercom_api:
+  id: intercom
+  mode: full
+  microphone: mic_aec
+  speaker: intercom_speaker
+  ringing_timeout: 30s
+  on_outgoing_call:
+    - homeassistant.event:
+        event: esphome.intercom_call
+        data:
+          caller: !lambda 'return App.get_friendly_name();'
+          destination: "Home Assistant"
+          type: "doorbell"
+  on_streaming:
+    - logger.log: "Interfone: chamada em andamento"
+    # ES8311 KICK. The codec is initialized in the audio_dac setup(), when the I2S
+    # MCLK does not exist yet, and on this board that leaves it MUTED (same trap
+    # documented in the old stack on 18/09: clean pipeline, clean log, and silence).
+    # Rewriting volume + unmute with the I2S already up is what makes sound come
+    # out; without that the call reaches STREAMING and nothing is heard.
+    - lambda: |-
+        float vol = 0.15 + (id(speaker_volume).state / 100.0) * 0.60;
+        id(es8311_dac).set_volume(vol);
+    - audio_dac.mute_off: es8311_dac
+    - logger.log: "Interfone: ES8311 com volume reescrito + unmute"
+  on_idle:
+    - logger.log: "Interfone: ocioso"
+
+# =============================================================================
+# Controls
+# =============================================================================
+switch:
+  # Amplifier (NS4150B): PA_CTRL is on EXIO8 of the TCA9555, not on a GPIO.
+  - platform: gpio
+    id: speaker_enable
+    name: "Amplificador"
+    icon: "mdi:amplifier"
+    pin:
+      tca9555: io_expander
+      number: 8
+      mode: output
+    restore_mode: ALWAYS_ON
+
+  - platform: intercom_api
+    intercom_api_id: intercom
+    auto_answer:
+      id: auto_answer_switch
+      name: "Auto Answer"
+      icon: mdi:phone-in-talk
+      restore_mode: RESTORE_DEFAULT_ON   # the gate answers on its own
+
+  - platform: i2s_audio_duplex
+    i2s_audio_duplex_id: i2s_duplex
+    aec:
+      id: aec_switch
+      name: "Echo Cancellation"
+      icon: mdi:ear-hearing
+      restore_mode: RESTORE_DEFAULT_ON
+
+number:
+  - platform: i2s_audio_duplex
+    i2s_audio_duplex_id: i2s_duplex
+    mic_gain:
+      name: "Mic Gain"
+
+  - platform: template
+    id: speaker_volume
+    name: "Speaker Volume"
+    icon: "mdi:volume-high"
+    min_value: 0
+    max_value: 100
+    step: 5
+    initial_value: 50
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    set_action:
+      - lambda: |-
+          float es8311_vol = 0.15 + (x / 100.0) * 0.60;
+          id(es8311_dac).set_volume(es8311_vol);
+
+select:
+  # A/B instrument: switches the AEC mode at runtime (restarts the audio).
+  # The fd_* modes only work if the vendored esp-sr has them (see pending item 1).
+  - platform: template
+    name: "AEC Mode"
+    id: aec_mode_select
+    icon: mdi:tune-vertical
+    options:
+      - "sr_low_cost"
+      - "sr_high_perf"
+      - "voip_low_cost"
+      - "voip_high_perf"
+    initial_option: "voip_low_cost"
+    optimistic: true
+    # restore_value off: the good mode has to come from the YAML, not from an
+    # experiment that stayed saved in flash. Measured on 19/09 (interleaved A/B, 600 Hz tone):
+    #   sr_low_cost  ->  ~0 dB of suppression (and with an unstable filter: -78 vs -52)
+    #   voip_low_cost->  47.3 dB (-118.9 / -104.1 against -58.9 / -69.5 without AEC)
+    restore_value: false
+    set_action:
+      - lambda: |-
+          int mode = 0;
+          if (x == "sr_low_cost") mode = 0;
+          else if (x == "sr_high_perf") mode = 1;
+          else if (x == "voip_low_cost") mode = 3;
+          else if (x == "voip_high_perf") mode = 4;
+          else if (x == "fd_low_cost") mode = 5;
+          else if (x == "fd_high_perf") mode = 6;
+          if (!id(intercom).is_idle()) {
+            ESP_LOGW("aec_mode", "chamada ativa: nao troco o modo do AEC agora");
+            return;
+          }
+          id(i2s_duplex).stop();
+          if (!id(aec_processor).reinit(static_cast<aec_mode_t>(mode))) {
+            ESP_LOGE("aec_mode", "reinit do AEC falhou; voltando ao modo anterior");
+          }
+          id(i2s_duplex).start();
+
+# =============================================================================
+# Doorbell and sensors
+# =============================================================================
+binary_sensor:
+  # Same name/entity_id as before: the HA doorbell automation stays valid.
+  - platform: gpio
+    id: btn_portao
+    name: "Botao Portao"
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: true
+    filters:
+      - delayed_on: 20ms
+    on_press:
+      - logger.log: "Campainha: botao do portao pressionado"
+
+text_sensor:
+  # List of contacts coming from the HA integration (stays empty until it exists).
+  - platform: homeassistant
+    id: ha_active_devices
+    entity_id: sensor.intercom_active_devices
+    on_value:
+      - intercom_api.set_contacts:
+          id: intercom
+          contacts_csv: !lambda 'return x;'
+
+sensor:
+  - platform: wifi_signal
+    name: "Sinal WiFi"
+    update_interval: 60s
+  - platform: uptime
+    name: "Uptime"
+    update_interval: 60s
+    entity_category: diagnostic
+  - platform: internal_temperature
+    name: "CPU Temperature"
+    update_interval: 60s
+    entity_category: diagnostic
