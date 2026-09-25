@@ -305,11 +305,13 @@ screw_m3_d = 3.4;       // clearance hole through the lid, self-tapping pilot in
 screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DIN 7991)
 
 // The base to the wall. These go through the back plate from inside, so their heads must stay out
-// of the unit's way: the gap behind the unit is 1.80 mm, so each head sits in a 1.7 mm pocket in
-// the plate's inner face. Three of them, on a 26 mm radius around the unit's axis at 60/180/300
-// degrees, which interleaves them with the unit's own three standoffs at 0/120/240.
+// of the unit's way: the gap behind the unit is 1.80 mm, so each head sits in a 1.5 mm pocket in
+// the plate's inner face. Two of them (2026-09-25), on the 26 mm radius around the unit's axis and on the
+// vertical axis, 90 and 270 degrees: the case hangs, so its weight arrives at the screws as shear and not
+// as a moment, and the flat contact with the wall plus the mortar takes the rest. Both stay clear of the
+// unit's own three standoffs at 0/120/240 and behind the unit's O58 footprint.
 screw_m4_r = 26.0;
-screw_m4_a = [60, 180, 300];
+screw_m4_a = [90, 270];
 screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
 pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.5 mm left
 
@@ -366,12 +368,14 @@ module screw_markers2() {
 }
 
 module screw_markers() {
-    // PROPOSED positions only: rods along Y, nothing cut. Red = lid to base, blue = base to wall.
-    for (p = screw_m3)
-        color("red", 0.9) translate([p[0], -3, p[1]]) rotate([-90, 0, 0])
+    // The plan as bare rods along each screw's axis: review 2, two M3 (lid into the base's ribs) and two
+    // M4 (base into the wall). Red = lid to base, blue = base to wall. They run the whole depth of the case
+    // on purpose -- they are the axis, not the screw -- which is why review_view() draws the screws whole.
+    for (s = [m3b, [-m3b[0], m3b[1]]])
+        color("red", 0.9) translate([s[0], -3, s[1]]) rotate([-90, 0, 0])
             cylinder(d = screw_m3_d, h = case_d + 6);
     for (a = screw_m4_a)
-        color("blue", 0.9) translate([screw_m4_r * cos(a), -3, 33 + screw_m4_r * sin(a)])
+        color("blue", 0.9) translate([screw_m4_r * cos(a), -3, unit_cz + screw_m4_r * sin(a)])
             rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = case_d + 6);
 }
 

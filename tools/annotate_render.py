@@ -28,8 +28,8 @@ VIEWS = {
         (345, 15, "PROPOSED M3: lid -> base"),
     ],
     "screw": [
-        (345, 15, "PROPOSED M3 x6: through the front, into bosses in the base"),
-        (200, 260, "PROPOSED M4 x3: through the back plate into the wall"),
+        (345, 15, "M3 x2, lid into the base's ribs: one each side of the button"),
+        (200, 260, "M4 x2, on the vertical axis: the base into the wall"),
     ],
     "parts": [
         (95, 165, "PCB: bare board, 57.63 x 1.20 (rejected layout)"),

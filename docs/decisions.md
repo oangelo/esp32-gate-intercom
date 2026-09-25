@@ -169,9 +169,10 @@ height of the straight section.
 
 ## ADR-016: mains conversion stays outside the printed enclosure
 
-**Decision (recommendation, awaiting confirmation of where the 220 V comes from):** the 220 V to 5 V
-USB-C supply lives outside the printed part. Power enters the case as 5 V through a sealed cable gland,
-or through an IP67 USB-C panel socket, and never as mains.
+**Decision (confirmed 2026-09-25: 5 V is fed in directly, single stage):** the conversion to 5 V happens
+outside the printed part. Power enters the case as 5 V through a sealed cable gland, or through an IP67
+USB-C panel socket, and never as mains. The 12 V to 5 V buck module that the two-stage chain below put
+inside the case is therefore out, and the case is modelled without it.
 
 **Why:** a mains supply inside a sealed printed box puts 220 V and condensate in the same volume, and it
 adds a permanent heat source. Heat is what actually wets an outdoor enclosure: the box warms, pushes air
@@ -186,9 +187,11 @@ gate's electrical box, or strapped to the post; its own IP rating does the weath
 **12 V to 5 V 3 A buck module inside the case**, then a **USB-C pigtail into the board's USB-C** so the
 charger path and the input protection stay as Waveshare designed them. 12 V is also the better voltage to
 run over any distance between the 220 V point and the gate, which settles the cable loss before it starts.
-Parts, sizes and the power budget: `hardware/bom.md`. The alternative single stage — a certified 5 V 2 A
-adapter in its own IP65 junction box outside, 5 V through the gland — trades one more enclosure for one
-fewer part and only works if the 220 V point is close enough that 5 V does not sag over the run.
+Parts, sizes and the power budget: `hardware/bom.md`. **Adopted 2026-09-25:** the single stage — a
+certified 5 V supply outside (its own IP65 box, or the gate's own 5 V point), 5 V through the gland —
+trades one more enclosure for one fewer part and needs the 5 V point close enough that the run does not
+sag. It also deletes the buck module, its heat and its connector from inside the case, which is space the
+unit now uses.
 
 ## ADR-017: moisture strategy - sealed, vented, coated
 
