@@ -54,10 +54,10 @@ spk_od       = 43.30;   // SPK-4020-5W, no screw holes of its own (used by the b
 spk_d        = 20.50;   // which document the hollowing-out option that was rejected)
 
 // --------------------------------------------------------- case parameters
-part    = "inside";     // the one selector: inside | assembly | inside_parts | base | lid |
+part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
                         // section | exploded | screwplan | fitcheck | fitcheck_parts |
                         // fitcheck_internal | probe_grille | probe_button
-                        // Default is `inside`: the shell semi-transparent, the unit visible in it.
+                        // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
@@ -336,21 +336,33 @@ m3b_rib_y = 13.0;       // rib depth in Y: 12 mm of thread plus 1 mm of margin a
 // 0.2 mm to find it, 1.75 mm tall (the same plane as the pads' tops, so the unit's back stays
 // square), and it opens out to the cavity's wall all round, which is what attaches it to the print.
 lip_bore  = 58.4;
+lip_od    = 63.0;       // 2.3 mm of rim: wide enough to bite, thin enough to print on the floor
 lip_h     = unit_pad_h;
 
 module screw_markers2() {
     // REVIEW 2, drawn only, nothing cut: the two M3 as rods along Y, their ribs, the collar in place.
     for (s = [m3b, [-m3b[0], m3b[1]]])
-        color("red", 0.9) translate([s[0], -3, s[1]]) rotate([-90, 0, 0])
-            cylinder(d = m3b_d, h = case_d + 6);
+        color("red", 0.95) {
+            // A screw, not a rod: countersunk head flush in the dome, shank back to the rib's tip. At
+            // x = 17 the crown's surface is y = 1.31 and the seat is 1.65 below it, so the shank is 18.05
+            // from under the head: M3 x 18 (this started as 16, before it was drawn at this scale).
+            translate([s[0], 1.305 + m3b_sink, s[1]]) rotate([-90, 0, 0])
+                cylinder(d = 3.0, h = 21.0 - 1.305 - m3b_sink);
+            translate([s[0], 1.305, s[1]]) rotate([-90, 0, 0])
+                cylinder(d1 = 6.3, d2 = 3.0, h = m3b_sink);
+        }
     for (s = [m3b, [-m3b[0], m3b[1]]])
         color("blue", 0.5)
             translate([s[0] > 0 ? s[0] : s[0] - m3b_rib, joint_y, s[1] - m3b_rib_z / 2])
                 cube([m3b_rib, m3b_rib_y, m3b_rib_z]);
-    color("green", 0.85) difference() {
-        prism_xz(lip_h, inner_d - lip_h) outline_inner();
-        translate([0, inner_d, unit_cz]) rotate([-90, 0, 0]) cylinder(d = lip_bore, h = 6, center = true);
-    }
+    // The collar: a ring of rim on the floor, not a raised floor. outline_inner() would have made it a
+    // slab with a hole in it (60 x 60, minus the bore) -- a 1.75 mm step across the whole floor. Just the
+    // annulus: the unit drops into lip_bore and the pads carry it forward onto the seat.
+    color("green", 0.85) translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
+        difference() {
+            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
+            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
+        }
 }
 
 module screw_markers() {
@@ -436,6 +448,33 @@ module ghosts_pairwise() {
     intersection() { ghost_board(); ghost_speaker(); }
 }
 
+module wall_markers() {
+    // The three M4 into the masonry, as screws: a head seated in the 1.5 mm pocket on the plate's inner
+    // face and a shank that carries on through the plate and into the wall behind it. The radius is 26
+    // from the unit's axis, which is inside the unit's O58 footprint -- that is why they sit behind it.
+    for (a = screw_m4_a)
+        color("darkorange", 0.95) {
+            translate([screw_m4_r * cos(a), inner_d - pocket_m4, unit_cz + screw_m4_r * sin(a)])
+                rotate([-90, 0, 0]) cylinder(d = 8.0, h = pocket_m4);
+            translate([screw_m4_r * cos(a), inner_d, unit_cz + screw_m4_r * sin(a)])
+                rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = 22);
+        }
+}
+
+module review_view() {
+    // What you see when you open this file, and what part = "review" / "screwplan2" renders: the plan, in
+    // one piece, with nothing cut away. The shell goes in as a % (background) object, which does not
+    // occlude, so the screws, the ribs and the collar -- drawn after it, opaque -- stay visible straight
+    // through it. One background object only: --render culls the rest (measured here the hard way).
+    // The unit as the ordinary ghost, NOT a % one: --render only carries one background object, and with
+    // the unit also a % it vanished. Opaque, it still lets the collar's rim read -- O63 against its O58 --
+    // as a ring around it, which is exactly what the lap looks like from the front.
+    %union() { base(); lid(); }
+    ghosts("unit");
+    screw_markers2();
+    wall_markers();
+}
+
 module translucent(which) {
     // The shell goes in as a % (background) object, NOT as color(..., alpha). Measured on this very
     // model, a white shell at alpha 0.15 produced zero pixels of the internal colours in the PNG,
@@ -467,19 +506,10 @@ if (part == "base") {
 } else if (part == "inside_parts") {
     // The layout that was rejected (bare board, bare speaker, our own chamber), kept as the record.
     translucent("parts");
-} else if (part == "screwplan2") {
-    // REVIEW 2, cut on the same plane as `section` (the cube takes X < 0, so the half that remains is
-    // X > 0 and the near screw of the pair is the one at x = +17). Shows the two M3, their ribs and the
-    // collar's section against the unit's ghost. Review only: nothing here is cut.
-    difference() {
-        union() {
-            color("grey") base();
-            color("silver") lid();
-            ghosts("unit");
-            screw_markers2();
-        }
-        translate([-200, -60, -60]) cube([200, 400, 400]);
-    }
+} else if (part == "screwplan2" || part == "review") {
+    // REVIEW 2, whole: the view the file opens with (part = "review"), and the same under its own name so
+    // a target can render it. No cutaway.
+    review_view();
 } else if (part == "screwplan") {
     // The under-review plan: the shell semi-transparent (as the default view), the unit inside, and
     // the two screw sets as rods. Review only: nothing here is cut.
@@ -519,5 +549,7 @@ if (part == "base") {
 } else if (part == "probe_button") {
     intersection() { lid(); button_cut_hole(btn_cut - 1.0); }
 } else {
-    translucent("unit");
+    // Default, so opening this file shows where the planned screws go. In one piece: a cutaway was not
+    // readable.
+    review_view();
 }
