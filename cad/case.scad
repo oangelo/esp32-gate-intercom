@@ -56,7 +56,7 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 // --------------------------------------------------------- case parameters
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
                         // section | exploded | screwplan | fitcheck | fitcheck_parts |
-                        // fitcheck_internal | probe_grille | probe_button
+                        // fitcheck_internal | fitcheck_joint | probe_grille | probe_button
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -315,24 +315,46 @@ screw_m4_a = [90, 270];
 screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
 pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.5 mm left
 
-// ------------------------------------------------- REVIEW 2: two screws and the unit's collar
-// (2026-09-25, second review.) The first proposal had six M3 in the upper two thirds. On review the
-// joint's screws are TWO, in the corridor between the unit and the button, and the unit's back gets a
-// collar on the floor instead of the three pads having to do all the locating.
+// ------------------------------------------------- REVIEW 3: socket head screws into brass inserts
+// (2026-09-25, third review.) Two changes, both from the user's review of review 2, and together they
+// replace the rib:
+//   - the fastener is a SOCKET HEAD CAP SCREW (ISO 4762 / DIN 912), stainless A2 into a brass insert
+//     (ADR-017), not the countersunk one. Its head is CYLINDRICAL, O5.5 x 3.0, so the lid gets a
+//     cylindrical counterbore with the head down inside it: nothing stands proud of the case;
+//   - the rib becomes a round PILLAR standing off the back plate, carrying the brass insert that the
+//     screw bites. No self-tapping into a rib.
 //
-// Where two screws can go: the unit's circle (O58, centre (0, 33)) and the switch's body (O22, centre
-// (0, 76)) leave a corridor that is 3 mm wide on the centre line and opens off it. At (17, 68) the
-// unit is 9.91 mm clear, the switch's body 7.79 mm, its O30 nut flange 3.79 mm, and the case's
-// outline at that height is +/-32.6, so a O6.3 countersink (its edge at 20.15) is well inside. Mirror
-// it and that is the pair. The screw is 13 mm behind the joint plane: M3 x 16, 12 mm of thread.
-// The boss cannot stand off the wall there (the cavity's wall is 12.6 mm out at z = 68, measured), so
-// it is a rib that runs from the screw's axis out to the side wall, which is also what stiffens it.
-m3b       = [17.0, 68.0];
-m3b_d     = 3.4;
-m3b_sink  = 1.65;       // countersunk head, flush in the dome (ISO 10642 / DIN 7991)
-m3b_rib   = 13.0;       // rib length along X, from the axis into the side wall
-m3b_rib_z = 11.0;       // rib width in Z
-m3b_rib_y = 13.0;       // rib depth in Y: 12 mm of thread plus 1 mm of margin at the tip
+// Where the pair goes: the unit's circle (O58, centre (0, 33)) and the switch's body (O22, centre
+// (0, 76)) leave a corridor on either side of the centre line. REVIEW 2 put the screw at (17, 68);
+// with a O8.2 boss around it on the lid's inner face the gap to the switch's O30 nut flange drops to
+// 0.09 mm, which is contact. The pair moves to (18, 67): 1.4 mm to that flange, 3.0 mm to the unit's
+// collar, 8.9 mm to the cavity's side wall, and the pillar's own O8 clears the switch's body by
+// 5.1 mm.
+m3b        = [18.0, 67.0];
+m3b_d      = 3.40;      // clearance hole for M3 through the lid's boss
+m3b_head_d = 5.70;      // counterbore: the DIN 912 M3 head is O5.5 x 3.0, plus 0.05 a side
+m3b_head_h = 3.20;      // counterbore depth: 3.0 of head and 0.2 of recess, so the head ends up
+                        // INSIDE the crown. The wall is only 3.04 here, so the counterbore breaks
+                        // through it on its own circle: the seat is the boss below, not the wall.
+m3b_boss_d = 8.20;      // the lid's internal boss: 1.25 mm of wall around the counterbore (rule 3)
+m3b_boss_h = 3.00;      // leaves 2.84 mm of material under the head, which is what the head clamps
+m3b_shank  = 12.0;      // M3 x 12 socket head, the length the BOM already lists
+// The pillar: it stands off the back plate (y = inner_d) to the joint plane, 47 mm long. The base
+// prints lying on its back plate, so the case's Y is the printer's Z -- the pillar prints as a plain
+// vertical column, with no support and no bridged hole.
+m3b_pil_d  = 8.00;
+m3b_pil_y  = joint_y;
+m3b_ins_d  = 4.00;      // blind hole for the insert (BOM: M3 heat-set insert, 4.6 OD x 5 long)
+m3b_ins_l  = 5.00;
+m3b_ins_h  = 10.0;      // hole depth: 5.0 of insert plus 5.0 of relief for the M3 x 12's tip
+
+// The three numbers the counterbore is built from, all read off the crown at the screw's own x. The
+// front face is a cylinder, so its surface is a function of x alone and is the same at any z:
+m3b_face_y   = crown_r - sqrt(pow(crown_r, 2) - pow(m3b[0], 2));          // 1.46, the crown itself
+m3b_wallin_y = crown_r - sqrt(pow(crown_r - wall, 2) - pow(m3b[0], 2));   // 4.50, its inner face
+m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.66, the head's seat
+// Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
+// 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
 //
 // The collar on the floor (the "lábio"): it locates the unit's O58 body. Bore O58.4, so the unit has
 // 0.2 mm to find it, 1.75 mm tall (the same plane as the pads' tops, so the unit's back stays
@@ -342,28 +364,36 @@ lip_od    = 63.0;       // 2.3 mm of rim: wide enough to bite, thin enough to pr
 lip_h     = unit_pad_h;
 
 module screw_markers2() {
-    // REVIEW 2, drawn only, nothing cut: the two M3 as rods along Y, their ribs, the collar in place.
-    for (s = [m3b, [-m3b[0], m3b[1]]])
-        color("red", 0.95) {
-            // A screw, not a rod: countersunk head flush in the dome, shank back to the rib's tip. At
-            // x = 17 the crown's surface is y = 1.31 and the seat is 1.65 below it, so the shank is 18.05
-            // from under the head: M3 x 18 (this started as 16, before it was drawn at this scale).
-            translate([s[0], 1.305 + m3b_sink, s[1]]) rotate([-90, 0, 0])
-                cylinder(d = 3.0, h = 21.0 - 1.305 - m3b_sink);
-            translate([s[0], 1.305, s[1]]) rotate([-90, 0, 0])
-                cylinder(d1 = 6.3, d2 = 3.0, h = m3b_sink);
+    // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars, their inserts and the
+    // collar. All of them are the SAME solids the fit check below bites into, so what you look at and
+    // what the boolean tests cannot drift apart. The pillar goes translucent so the brass insert in
+    // its top reads through it.
+    color("blue", 0.35)  m3b_points() m3_pillar();
+    color("gold", 0.95)  m3b_points() m3_insert();
+    color("red", 0.95)   m3b_points() m3_screw();
+    color("green", 0.85) unit_collar();
+}
+
+fc = "all";             // narrows fitcheck_joint: all | screw | neighbours
+
+module fitcheck_joint() {
+    // The review-3 joint, by boolean instead of by eye. Two questions, one volume, and `fc` narrows
+    // it to one of them when the answer is not empty:
+    //  1. "screw": the screw's OWN solid against both printed parts: the counterbore, the shank hole
+    //     and the pillar's blind hole all have to swallow it, with the lid's boss in the way and with
+    //     the insert sharing the hole it is pressed into;
+    //  2. "neighbours": the pillar and the boss against the unit, the collar, and the switch's body
+    //     behind the panel (its O30 flange is the same obstruction, being what button_lands_cut
+    //     spot-faces away).
+    if (fc == "all" || fc == "screw")
+        intersection() {
+            m3b_points() m3_screw();
+            union() { base(); lid(); }
         }
-    for (s = [m3b, [-m3b[0], m3b[1]]])
-        color("blue", 0.5)
-            translate([s[0] > 0 ? s[0] : s[0] - m3b_rib, joint_y, s[1] - m3b_rib_z / 2])
-                cube([m3b_rib, m3b_rib_y, m3b_rib_z]);
-    // The collar: a ring of rim on the floor, not a raised floor. outline_inner() would have made it a
-    // slab with a hole in it (60 x 60, minus the bore) -- a 1.75 mm step across the whole floor. Just the
-    // annulus: the unit drops into lip_bore and the pads carry it forward onto the seat.
-    color("green", 0.85) translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
-        difference() {
-            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
-            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
+    if (fc == "all" || fc == "neighbours")
+        intersection() {
+            union() { m3_pillars(); m3b_points() m3_boss(); }
+            union() { ghost_unit(); unit_collar(); switch_body(); button_lands_cut(); }
         }
 }
 
@@ -379,29 +409,127 @@ module screw_markers() {
             rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = case_d + 6);
 }
 
+// ------------------------------------- REVIEW 3: the joint, CUT (2026-09-25, third review)
+// Everything above this point stayed a drawing. These are the cuts and the added material.
+
+module m3b_points() {
+    // The pair, mirrored on X. Every feature of the two screws is at both of these.
+    for (s = [m3b, [-m3b[0], m3b[1]]]) translate([s[0], 0, s[1]]) children();
+}
+
+module m3_boss() {
+    // The O8.2 seat boss as a solid: an added volume on the lid's inner face, growing inward from the
+    // crown's own inner surface (m3b_wallin_y = 4.50), so it spans 4.50 to 7.50.
+    translate([0, m3b_wallin_y, 0]) rotate([-90, 0, 0]) cylinder(d = m3b_boss_d, h = m3b_boss_h);
+}
+
+module m3_lid_boss() {
+    // The seat for the head, added to the lid. The wall is 3.04 here and the counterbore is 3.20, so
+    // the counterbore takes that wall away on its own circle: without this boss there would be
+    // nothing under the head for it to clamp, and the two parts would not be held together at all.
+    // O8.2 leaves 1.25 mm of wall around the counterbore. It grows INWARD, so the lid still prints
+    // lying on its face with no support under it.
+    m3b_points() m3_boss();
+}
+
+module m3_lid_cuts() {
+    // The counterbore and the shank hole, cut from outside in. Both are measured from the crown's own
+    // surface at x = m3b[0] (m3b_face_y), not from a plane, because the front is a cylinder: at any
+    // other x the surface is somewhere else, so a "3.2 mm deep" pocket cut from y = 0 would come out
+    // shallower at one edge of its O5.7 and the head would sit tipped.
+    m3b_points() {
+        translate([0, m3b_face_y - 1, 0]) rotate([-90, 0, 0])
+            cylinder(d = m3b_head_d, h = m3b_head_h + 1 + eps);   // floor at m3b_seat_y
+        translate([0, m3b_seat_y - eps, 0]) rotate([-90, 0, 0])
+            cylinder(d = m3b_d, h = m3b_boss_h + 2);              // through the boss
+    }
+}
+
+module m3_pillar() {
+    // The pillar as a solid: off the back plate (5 mm of plate behind it) to the joint plane, i.e. it
+    // spans m3b_pil_y to inner_d. The base prints on that back plate, so this is a vertical column: no
+    // support, and its blind hole prints as a vertical hole, not a ceiling to bridge.
+    translate([0, m3b_pil_y, 0]) rotate([-90, 0, 0])
+        cylinder(d = m3b_pil_d, h = inner_d - m3b_pil_y);
+}
+
+module m3_pillars() { m3b_points() m3_pillar(); }
+
+module m3_pillar_holes() {
+    // The blind hole for the brass insert: O4.0 x 10. The 5 mm insert ends flush with the pillar's
+    // face and the M3 x 12's tip still has 5 mm of relief under it, so the screw cannot bottom out
+    // on plastic before it clamps.
+    m3b_points() translate([0, m3b_pil_y - eps, 0]) rotate([-90, 0, 0])
+        cylinder(d = m3b_ins_d, h = m3b_ins_h);
+}
+
+module m3_insert() {
+    // The brass insert as a solid: M3 heat-set, 4.6 OD x 5 long (BOM). Drawn where it ENDS UP in use,
+    // i.e. flush with the pillar's face, not sticking out as it does before it goes in.
+    rotate([-90, 0, 0]) cylinder(d = 4.60, h = m3b_ins_l);
+}
+
+module m3_screw() {
+    // The screw as a solid, end to end: DIN 912 M3 x 12, its cylindrical head down in the counterbore
+    // so nothing stands proud of the crown.
+    translate([0, m3b_seat_y - 3.00, 0]) rotate([-90, 0, 0]) cylinder(d = 5.50, h = 3.00);
+    translate([0, m3b_seat_y - eps, 0]) rotate([-90, 0, 0]) cylinder(d = 3.00, h = m3b_shank);
+}
+
+module switch_body() {
+    // What the bought 22 mm switch puts BEHIND the panel: O22, 30 mm deep from the panel face
+    // (ADR-018). Nothing is cut with this -- it is a neighbour, to check the pillar and the boss.
+    translate([0, btn_land_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_cut, h = 30);
+}
+
+module unit_collar() {
+    // The collar on the floor: a ring of rim on the floor, not a raised floor. outline_inner() would
+    // have made it a slab with a hole in it (60 x 60, minus the bore) -- a 1.75 mm step across the
+    // whole floor. Just the annulus: the unit drops into lip_bore and the pads carry it forward onto
+    // the seat.
+    translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
+        difference() {
+            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
+            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
+        }
+}
+
 // ------------------------------------------------------------------- the two parts
 
 module base() {
     // Back tray: closed. The back plate goes against the wall, so nothing goes through it -- no
     // acoustic window, no gland, no vent. What it carries is the three pads that push the unit
-    // forward onto the seat. The gland and the vent still live here in name only: they move to a
-    // side or to the bottom (step 3).
+    // forward onto the seat, and (review 3) the two pillars the lid screws into. The gland and the
+    // vent still live here in name only: they move to a side or to the bottom (step 3).
     difference() {
-        intersection() { body(); keep_above(split_y); }
-        cavity();
+        union() {
+            difference() {
+                intersection() { body(); keep_above(split_y); }
+                cavity();
+            }
+            m3_pillars();
+        }
+        m3_pillar_holes();
     }
     unit_pads();
 }
 
 module lid() {
-    // Front shell: the closed grille field over the unit's own grille, and the button.
+    // Front shell: the closed grille field over the unit's own grille, the button, and the two
+    // counterbored holes whose screws pull it down onto the base's pillars.
     difference() {
-        intersection() { body(); keep_below(split_y); }
-        cavity();
+        union() {
+            difference() {
+                intersection() { body(); keep_below(split_y); }
+                cavity();
+            }
+            m3_lid_boss();
+        }
         unit_seat_cut();
         grille_cut();
         button_cut_hole(btn_cut);
         button_lands_cut();
+        m3_lid_cuts();
     }
 }
 
@@ -545,6 +673,10 @@ if (part == "base") {
     intersection() { wall(); ghosts("parts"); }
 } else if (part == "fitcheck_internal") {
     ghosts_pairwise();
+} else if (part == "fitcheck_joint") {
+    // REVIEW 3: the screw against both printed parts, and the pillar and the boss against their
+    // neighbours. Must be empty.
+    fitcheck_joint();
 } else if (part == "probe_grille") {
     // Against the LID (not against `wall`, which is the un-cut shell): empty means every hole of the
     // field is open through the front wall. The probe is 1.0 mm smaller than the cut, so it does not

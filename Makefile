@@ -4,7 +4,7 @@
 SCAD  ?= cad/case.scad
 BUILD ?= build
 
-.PHONY: all check stl base lid display render section fit exploded inside_render screwplan clean
+.PHONY: all check stl base lid display render section fit exploded inside_render screwplan review clean
 
 all: check
 
@@ -55,7 +55,7 @@ section: display
 ## Prove the ghosts touch neither a wall nor each other, and that the openings are open.
 ## Everything except nothing: all of these must print "empty".
 fit:
-	@for p in fitcheck fitcheck_parts fitcheck_internal probe_grille probe_button; do \
+	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint probe_grille probe_button; do \
 		printf '%-22s ' $$p; \
 		openscad -D "part=\"$$p\"" -o $(BUILD)/$$p.stl $(SCAD) 2>&1 \
 			| grep -q 'top level object is empty' && echo 'empty: no interference' || echo 'GEOMETRY: interference, look at it'; \
@@ -96,3 +96,19 @@ screwplan: display
 
 clean:
 	rm -rf $(BUILD)
+
+## The review view (which is also the file's own default): the two screws, their pillars, the brass
+## inserts and the unit's collar, whole, with the shell in as a background object. Three angles,
+## because one angle always hides one of the two screws.  --render: see inside_render.
+review: display
+	@mkdir -p cad/media
+	@DISPLAY=:77 openscad -D 'part="review"' --render -o cad/media/case_review_a.png \
+		--imgsize=1400,1000 --camera=170,-230,150,0,29,48 $(SCAD) > $(BUILD)/review_a.log 2>&1 \
+		|| { cat $(BUILD)/review_a.log; exit 1; }
+	@DISPLAY=:77 openscad -D 'part="review"' --render -o cad/media/case_review_b.png \
+		--imgsize=1400,1000 --camera=-170,-230,150,0,29,48 $(SCAD) > $(BUILD)/review_b.log 2>&1 \
+		|| { cat $(BUILD)/review_b.log; exit 1; }
+	@DISPLAY=:77 openscad -D 'part="review"' --render -o cad/media/case_review_c.png \
+		--imgsize=1400,1000 --camera=-150,280,170,0,29,48 $(SCAD) > $(BUILD)/review_c.log 2>&1 \
+		|| { cat $(BUILD)/review_c.log; exit 1; }
+	@ls -la cad/media/case_review_a.png cad/media/case_review_b.png cad/media/case_review_c.png

@@ -267,3 +267,25 @@ echo path.
 - **The microphone ports follow the board, not the face.** With the board flat and its components down,
   both acoustic ports point at the floor: two Ø3 to Ø4 mm openings at r = 26.8 mm and ±47.2° / 132.8° in
   the board's own frame (see `docs/dimensions.md`), each behind its own hydrophobic membrane.
+
+## ADR-019: the joint is two screws into inserts on pillars off the back plate
+
+**Decision:** the lid is held to the base by **two M3 x 12 socket head cap screws** (ISO 4762, head
+Ø5.5 x 3.0, stainless A2 into the brass inserts of ADR-017), in the corridor between the unit and the
+panel switch, at (18, 67) and its mirror on X. Each screw enters through a **cylindrical counterbore**
+cut from the crown's own surface so its head ends up inside the case with nothing standing proud, then
+crosses a boss on the lid's inner face (the surface the head clamps) and bites **all 5 mm** of the
+insert pressed into a **round pillar** that stands off the back plate to the joint plane. The
+countersunk head of the first proposal and the rib of the second are gone.
+
+**Why:** the countersunk head needs 1.65 mm of depth and the wall under the crown is 3.04 mm, so a
+counterbore deep enough to bury a head always broke through, and the rib — which had to run out to the
+side wall for want of standing room — cannot exist in that corridor, where the cavity's wall is
+12.6 mm away. The socket head is 3.0 mm tall: too tall for the wall, so the lid carries a boss exactly
+there and the head clamps that instead of the wall. The pillar is what the rib was trying to be: it
+carries the insert, and since the base prints lying on its back plate, the pillar is a **vertical
+column** with no support under it and a vertical blind hole, not a ceiling to bridge. Measured
+clearances, all from the model: 1.4 mm to the switch's Ø30 flange (the reason the pair moved off
+(17, 68), where it came out as contact), 3.0 mm to the unit's collar, 5.1 mm to the switch's body,
+8.9 mm to the cavity's side wall. `fitcheck_joint` proves the whole arrangement by boolean, and
+`-D 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.

@@ -24,9 +24,18 @@ cover, that air volume is the cavity, and the cavity's only way out is the grill
 pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49 to 58 and the unit
 sits low (centre at 33) to free the upper half for the button at 76.
 `make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`)
-prove the openings are open through the walls, by boolean instead of by eye. Still to come: the gland
-and the membrane vent and the mounting ears (bottom or side, never the back), the cable route to the
-unit's USB-C -> joint (lip, gasket groove, bosses).
+prove the openings are open through the walls, by boolean instead of by eye.
+
+The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
+into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
+the corridor between the unit and the panel switch. Each screw's counterbore is cut from the crown's
+own surface at the screw's x, and the lid's boss under it (`m3_lid_boss`) is what the head clamps --
+the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its own would leave the
+head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and `-D
+'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
+
+Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
+the cable route to the unit's USB-C, and the rest of the joint (the lip and the gasket groove).
 
 ## Rules for this design
 
@@ -62,6 +71,7 @@ unit's USB-C -> joint (lip, gasket groove, bosses).
     make check     # compile the model and surface any warning or error
     make stl       # export build/case_base.stl and build/case_lid.stl
     make render    # PNG preview into cad/media/ (starts its own Xvfb display)
+    make review    # the review view at three angles: screws, pillars, inserts, collar
     make section   # cutaway render, the review view: the assembled unit inside
     make inside_render  # translucent shell: the unit inside, and the rejected bare-parts layout
     make exploded  # the two printed parts pulled apart

@@ -49,8 +49,8 @@ close enough that 5 V does not sag over the run.
 | Gasket | Silicone cord 2 mm, or a matching O-ring | Sits in the lid groove |
 | Cable gland | PG7 or M12, IP68, with a matching nut | Power cable entry |
 | Blind plug | Same thread as the gland | For the antenna opening if it is not used yet |
-| Heat-set inserts | M3, 5 mm long | One per screw boss |
-| Screws | M3 x 12, stainless, socket head | Lid to base, four of them |
+| Heat-set inserts | M3, 5 mm long | One per screw pillar (review 3: two of them) |
+| Screws | M3 x 12, stainless, socket head | Lid to base, two of them, into the inserts |
 | Mounting screws | M4 x 40, stainless, with wall plugs | Wall or pole mount |
 | Desiccant | Silica gel sachet | Inside the sealed cavity, replaced at each service |
 
