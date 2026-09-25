@@ -25,6 +25,11 @@ VIEWS = {
     ],
     "section": [
         (45, 70, "WAVESHARE ASSEMBLED: O58 x 47.00, held between seat and pads"),
+        (345, 15, "PROPOSED M3: lid -> base"),
+    ],
+    "screw": [
+        (345, 15, "PROPOSED M3 x6: through the front, into bosses in the base"),
+        (200, 260, "PROPOSED M4 x3: through the back plate into the wall"),
     ],
     "parts": [
         (95, 165, "PCB: bare board, 57.63 x 1.20 (rejected layout)"),
@@ -44,7 +49,13 @@ def hue_mask(img, h0, h1, smin=0.45, vmin=0.20):
     h = np.where(mx == g, (b - r) / d + 2, h)
     h = np.where(mx == b, (r - g) / d + 4, h)
     h = h * 60.0
-    return (h >= h0) & (h <= h1) & (s >= smin) & (mx >= vmin)
+    # A range may wrap past 0 (red: 345..15). Comparing low<=h<=high would then never match and the
+    # volume would silently report "not found", which reads like a missing part instead of a bug.
+    if h0 <= h1:
+        inband = (h >= h0) & (h <= h1)
+    else:
+        inband = (h >= h0) | (h <= h1)
+    return inband & (s >= smin) & (mx >= vmin)
 
 
 def main():

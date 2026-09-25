@@ -4,7 +4,7 @@
 SCAD  ?= cad/case.scad
 BUILD ?= build
 
-.PHONY: all check stl base lid display render section fit exploded inside_render clean
+.PHONY: all check stl base lid display render section fit exploded inside_render screwplan clean
 
 all: check
 
@@ -83,6 +83,16 @@ exploded: display
 		--imgsize=1400,1000 --camera=170,-230,150,0,0,48 $(SCAD) > $(BUILD)/exploded.log 2>&1 \
 		|| { cat $(BUILD)/exploded.log; exit 1; }
 	@ls -la cad/media/case_exploded.png
+
+## Render the under-review joint and screw plan: the shell semi-transparent, the unit inside, and
+## the two screw sets as rods.  --render because of the translucent shell (see inside_render).
+screwplan: display
+	@mkdir -p cad/media
+	@DISPLAY=:77 openscad -D 'part="screwplan"' --render -o cad/media/case_screwplan.png \
+		--imgsize=1400,1000 --camera=-175,-150,145,0,33,48 $(SCAD) > $(BUILD)/screwplan.log 2>&1 \
+		|| { cat $(BUILD)/screwplan.log; exit 1; }
+	@ls -la cad/media/case_screwplan.png
+	@python3 tools/annotate_render.py cad/media/case_screwplan.png cad/media/case_screwplan_anotado.png --view screw
 
 clean:
 	rm -rf $(BUILD)

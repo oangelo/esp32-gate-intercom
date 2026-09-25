@@ -54,9 +54,11 @@ spk_od       = 43.30;   // SPK-4020-5W, no screw holes of its own (used by the b
 spk_d        = 20.50;   // which document the hollowing-out option that was rejected)
 
 // --------------------------------------------------------- case parameters
-part    = "assembly";   // the one selector: assembly | inside | inside_parts | base | lid |
-                        // section | exploded | fitcheck | fitcheck_parts | fitcheck_internal |
-                        // probe_grille | probe_button
+part    = "inside";     // the one selector: inside | assembly | inside_parts | base | lid |
+                        // section | exploded | screwplan | fitcheck | fitcheck_parts |
+                        // fitcheck_internal | probe_grille | probe_button
+                        // Default is `inside`: the shell semi-transparent, the unit visible in it.
+                        // `assembly` is the same thing opaque, for the outer form.
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
@@ -96,7 +98,7 @@ crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 111.4
 
 split_y = 27.5;         // base/lid joint: behind the speaker, in front of the board. The lid
                         // keeps 1.5 mm behind the speaker to retain it (step 1 of the features)
-inner_d = case_d - wall;               // 46: inner face of the back plate
+inner_d = case_d - wall;               // 55: inner face of the back plate
 cav_x   = r_end - wall;                // 30: inner radius; the ends share the outside centres
 cav_y0  = 3.0;                         // 3: inner apex of the crown
 
@@ -262,6 +264,60 @@ module button_lands_cut() {
     translate([0, btn_land_in_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_land_in, h = 25);
 }
 
+// ------------------------------------------------- PROPOSED: the joint and the screws (2026-09-25)
+// Not cut yet: this block is the plan, and the render view `screwplan` draws it. The numbers come
+// from working the case's own clearances backwards, and one of them decides the whole layout.
+//
+// The joint moves to y = 8. Today it is at 27.5, which is 27.5 mm behind the front face: a screw
+// through the front wall would need M3 x 30 and 17 mm of plastic to cross. At 8 the front part is a
+// shallow cap, the screws are M3 x 14, and the unit is carried by the deep back part. Everything
+// already modelled survives the move: the seat is at 6.25, the grille field spans 3.0 to 6.25, the
+// button's lands sit at 1.2 and 4.5 -- all inside 8 -- and the switch's 30 mm body passes through
+// into the back part's cavity, which is open air at (0, 76).
+//
+// The "lábio" is a half-lap: the base's skirt, at full radius, laps over the lid's stepped rim.
+// lap_step 1.6 leaves 1.4 mm of skirt and 1.4 mm of rim, both still above the 1.2 mm rule, and the
+// outer surfaces stay flush so the seam is a corner the water has to turn.
+joint_y  = 8.0;         // PROPOSED: was 27.5
+lap_d    = 3.0;         // lap length
+lap_step = 1.6;         // radial step
+lap_gap  = 0.2;         // clearance on the lap; the gasket is a 1 mm closed-cell ring on the shoulder
+gasket_y = 4.5;         // PROPOSED: the shoulder where the foam ring sits (at the dome's brim)
+lap_proud = 0.4;        // the base's skirt stands proud of the lid's surface: a drip lip
+
+// The screws, and why they are NOT spread evenly around the loop:
+//  - the ring is 3 mm thick (wall) and the case is 66 wide, so a screw head needs 6.3 mm: there is
+//    nowhere in the ring for a countersink, at any angle;
+//  - so a screw has to go through the lid's shell (3.1 mm thick, a 1.65 mm countersink leaves 1.45)
+//    into material BEHIND it, and that material can only be a boss standing inward from the wall;
+//  - a boss standing inward collides with the unit (O58 in a O60 cavity: a 1 mm annulus) everywhere
+//    the unit is widest, which is the whole lower half. The unit's circle is what sets it: a boss
+//    needs ~5 mm of width and the room for it only appears at z >= 47 and, cleanly, above z = 62;
+//  - the back plate cannot take the joint's screws either: it is mortared against the wall.
+// So six M3 in the upper two thirds, and the bottom of the loop holds on the mortar and the lap.
+screw_m3 = [[27.5, 48], [-27.5, 48], [24, 66], [-24, 66], [13, 88], [-13, 88]];
+screw_m3_d = 3.4;       // clearance hole through the lid, self-tapping pilot in the base's boss
+screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DIN 7991)
+
+// The base to the wall. These go through the back plate from inside, so their heads must stay out
+// of the unit's way: the gap behind the unit is 1.80 mm, so each head sits in a 1.7 mm pocket in
+// the plate's inner face. Three of them, on a 26 mm radius around the unit's axis at 60/180/300
+// degrees, which interleaves them with the unit's own three standoffs at 0/120/240.
+screw_m4_r = 26.0;
+screw_m4_a = [60, 180, 300];
+screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
+pocket_m4  = 1.70;      // pocket depth in a 3 mm plate: 1.3 mm left
+
+module screw_markers() {
+    // PROPOSED positions only: rods along Y, nothing cut. Red = lid to base, blue = base to wall.
+    for (p = screw_m3)
+        color("red", 0.9) translate([p[0], -3, p[1]]) rotate([-90, 0, 0])
+            cylinder(d = screw_m3_d, h = case_d + 6);
+    for (a = screw_m4_a)
+        color("blue", 0.9) translate([screw_m4_r * cos(a), -3, 33 + screw_m4_r * sin(a)])
+            rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = case_d + 6);
+}
+
 // ------------------------------------------------------------------- the two parts
 
 module base() {
@@ -366,14 +422,20 @@ if (part == "base") {
 } else if (part == "inside_parts") {
     // The layout that was rejected (bare board, bare speaker, our own chamber), kept as the record.
     translucent("parts");
+} else if (part == "screwplan") {
+    // The under-review plan: the shell semi-transparent (as the default view), the unit inside, and
+    // the two screw sets as rods. Review only: nothing here is cut.
+    translucent("unit");
+    screw_markers();
 } else if (part == "section") {
     // Cutaway. Base, lid and the ghost are all cut at the same plane, so the half that remains
-    // shows the real stack.
+    // shows the real stack. The proposed screws are drawn in, to check them against the unit.
     difference() {
         union() {
             color("grey") base();
             color("silver") lid();
             ghosts("unit");
+            screw_markers();
         }
         translate([-200, -60, -60]) cube([200, 400, 400]);   // cut away X > 0
     }
