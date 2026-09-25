@@ -265,7 +265,12 @@ module button_lands_cut() {
 }
 
 // ------------------------------------------------- PROPOSED: the joint and the screws (2026-09-25)
-// Not cut yet: this block is the plan, and the render view `screwplan` draws it. The numbers come
+// Not cut yet: this block is the plan, and the render view `screwplan` draws it.
+// CORRECTED (2026-09-25), on review: no boss on the back plate's outer face. The head seats on the
+// plate's inner face, 3 mm off the wall, which is what "rente" means here. The plate is 3 mm, so a
+// O8 counterbore 1.5 mm deep on the inner face plus a low or button head M4 (2.2 mm tall) is the
+// combination that works: 1.5 mm of plate left, 0.7 mm of head in the 1.8 mm gap behind the unit.
+// A countersunk M4 (2.35 mm) would leave 0.65 mm of plate: it does not work in 3 mm. The numbers come
 // from working the case's own clearances backwards, and one of them decides the whole layout.
 //
 // The joint moves to y = 8. Today it is at 27.5, which is 27.5 mm behind the front face: a screw
