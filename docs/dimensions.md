@@ -1,8 +1,10 @@
 # Dimensions
 
-The enclosure must fit the real board, so every number here comes from one of two authoritative
-sources: the vendor's mechanical drawing, or a caliper on the actual board. Vision estimates and
-product photos are not a source.
+The enclosure must fit the real board, so every number here comes from an authoritative source: the
+vendor's mechanical drawing (DXF or STEP), a caliper on the actual board, or a measurement taken on
+the live hardware. Vision estimates, product photos and concept renders are **not** a source — a
+vision pass on the vendor's drawing image misread the assembly heights, which is why the numbers below
+were taken from the files themselves.
 
 ## Source files (not redistributed, see ADR-012)
 
@@ -27,6 +29,24 @@ measurement values of the DIMENSION entities. Reproduce with:
 
     python3 tools/dxf_probe.py <drawing>.dxf --text
 
+The DXF carries exactly 8 DIMENSION entities; reading their group code 42 (the real measurement, not
+the rendered text) returns 37.60, 42.60, 44.30, 47.00, 58.00, 28.00, 42.93 and 19.18 — the values in
+the tables below.
+
+The STEP is the third and richest source. It is not only the board: it is the **finished product
+assembled**, 5547 solids, every part named (`TYPE-C_16PIN-9X3X7_3`, `MIC-4X3X1MM`, `SPK-4020-5W`,
+`BATTERY-803040-1000MAH`, `HEX_STUDS-M2_5XH25MM`, the acrylic parts, the housing base). Read headless
+with `freecadcmd` (`Import.insert` into a document, then `Shape.BoundBox` and `Shape.Faces` per
+object), it yields the position of every connector, the acoustic port of each microphone, the speaker,
+the cell and the mounting hardware in one consistent frame. The DXF cannot do that: it is a mechanical
+drawing, and inside the Ø58 outline it carries only the outline, the three holes and the two central
+FPC connectors — nothing else of the board is drawn there.
+
+**Frame convention for every STEP number below:** the assembly frame, in millimetres, z = 0 at the top
+of the product, floor at z = -50.60. The PCB occupies z -8.80 .. -7.60, so the **component side is
+z = -7.60** (mics, USB-C, header, SD slot) and the **solder side is z = -8.80** (RGB LEDs, speaker
+header). "r" and the angle are measured from the centre of the board in that same frame.
+
 ## Measured from the vendor DXF
 
 **The board is round.** This invalidated an earlier assumption (a rectangular 60 x 40 board) that was
@@ -41,10 +61,54 @@ corrected before any geometry was drawn.
 | Speaker face (same sheet, second view) | concentric circles **57.04, 52.00, 48.50, 46.20, 44.82** | CIRCLE entities, one shared centre |
 | Assembly heights (section view) | **37.60, 42.60, 44.30, 47.00** | DIMENSION entities |
 
-Interpretation, to be confirmed on the physical board: the vendor drawing documents the board together
-with its reference enclosure (a cylinder with a translucent band for the RGB ring, USB-C on the side and
-the speaker grille in the bottom face). It is a desk product shape, not a weatherproof one. The board
-diameter, the three-hole pattern and the speaker dimensions are the parts worth reusing.
+Interpretation: the vendor drawing documents the board together with its reference enclosure (a
+cylinder with a translucent band for the RGB ring, USB-C on the side and the speaker grille in the
+bottom face). It is a desk product shape, not a weatherproof one. The board diameter, the three-hole
+pattern and the speaker dimensions are the parts worth reusing.
+
+## Measured from the vendor STEP
+
+Board, its components and the reference mechanics. Sizes are bounding boxes, so a part can be placed
+in the new case without arithmetic later.
+
+| Item | Size (mm) | Position (mm) | Notes |
+|---|---|---|---|
+| PCB | 57.63 x 56.54 x **1.20** thick | centre (0, 0.04), z -8.80..-7.60 | 1.20 thick, not 1.6. The bounding box is smaller than the DXF's Ø58 circle: the outline is not a pure circle, or it has flats — confirm with a caliper |
+| Mounting holes / standoffs | 3 x **M2.5** (screw Ø4.00, boss Ø4.80) | r = **23.75** at **-36.1°, +36.1°, 180°** | the vendor stack is HEX_STUDS-M2_5XH25MM (25 mm below the board) + HEX_STUDS-M2_5X5-H (11 mm above) + KM2_5X5 screws driven through the top cover |
+| USB Type-C | 8.94 x 7.60 x 4.12 | centre (0, **-24.60**), mouth at y = -28.40, z -8.41..-4.29 | the shell runs from **0.39 mm above the PCB's bottom face** to **3.31 mm above its top face** |
+| Pin header, 2x9, 90 degree | 22.86 x 13.00 x 7.80 | centre (0, **+20.00**), z -10.40..-2.60 | tallest part on the component side: **5.00 mm above the PCB top**, 1.60 below the bottom |
+| Microphone package, x2 | 4.99 x 4.87 x 1.00 | centres (±17.25, +20.50), z -7.60..-6.60 | component side, r = 26.8, angles 50.0° and 130.0° |
+| **Microphone acoustic port, x2** | Ø 0.66, 0.66 deep, domed mesh | **(+18.24, +19.68)** and **(-18.30, +19.76)**, r = 26.83 / 26.94, angles 47.2° / 132.8° | the recess opens on the **top face of the package** (z = -6.60), that is, on the component side; **36.54 mm between the two** |
+| RGB LEDs, ring of 7 | 2.00 x 3.00 x 1.50 each (rotated tangentially) | r = **22.00**, **51.43°** apart (360/7), z -10.30..-8.80 | on the **solder** side, shining into the vendor's translucent band; free to be used as a status light on the new case |
+| microSD slot | 15.00 x 16.10 x 2.45 | centre (17.80, 0.95), z -8.20..-5.75 | component side, r = 17.8 |
+| Display FPC, 16 pin | 12.00 x 5.69 x 2.00 | centre (0, -7.16), z -7.60..-5.60 | component side, near the centre |
+| Speaker header | 4.05 x 4.35 x 4.60 | (-17.52, -6.00), z -13.30..-8.70 | 1 mm pitch, 2 pin, on the **solder** side; protrudes **4.50 below the PCB bottom** |
+| Chip antenna / charge LED | 3.49 x 3.30 x 1.25 / 2.64 x 2.10 x 1.00 | (-21.51, +15.81) / (+9.36, -25.99) | both on the component side |
+| Speaker SPK-4020-5W | **Ø 43.30 x 20.50** | z -42.10..-21.60 | **no mounting holes of its own**: in the vendor product the housing clamps it, so the new case needs its own ring or claws |
+| Battery 803040, 1000 mAh | 30.49 x 41.98 x **8.49** | centre (-0.35, 0.25), z -21.35..-12.85 | below the board, in front of the speaker; optional (ADR-011) |
+| Reference housing | base Ø58 x 30.67; acrylic band Ø58 x 7.40; acrylic cover Ø58 x 1.70; bottom disc Ø52 x 5.80; 3 rubber feet 2.70 thick | band z -16.20..-8.80, cover z -2.60..-0.90, feet z -50.60..-47.90 | the band is the translucent ring the LEDs shine through; in the reference product the speaker fires **downward** and the feet lift it off the table |
+
+Cavity heights derived from the table, which is what the case has to clear:
+
+| Direction | Governed by | Value |
+|---|---|---|
+| Above the component side | the 2x9 header | **5.00 mm** plus clearance |
+| Below the solder side | the speaker header | **4.50 mm** plus clearance |
+| Battery bay, if the cell stays | the 803040 cell | 30.49 x 41.98 x 8.49 |
+
+## Cross-check: the two vendor files agree
+
+The DXF's four assembly heights land exactly on the STEP's part positions:
+
+| DXF dimension | STEP geometry |
+|---|---|
+| 47.00 | top of the acrylic cover (z -0.90) to the bottom of the Ø52 disc (z -48.10); 49.70 including the rubber feet |
+| 44.30 | top of the cover to the bottom face of the body (z -45.20) |
+| 42.60 | to the inner face of the acrylic cover (z -2.60) |
+| 37.60 | from the **top of the PCB** (z -7.60) to the bottom of the body |
+
+Two independently produced files describing the same revision. Where they disagree (the board outline,
+above), the caliper decides.
 
 ## Verified on the board (independent of the drawing)
 
@@ -54,7 +118,7 @@ diameter, the three-hole pattern and the speaker dimensions are the parts worth 
 | Microphone ADC | ES7210 at I2C 0x40 | live I2C scan |
 | DAC | ES8311 at I2C 0x18 | live I2C scan |
 | I/O expander | TCA9555 at I2C 0x20, amplifier enable on EXIO8 (P1_0) | live scan plus vendor demo code |
-| RTC | PCF85063 at I2C 0x51 | live scan |
+| RTC | PCF85063 at I2C 0x51 | live I2C scan |
 | I2C | SDA GPIO11, SCL GPIO10 | schematic and working config |
 | I2S | MCLK GPIO12, BCLK GPIO13, LRCLK GPIO14, mic DIN GPIO15, speaker DOUT GPIO16 | schematic and working config |
 | Buttons | BOOT on GPIO0 (used as the gate bell) | working config |
@@ -62,28 +126,61 @@ diameter, the three-hole pattern and the speaker dimensions are the parts worth 
 | Battery connector | MX1.25 2 pin, 3.7 V cell | schematic |
 | Audio bus format | 16 kHz mono, 512-sample frames, 32 ms | working firmware |
 
-## To be measured with a caliper (fill in, then the case stops being a guess)
+## Still to be measured or confirmed
 
-Record every value in millimetres, with the board resting flat on a table.
+Much shorter than it was: the STEP answered the geometric questions. What is left is what a vendor CAD
+file does not carry, plus the two parts the STEP names with library codes only.
 
 | # | Measurement | Value | Notes |
 |---|---|---|---|
-| 1 | PCB outline: confirm it is round and measure the diameter | TODO | Drawing says 58.00. Confirm, and note whether the edge has castellated pads that stick out |
-| 2 | PCB thickness | TODO | |
-| 3 | Mounting holes: confirm 3 holes, measure diameter and the radius from the board centre | TODO | Drawing says 3 x 4.00 mm at 120 degrees, radius 23.75. Also check the 4.8 mm ring: is it copper, or a physical shoulder |
-| 4 | Tallest component above the PCB, and which part it is | TODO | Sets the internal cavity height above the board |
-| 5 | Height of the tallest part below the PCB (if any) | TODO | Sets the standoff height |
-| 6 | Pin header (2x8, 2.54 mm) position: which edge, distance to the two nearest edges | TODO | Decides whether the case leaves it exposed or hides it. On a round board, give the angle from the mounting-hole pattern |
-| 7 | USB-C connector: centre position from the two nearest edges | TODO | Either an opening for programming or a sealed wall |
-| 8 | Acoustic ports of the two microphones: position relative to the edges and distance between them | TODO | The case needs its own membrane port in front of these |
-| 9 | Speaker: outer diameter, total depth, mounting holes (spacing and diameter) or none, where the wires exit | TODO | Sets the acoustic chamber and the grille |
-| 10 | Speaker cable length and connector orientation | TODO | Cable routing inside the case |
-| 11 | Battery cell: length, width, thickness, cable length | TODO | Housing bay, only if the cell stays (see ADR-011) |
-| 12 | Weight of the assembled stack (board + speaker + cell) | TODO | Sanity check for the wall/pole mount |
+| 1 | PCB outline: diameter and any flats | TODO | the STEP bounding box is 57.63 x 56.54 against the DXF's Ø58.00 circle. Measure both axes and note whether the edge has castellated pads that stick out |
+| 2 | Confirm the MEMS acoustic port is on the component side | TODO | the STEP says yes (a Ø0.66 recess with a mesh on the top face of the package). The check is a loupe on the real board, and it decides which wall of the case carries the acoustic ports |
+| 3 | Panel button: head diameter, body depth behind the panel, thread length, panel thickness range | TODO | the case-side part is a 22 mm cutout metal momentary switch with a 3-9 V LED (ADR-018). The seller's listing exposes no drawing, so measure the part on arrival. The cutout is 22 mm |
+| 4 | Speaker cable length and the direction it leaves the board | TODO | routes from the speaker header at (-17.52, -6.00) on the solder side. The MX1.25 battery header is not identifiable in the STEP (library code), and only matters if the cell stays (ADR-011) |
+| 5 | Weight of the assembled stack | TODO | sanity check for the wall/pole mount |
+
+The tactile switches on the board (RESET, BOOT, user) are no longer a case constraint: the gate bell is
+the external 22 mm switch wired to GPIO0 (ADR-018), so those three keep their vendor positions and are
+only reachable with the lid off.
 
 ## Case parameters derived from the above
 
-Once the table is filled, `cad/case.scad` takes them as parameters at the top of the file. Nothing in
-the geometry is allowed to hold a hardcoded number: if a dimension changes, one variable changes and
-the model follows. The `Makefile` renders and the checks in `tools/` verify that the board volume fits
-inside the cavity with clearance and that no wall interferes with a connector.
+`cad/case.scad` takes these as parameters at the top of the file. Nothing in the geometry is allowed to
+hold a hardcoded number: if a dimension changes, one variable changes and the model follows. The
+`Makefile` renders and the checks in `tools/` verify that the board volume fits inside the cavity with
+clearance and that no wall interferes with a connector.
+
+Fixed by the measurements, with the unit going in **assembled** (roadmap item 5):
+
+- The unit's envelope is Ø58 x **47.00**: the assembled height, 49.70 in the STEP minus the 2.70 rubber
+  feet, which are peeled off because they stick out of the grille face. It governs the case's depth:
+  **58 mm** outer, against the 49 the bare-board layout needed. Width stays 66 (Ø58 plus 1 mm a side
+  plus the 3 mm walls) and height 96 (30 mm of straight side plus the two Ø66 ends).
+- Its grille disc is Ø52 and its face sits 2.90 mm proud of the Ø58 body (STEP), so the seat in the lid
+  is spot-faced flat and the retaining lip grips 2 mm of that disc.
+- The unit sits with its centre 33 mm from the bottom end's centre: the lowest position that still
+  clears the rounded bottom, which is what frees the upper half of the front face. Its top edge lands at
+  62, so the Ø22 button's centre goes at **76** — above the unit's top edge and clear of the seat's rim
+  at 59.5, while its land keeps 2 mm of material below the cavity's ceiling (ADR-018).
+- The microphones listen through the unit's own cover: eight Ø1 holes at r = 5.5 to 8.9 around its axis
+  (STEP). Their air volume is the cavity, and the cavity's only way out is the front grille — so that
+  sets the **Ø44 field of Ø2 holes** in the closed front, 0.80 mm recessed behind the crown's apex to
+  make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own grille sits
+  right behind it, so the sound path is two grilles in series and the microphone path is the same field.
+  Nothing goes through the back plate: it is mortared flat against the wall.
+- Three pads on the back plate push the unit forward onto the seat; the gap behind it is 1.80 mm.
+
+Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the panel button (ADR-018) with a
+flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
+now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent, and M4
+wall/pole mounting holes. The button's head diameter and the depth of its body behind the panel are
+measured on arrival and become parameters in the same file. The gland and the vent go through the
+**bottom or a side**, never the back plate: that face is mortared flat against the wall, so a fitting
+there would be buried and a leak path into the cavity to boot.
+
+Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
+upper part, above the unit's top edge at 62, which is where the button's body and — still to design —
+the cable route to the unit's USB-C live. That route has to come down through the cavity, because the
+unit's USB-C is at its top edge pointing up; the cable enters through the gland in the bottom or the
+side and climbs to it. The buck that used to sit on the back plate is out of the case, next to the
+potted supply (ADR-016's single-stage option).

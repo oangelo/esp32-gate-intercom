@@ -1,218 +1,403 @@
-// ESP32 Gate Intercom - enclosure
-// Parametric case for a Waveshare ESP32-S3-AUDIO-Board with the speaker integrated
-// in an acoustic chamber. Printed in ASA (see docs/decisions.md, ADR-009).
+// ESP32 Gate Intercom - enclosure, revision 2
+// Parametric case for a Waveshare ESP32-S3-AUDIO-Board. Printed in ASA (ADR-009).
 //
-// STATUS: v0.0 scaffold, and the geometry in this file is SUPERSEDED. It was written
-// around a placeholder rectangular board (60 x 40) before the vendor drawing was
-// measured. The board is actually round, 58 mm, with three holes at 120 degrees, and
-// the front face is a capsule (see ADR-014 and ADR-015). Do not print anything from
-// this file. It is kept in the repository only as scaffolding, and F2 rewrites it.
+// STATUS: revision 2, step 1 - the FORM and the fit, not the features yet.
+// This file has: the capsule profile, the crown on the front face, the cavity, the base/lid
+// split, and the board, speaker and buck as ghosts to prove they fit. Still to come, in this
+// order, each one reviewed before the next:
+//   1. speaker pocket, grille field and drip lip (lid, lower half)
+//   2. button flat land and the O22 cutout (lid, upper half)
+//   3. microphone acoustic ports in the back wall, membrane vent, cable gland (base)
+//   4. joint: lid lip, gasket groove, four M3 heat-set bosses
+//   5. mounting ears and the buck standoffs
+// Every number below is measured or derived; the source of each is docs/dimensions.md.
+//
+// Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
+// Z = height (0 at the floor). The case stands upright in use.
+//
+// PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
+// The base prints on its back plate (cavity opening up, standoffs vertical, gland and vent
+// holes vertical) and the lid prints on its face (cavity opening up, the speaker bore vertical
+// instead of a 43 mm ceiling to bridge). The flat lands that step 2 spot-faces into the front
+// face are what gives the lid its bed contact.
 //
 // Usage:
-//   openscad -D 'part="base"'      -o base.stl cad/case.scad
-//   openscad -D 'part="lid"'       -o lid.stl  cad/case.scad
-//   openscad -D 'part="assembly"'  -o assembly.stl cad/case.scad
+//   openscad -D 'part="base"'         -o build/case_base.stl  cad/case.scad
+//   openscad -D 'part="lid"'          -o build/case_lid.stl   cad/case.scad
+//   openscad -D 'part="assembly"'     -o cad/media/form.png   cad/case.scad   # opaque, outer form
+//   openscad -D 'part="inside"'       -o cad/media/in.png     cad/case.scad   # translucent shell
+//   openscad -D 'part="inside_parts"' ...                                     # rejected layout
+//   openscad -D 'part="section"'      ...                                     # cutaway, review
+//   openscad -D 'part="exploded"'     ...                                     # the two parts apart
+//   openscad -D 'part="fitcheck"'     ...                                     # must be EMPTY
+//   openscad -D 'part="probe_grille"' ...                                     # must be EMPTY
+//   openscad -D 'part="probe_button"' ...                                     # must be EMPTY
+//
+// Everything is selected through `part`, one selector for every view. The translucent views need
+// --render: without it the PNG export draws the shell as opaque and the internals disappear, which
+// makes two views that must differ come out byte-identical. Compare with md5 and with
+// --summary all, never by looking at the picture.
 //
 // Convention: millimetres. Variable names are ASCII only (the parser breaks on accents).
 
-// ------------------------------------------- measured facts (vendor DXF, 2026-09-20)
-// Source and method: docs/dimensions.md. These are the numbers the rewrite starts from.
-// Anything not listed here is still a TODO and needs a caliper.
+// --------------------------------------------------------- measured (docs/dimensions.md)
+board_dia    = 57.63;   // board is ROUND. The vendor DXF says 58.00; caliper TODO item 1
+board_t      = 1.20;    // PCB thickness, vendor STEP (it is not 1.6)
+board_hole_d = 4.00;    // three mounting holes, with a 4.80 ring (the vendor's M2.5 studs)
+board_hole_r = 23.75;   // radius of the hole pattern from the board centre
+board_hole_a = [36.1, -36.1, 180.0];   // hole angles, board frame, +Y pointing down in the case
+comp_h_top   = 5.00;    // tallest part on the component side: the 2x9 header
+comp_h_bot   = 4.50;    // tallest part on the solder side: the speaker header
+mic_port_r   = 26.83;   // microphone acoustic port, from the board centre, component side
+mic_port_a   = [47.2, 132.8];
+spk_od       = 43.30;   // SPK-4020-5W, no screw holes of its own (used by the bare-parts ghosts,
+spk_d        = 20.50;   // which document the hollowing-out option that was rejected)
 
-board_dia    = 58.00;         // board is ROUND (DIMENSION 58.0 plus a CIRCLE of d=58.00)
-board_hole_d =  4.00;         // three mounting holes (each with a 4.80 mm ring)
-board_hole_r = 23.75;         // holes sit on this radius from the board centre
-board_hole_a = 120.0;         // and are 120 degrees apart
-spk_face_od  = 57.04;         // concentric circles on the speaker face, largest first
-spk_face_2   = 52.00;
-spk_face_3   = 48.50;
-spk_face_4   = 46.20;
-spk_face_5   = 44.82;
-stack_h      = 37.60;         // assembly heights in the section view, smallest first
-stack_h2     = 42.60;
-stack_h3     = 44.30;
-stack_h4     = 47.00;
+// --------------------------------------------------------- case parameters
+part    = "assembly";   // the one selector: assembly | inside | inside_parts | base | lid |
+                        // section | exploded | fitcheck | fitcheck_parts | fitcheck_internal |
+                        // probe_grille | probe_button
 
-// ---------------------------------------------------------------- parameters
+// DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
+// the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
+// microphone ducting come with it. The case is built around that, which is what the depth above and
+// the unit placement below are.
+//
+// The case stays CLOSED: the front is solid over the unit with a recessed grille field drilled through
+// it (the sound leaves through ours and then the unit's), and the back plate has nothing in it at all --
+// that face is mortared flat against the wall. The microphones breathe the cavity, whose only way out is
+// that grille field.
+//
+// Height, and why the model uses 47.00: the assembled product measures 49.70 in the vendor STEP,
+// which includes the three rubber feet (2.70) stuck on the grille face. With the unit's grille face
+// forward, those feet would press against the front wall, so they come off and the unit is 47.00.
+// The other sources, for the record: the drawing on the product page says 43.70 + 5.10 = 48.80; the
+// DXF says 44.30 to the bottom of the body and 47.00 to the bottom of the O52 disc; and 37.60 is
+// PCB top to body bottom. docs/dimensions.md says the caliper wins where they disagree, and if the
+// real part is 48.80 rather than 47.00 the case has 1.80 mm less margin than it thinks.
+unit_dia  = 58.00;
+unit_h    = 47.00;      // 49.70 measured, minus the feet; the unit's own grille is its front face
+unit_face_y = 6.20;     // its grille face: clears the inner crown at the unit's rim by 1.00 mm
+unit_cy   = unit_face_y + unit_h / 2;   // 29.70: unit centre on the depth axis
+unit_cz   = 33.00;      // the LOWEST it can sit and still clear the rounded bottom, and low is what
+                        // frees the upper half for the panel button (ADR-018)
 
-part = "assembly";            // assembly | base | lid
+case_w  = 66.0;         // board 57.63 + 1 mm clearance a side + 2 x 3 mm wall
+case_h  = 96.0;         // 30 mm of straight side + the two O66 ends (ADR-015: capsule)
+case_d  = 58.0;         // DECIDED: the assembled unit goes in whole, so this is the unit's depth
+                        // 47.00 (feet peeled off) + the front gap at its rim + the back gap, plus
+                        // the two walls. Was 49 when the plan was a bare board and our own chamber
+wall    = 3.0;
+r_end   = case_w / 2;   // 33: radius of both ends
+z_btm   = r_end;                       // 33: centre of the bottom semicircle
+z_top   = case_h - r_end;              // 63: centre of the top semicircle
+crown_s = 5.0;                         // sagitta of the front crown (convex front, ADR-015)
+crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 111.4
 
-// Board - TODO: measure (docs/dimensions.md items 1 to 8)
-board_l      = 60.0;          // TODO item 1, longest side
-board_w      = 40.0;          // TODO item 1, other side
-board_t      = 1.6;           // TODO item 2, PCB thickness
-comp_h_top   = 12.0;          // TODO item 4, tallest part above the PCB
-bottom_h     = 3.0;           // TODO item 5, space needed under the PCB
-hole_d       = 2.2;           // TODO item 3, board mounting hole diameter
-hole_dx      = 52.0;          // TODO item 3, hole spacing along X
-hole_dy      = 32.0;          // TODO item 3, hole spacing along Y
+split_y = 27.5;         // base/lid joint: behind the speaker, in front of the board. The lid
+                        // keeps 1.5 mm behind the speaker to retain it (step 1 of the features)
+inner_d = case_d - wall;               // 46: inner face of the back plate
+cav_x   = r_end - wall;                // 30: inner radius; the ends share the outside centres
+cav_y0  = 3.0;                         // 3: inner apex of the crown
 
-// Speaker - TODO: measure (docs/dimensions.md item 9)
-spk_od       = 40.0;          // TODO speaker outer diameter
-spk_depth    = 8.0;           // TODO speaker total depth
-spk_gap      = 2.0;           // gap between speaker face and grille wall
+// The three board standoffs (r = 23.75 at -36.1, +36.1, 180 degrees) leave exactly three gaps
+// against the wall: around 0 degrees (+X side), 108 degrees (upper left) and 252 degrees (lower
+// left). Every joint boss and every mounting ear has to live in one of those three gaps, because
+// the board's 57.63 fills the rest of the back plate. Nothing else fits behind it.
+//
+// With the bottom end round, the cavity narrows fast below z = 33 (at z = 8 it is only +-16.6),
+// so the board also has to sit high enough that its 57.63 clears the curve: at its centre height
+// of 37 mm the clearance is 1 mm a side, and it is the sides, not the floor, that decide.
 
-// Microphone ports - TODO item 8
-mic_d        = 3.0;           // acoustic port in front of each mic
-mic_pitch    = 20.0;          // TODO distance between the two microphone holes
-mic_from_front = 12.0;        // TODO distance from the front wall
+// The inner face of the front is the crown, so it recedes as it goes out: at the speaker's
+// radius (21.65) it sits at y = 5.18 instead of 3.00. A flat speaker face has to clear that,
+// which is why it starts at 5.5 and why step 1 spot-faces a flat seat into the crown.
+spk_cy   = 15.75;       // speaker front face at 5.50, then half its depth (bare-parts ghost)
+board_cy = 30.60;       // board front face at 30.00: 4 mm behind the speaker (bare-parts ghost)
+board_cz = 37.0;        // board centre height (bare-parts ghost)
+spk_cz   = 26.0;        // speaker centre height (bare-parts ghost)
 
-// Case geometry
-wall         = 3.0;           // printed wall thickness (ASA, 0.4 mm nozzle)
-floor_t      = 3.0;
-lid_t        = 3.0;
-fit_clear    = 1.0;           // clearance around the board inside the cavity
-corner_r     = 6.0;           // outer corner radius
-head_clear   = 6.0;           // space above the tallest component
-
-// Lid interface
-lip_h        = 4.0;           // lid lip height that enters the base
-lip_t        = 2.0;           // lip wall thickness
-gasket_w     = 2.5;           // gasket cord diameter
-gasket_d     = 2.0;           // groove depth
-
-// Cable entry and mounting
-gland_d      = 12.5;          // PG7 gland through hole
-tab_w        = 14.0;          // mounting tab width
-tab_t        = 4.0;           // mounting tab thickness
-tab_hole_d   = 4.5;           // M4 clearance
-
-// Hardware
-boss_d       = 8.0;           // screw boss outer diameter (M3 heat-set insert)
-boss_hole_d  = 4.2;           // heat-set insert bore
-screw_l      = 12.0;          // M3 x 12 lid screws
-
-// ---------------------------------------------------------------- derived
-
-inner_l  = board_l + 2 * fit_clear;
-inner_w  = board_w + 2 * fit_clear;
-cavity_h = bottom_h + board_t + comp_h_top + head_clear;
-outer_l  = inner_l + 2 * wall;
-outer_w  = inner_w + 2 * wall;
-base_h   = floor_t + cavity_h;
-lid_extra = spk_depth + spk_gap;
-lid_total = lid_t + lid_extra;
-eps      = 0.01;
+eps = 0.01;
 $fa = 2;
-$fs = 0.5;
+$fs = 0.4;
 
-// ---------------------------------------------------------------- modules
+// --------------------------------------------------------- features: grille (lid, lower half)
+// The unit brings its own grille behind the disc face, and the case's front is CLOSED over it: a
+// recessed field of through holes, so the sound leaves through ours and then through the unit's. The
+// same holes are the microphones' air path -- the unit listens through its own cover (eight O1 holes),
+// whose air volume is the cavity, which the grille holes connect to the outside. No hole in the back
+// plate: that face is mortared flat against the wall.
+grille_od    = 44.0;    // the field, inside the unit's own O46 grille area
+grille_rec   = 0.80;    // recess behind the crown's apex: makes the drip lip and a flat print face
+grille_hole  = 2.0;     // hole diameter
+grille_pitch = 4.5;     // hole pitch; the grid is clipped to a circle of 4 cells
+grille_tilt  = 15.0;    // holes tilted so their outer end is lower and water runs out
+// The unit is held axially by two things: this flat seat in the lid (the disc's face presses on it)
+// and the pads on the back plate pushing it forward. With the front closed over the unit, nothing can
+// come forward any more, so the seat's only job is to be flat and to stop the speaker leaking sideways.
+unit_seat_d   = 53.0;   // seat diameter: the disc's O52 plus a shoulder
+unit_pad_d    = 8.0;
+unit_pad_r    = 23.0;   // clear of the vendor's O1 holes (r <= 8.9) and of the O58 edge
+unit_pad_h    = 1.75;   // the gap behind the unit is 1.80: 0.05 mm of relief so the fit check still
+                        // proves the unit clears. In the build a 1 mm foam pad goes here, which also
+                        // seals the disc against the seat: that seal is what keeps the speaker out of
+                        // the cavity the microphones breathe.
 
-module rounded_block(l, w, h, r) {
-    // Rectangular block with rounded vertical corners, sitting on z=0
-    hull() {
-        for (x = [-(l / 2 - r), l / 2 - r], y = [-(w / 2 - r), w / 2 - r])
-            translate([x, y, 0]) cylinder(r = r, h = h);
+// --------------------------------------------------------- features: button (lid, upper half)
+// A bought 22 mm panel switch (ADR-018) seals against a FLAT land, and the front face is convex:
+// so the cutout gets a spot-faced land outside (for the switch gasket) and another inside (for the
+// nut), which also keeps the wall between them a uniform 3.3 mm.
+btn_cut     = 22.0;     // the switch's own cutout
+btn_land    = 29.0;     // outer land diameter: gasket + enough to be flat. NOT 31: with the centre at
+btn_land_in = 30.0;     // 76 the inner land tops out at 91 and the cavity's ceiling is at 93, so the
+                        // wall above the hole keeps 2 mm of material instead of reaching zero
+btn_land_y  = 1.20;     // outer land plane: 1.2 mm into the crown at its apex
+btn_land_in_y = 4.50;   // inner land plane: uniform 3.3 mm of wall between the two
+btn_cz      = 76.0;     // button centre. Constraints, all three: below the cavity's ceiling (93) with
+                        // the land; above the unit's top edge at 62 and clear of the seat's rim at
+                        // 59.5 by 1.5 mm; and the switch's body (O22, 30 deep) has to live between
+                        // them -- it ends up at 61.5, so it clears the unit by 0.5 mm and the ceiling
+                        // by a lot. If the unit measures 48.80 instead of 47.00, this is where the
+                        // margin goes first: the unit's top edge moves to 63.
+
+// ------------------------------------------------------------------- helpers
+
+module prism_xz(depth, y0 = 0) {
+    // Extrude a 2D shape drawn in (x = width, y = height) along the case's Y (depth).
+    translate([0, y0 + depth, 0]) rotate([90, 0, 0]) linear_extrude(height = depth) children();
+}
+
+module outline_outer() {
+    // A capsule: semicircle at each end, two straight sides, 30 mm of straight between them.
+    union() {
+        translate([-r_end, z_btm]) square([case_w, z_top - z_btm]);
+        translate([0, z_btm]) circle(r = r_end);
+        translate([0, z_top]) circle(r = r_end);
     }
 }
 
-module screw_boss(h) {
+module outline_inner() {
+    // Same shape, offset inwards by the wall: radius r_end - wall, same end centres.
+    union() {
+        translate([-cav_x, z_btm]) square([2 * cav_x, z_top - z_btm]);
+        translate([0, z_btm]) circle(r = cav_x);
+        translate([0, z_top]) circle(r = cav_x);
+    }
+}
+
+module crown_outer() { translate([0, crown_r, -1]) cylinder(r = crown_r, h = case_h + 2); }
+module crown_inner() { translate([0, crown_r, -1]) cylinder(r = crown_r - wall, h = case_h + 2); }
+
+module body() {
+    intersection() {
+        prism_xz(case_d) outline_outer();
+        crown_outer();
+    }
+}
+
+module cavity() {
+    intersection() {
+        prism_xz(inner_d - cav_y0, cav_y0) outline_inner();
+        crown_inner();
+    }
+}
+
+module keep_above(y0) { translate([-500, y0, -500]) cube([1000, 1000, 1000]); }
+module keep_below(y0) { translate([-500, y0 - 1000, -500]) cube([1000, 1000, 1000]); }
+
+module sector_xz(r_in, r_out, a0, a1, cz, y0, h, n = 24) {
+    // A wedge of an annulus, drawn in the (x, z) plane around (0, cz) and extruded along Y.
+    prism_xz(h, y0) translate([0, cz]) polygon(concat(
+        [[r_in * cos(a0), r_in * sin(a0)]],
+        [for (i = [0:n]) [r_out * cos(a0 + (a1 - a0) * i / n), r_out * sin(a0 + (a1 - a0) * i / n)]],
+        [[r_in * cos(a1), r_in * sin(a1)]]));
+}
+
+// ------------------------------------------------- the unit's seat and the grille (lid)
+
+module unit_seat_cut() {
+    // Spot-faces the inner face of the front flat, so the unit's grille disc has a plane to sit on.
+    // 0.05 mm behind the ghost's face: without it the two surfaces are coplanar and the boolean
+    // intersection grows slivers instead of reporting a clean empty.
+    translate([0, unit_face_y + 0.05, unit_cz]) rotate([-90, 0, 0])
+        cylinder(d = unit_seat_d, h = 20);
+}
+
+module grille_hole_cut(d) {
+    // Same axes for the cut and for the probe, only the diameter changes: 5x5 cells clipped to a
+    // circle, tilted so the outer end is lower than the inner one (ADR-018: water runs out). 10 mm
+    // of length, because in front of the seat the wall is up to 6.2 mm thick.
+    for (ix = [-4:4], iz = [-4:4])
+        if (ix * ix + iz * iz <= 16)
+            translate([ix * grille_pitch, -1, unit_cz + iz * grille_pitch])
+                rotate([-(90 - grille_tilt), 0, 0]) cylinder(d = d, h = 10);
+}
+
+module grille_cut() {
+    // The field is a spot-face: it gives the drip lip around it and, when the lid prints lying on its
+    // face, a flat area instead of one line of contact.
+    translate([0, grille_rec - 25, unit_cz]) rotate([-90, 0, 0]) cylinder(d = grille_od, h = 25);
+    grille_hole_cut(grille_hole);
+}
+
+module unit_pads() {
+    // Three pads, 120 degrees apart, pushing the unit's cover forward onto the seat. They are the only
+    // thing holding it now: the front is closed over the unit, so it can no longer come out forward.
+    for (a = [0:120:240])
+        translate([unit_pad_r * cos(a), inner_d - unit_pad_h, unit_cz + unit_pad_r * sin(a)])
+            rotate([-90, 0, 0]) cylinder(d = unit_pad_d, h = unit_pad_h + eps);
+}
+
+// ---------------------------------------------------------- button land and cutout (lid)
+
+module button_cut_hole(d) {
+    translate([0, btn_land_y - 8, btn_cz]) rotate([-90, 0, 0])
+        cylinder(d = d, h = 8 + (btn_land_in_y - btn_land_y) + 1);
+}
+
+module button_lands_cut() {
+    // Two flat spot-faces: the switch gasket seals on the outer one, the nut clamps on the inner
+    // one, and the wall between them is a uniform 3.3 mm.
+    translate([0, btn_land_y - 25, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_land, h = 25 + eps);
+    translate([0, btn_land_in_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_land_in, h = 25);
+}
+
+// ------------------------------------------------------------------- the two parts
+
+module base() {
+    // Back tray: closed. The back plate goes against the wall, so nothing goes through it -- no
+    // acoustic window, no gland, no vent. What it carries is the three pads that push the unit
+    // forward onto the seat. The gland and the vent still live here in name only: they move to a
+    // side or to the bottom (step 3).
     difference() {
-        cylinder(d = boss_d, h = h);
-        translate([0, 0, -eps]) cylinder(d = boss_hole_d, h = h + 2 * eps);
+        intersection() { body(); keep_above(split_y); }
+        cavity();
     }
+    unit_pads();
 }
 
-module case_base() {
+module lid() {
+    // Front shell: the closed grille field over the unit's own grille, and the button.
     difference() {
-        rounded_block(outer_l, outer_w, base_h, corner_r);
-
-        // main cavity
-        translate([0, 0, floor_t])
-            rounded_block(inner_l, inner_w, base_h, corner_r - wall);
-
-        // gasket groove in the rim
-        translate([0, 0, base_h - gasket_d])
-            difference() {
-                rounded_block(outer_l - wall, outer_w - wall, gasket_d + eps, corner_r - wall * 0.5);
-                rounded_block(outer_l - wall - 2 * gasket_w - 2 * wall, outer_w - wall - 2 * gasket_w - 2 * wall,
-                              gasket_d + 2 * eps, corner_r - wall);
-            }
-
-        // board standoffs (three, so the board cannot rock)
-        for (p = [[-(inner_l / 2 - 5), -(inner_w / 2 - 5)],
-                  [ (inner_l / 2 - 5), -(inner_w / 2 - 5)],
-                  [ 0,                 (inner_w / 2 - 5)]])
-            translate([p[0], p[1], floor_t - eps])
-                cylinder(d = 4, h = bottom_h + eps);
-
-        // cable gland, on the bottom face, at the back
-        translate([0, inner_w / 2, -eps])
-            cylinder(d = gland_d, h = floor_t + 2 * eps);
-
-        // mounting tabs holes
-        for (x = [-1, 1])
-            translate([x * (outer_l / 2 + tab_w / 2 - 1), 0, -eps])
-                cylinder(d = tab_hole_d, h = tab_t + 2 * eps);
-    }
-
-    // screw bosses in the four corners
-    for (x = [-1, 1], y = [-1, 1])
-        translate([x * (inner_l / 2 - boss_d / 2 + 1), y * (inner_w / 2 - boss_d / 2 + 1), floor_t])
-            screw_boss(base_h - floor_t - 1);
-
-    // mounting tabs
-    for (x = [-1, 1])
-        translate([x * (outer_l / 2 + tab_w / 2 - 1), 0, 0])
-            difference() {
-                rounded_block(tab_w, tab_t * 2.5, tab_t, 1.5);
-                translate([0, 0, -eps]) cylinder(d = tab_hole_d, h = tab_t + 2 * eps);
-            }
-}
-
-module case_lid() {
-    difference() {
-        union() {
-            rounded_block(outer_l, outer_w, lid_t, corner_r);
-
-            // lid lip that enters the base
-            translate([0, 0, -lip_h])
-                difference() {
-                    rounded_block(outer_l - wall * 2 - 0.4, outer_w - wall * 2 - 0.4, lip_h + eps, corner_r - wall);
-                    rounded_block(outer_l - wall * 2 - 0.4 - 2 * lip_t, outer_w - wall * 2 - 0.4 - 2 * lip_t,
-                                  lip_h + 2 * eps, corner_r - wall - lip_t);
-                }
-
-            // speaker chamber wall on the inside
-            translate([0, -(inner_w / 2 - spk_od / 2 - 2), -lid_extra])
-                difference() {
-                    cylinder(d = spk_od + 2 * wall, h = lid_extra + eps);
-                    translate([0, 0, -eps]) cylinder(d = spk_od, h = lid_extra + 2 * eps);
-                }
-        }
-
-        // speaker grille: a ring of holes, downward facing wall
-        for (a = [0:30:330])
-            rotate([0, 0, a])
-                translate([0, -(inner_w / 2 - spk_od / 2 - 2), -lid_extra - eps])
-                    translate([(spk_od / 2) * 0.6, 0, 0])
-                        cylinder(d = 3.0, h = lid_extra + 2 * eps);
-
-        // centre hole of the grille
-        translate([0, -(inner_w / 2 - spk_od / 2 - 2), -lid_extra - eps])
-            cylinder(d = 6.0, h = lid_extra + 2 * eps);
-
-        // microphone ports at the front of the lid
-        for (x = [-1, 1])
-            translate([x * mic_pitch / 2, inner_w / 2 + wall / 2 - mic_from_front * 0 + 0, -eps])
-                cylinder(d = mic_d, h = lid_t + 2 * eps);
-
-        // lid screw holes
-        for (x = [-1, 1], y = [-1, 1])
-            translate([x * (inner_l / 2 - boss_d / 2 + 1), y * (inner_w / 2 - boss_d / 2 + 1), -eps])
-                cylinder(d = 3.4, h = lid_t + 2 * eps);
+        intersection() { body(); keep_below(split_y); }
+        cavity();
+        unit_seat_cut();
+        grille_cut();
+        button_cut_hole(btn_cut);
+        button_lands_cut();
     }
 }
 
-// ---------------------------------------------------------------- assembly
+// ------------------------------------------------------------------- ghosts (review only)
+
+module ghost_board() {
+    // Board standing up, its own +Y (microphones, 2x9 header) pointing down: the microphones
+    // end up low and the components face the back plate (ADR-014).
+    translate([0, board_cy, board_cz]) rotate([-90, 0, 0])
+        cylinder(d = board_dia, h = board_t, center = true);
+}
+
+module ghost_speaker() {
+    translate([0, spk_cy, spk_cz]) rotate([-90, 0, 0])
+        cylinder(d = spk_od, h = spk_d, center = true);
+}
+
+module ghost_unit() {
+    // The assembled Waveshare, one cylinder in two steps: the grille disc (O52) sits 2.90 mm proud of
+    // the body's face, measured in the vendor STEP, and the body below it is the O58. Modelling it as
+    // a plain O58 cylinder overstated the front material by up to 2.9 mm and made the fit check lie.
+    translate([0, unit_face_y + 1.45, unit_cz]) rotate([-90, 0, 0])
+        cylinder(d = 52.00, h = 2.90, center = true);
+    translate([0, unit_face_y + 2.90 + (unit_h - 2.90) / 2, unit_cz]) rotate([-90, 0, 0])
+        cylinder(d = unit_dia, h = unit_h - 2.90, center = true);
+}
+
+module ghosts(which = "parts") {
+    // Internal volumes, drawn almost solid so they read through the translucent shell.
+    if (which == "parts" || which == "both") {
+        color("green", 0.9) ghost_board();
+        color("orange", 0.9) ghost_speaker();
+    }
+    if (which == "unit" || which == "both") {
+        color("gold", 0.9) ghost_unit();
+    }
+}
+
+module wall() {
+    // The shell: the body minus the cavity. Intersecting it with a ghost has to yield NOTHING.
+    difference() { body(); cavity(); }
+}
+
+module ghosts_pairwise() {
+    // Ghost against ghost: the parts must not fight each other either. This pair is what the rejected
+    // layout (bare board in front of a bare speaker) had to satisfy; the unit that was actually chosen
+    // is one body, so it has nothing to fight.
+    intersection() { ghost_board(); ghost_speaker(); }
+}
+
+module translucent(which) {
+    // The shell goes in as a % (background) object, NOT as color(..., alpha). Measured on this very
+    // model, a white shell at alpha 0.15 produced zero pixels of the internal colours in the PNG,
+    // in preview and with --render; the % modifier with --render keeps all three colours visible
+    // (green 4.4 percent of the frame, red 5.3, orange 1.2 in a test rig).
+    %union() { base(); lid(); }
+    ghosts(which);
+}
+
+// ------------------------------------------------------------------- output
+//
+// One selector, `part`, for everything. A -D does override the file's own assignment (tested with a
+// two-line file). What does NOT work is trusting the PNG export to show a translucent shell: without
+// --render it renders opaque, the internal volumes vanish, and two views that must differ come out
+// byte-identical.
 
 if (part == "base") {
-    case_base();
+    base();
 } else if (part == "lid") {
-    case_lid();
+    lid();
+} else if (part == "assembly") {
+    // Opaque, for the outer form.
+    base();
+    lid();
+    ghosts("unit");
+} else if (part == "inside") {
+    // The review view now: the shell translucent, the assembled unit inside it.
+    translucent("unit");
+} else if (part == "inside_parts") {
+    // The layout that was rejected (bare board, bare speaker, our own chamber), kept as the record.
+    translucent("parts");
+} else if (part == "section") {
+    // Cutaway. Base, lid and the ghost are all cut at the same plane, so the half that remains
+    // shows the real stack.
+    difference() {
+        union() {
+            color("grey") base();
+            color("silver") lid();
+            ghosts("unit");
+        }
+        translate([-200, -60, -60]) cube([200, 400, 400]);   // cut away X > 0
+    }
+} else if (part == "exploded") {
+    // The two printed parts pulled apart, with the unit they hold.
+    color("silver") base();
+    color("grey") translate([0, -58, 0]) lid();
+    ghost_unit();
+} else if (part == "fitcheck") {
+    // The unit against the PRINTED parts, not against `wall`: wall is the un-cut shell, so it would
+    // report the front wall where the lid's seat and window have already taken the material away.
+    // The unit spans the split, so both parts are in the test.
+    intersection() { union() { base(); lid(); } ghost_unit(); }
+} else if (part == "fitcheck_parts") {
+    intersection() { wall(); ghosts("parts"); }
+} else if (part == "fitcheck_internal") {
+    ghosts_pairwise();
+} else if (part == "probe_grille") {
+    // Against the LID (not against `wall`, which is the un-cut shell): empty means every hole of the
+    // field is open through the front wall. The probe is 1.0 mm smaller than the cut, so it does not
+    // ride on the hole's wall.
+    intersection() { lid(); grille_hole_cut(grille_hole - 1.0); }
+} else if (part == "probe_button") {
+    intersection() { lid(); button_cut_hole(btn_cut - 1.0); }
 } else {
-    // preview: base with the lid above it, plus the board volume as a ghost
-    color("grey") case_base();
-    translate([0, 0, base_h + 20]) color("darkgrey") case_lid();
-    translate([0, 0, floor_t + bottom_h]) color("green", 0.4) cube([board_l, board_w, board_t], center = true);
+    translucent("unit");
 }

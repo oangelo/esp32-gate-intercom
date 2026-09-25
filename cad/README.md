@@ -1,7 +1,12 @@
 # CAD
 
-Parametric OpenSCAD for the gate intercom enclosure: base, lid with the speaker chamber, gasket
-groove, microphone membrane ports, cable gland and mounting tabs.
+Parametric OpenSCAD for the gate intercom enclosure. Two printed parts plus the hardware that goes
+through their walls:
+
+- **base** - the back tray: **closed**, because this face is mortared flat against the wall. It carries
+  the three pads that push the unit forward onto the seat, and (step 3) the mounting ears.
+- **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
+  unit's disc presses on, and the flat land and O22 cutout for the panel button.
 
 ## Files
 
@@ -10,16 +15,34 @@ groove, microphone membrane ports, cable gland and mounting tabs.
 | `case.scad` | The whole enclosure. One file, parameters at the top, `part` selects what to export |
 | `media/` | Renders used for validation and for the documentation |
 
+Status of `case.scad`: **revision 3, steps 1 and 2 done, re-cut around the assembled unit.** Roadmap
+item 5 was decided the other way on 2026-09-24: the Waveshare goes in whole, as it arrives, so the lid
+no longer builds its own speaker chamber — its front stays **closed** over the unit's grille and just
+drills the sound holes (a O44 recessed field of O2 holes, the unit's own grille right behind them).
+Those same holes are the microphones' air path: the unit listens through eight O1 holes in its own
+cover, that air volume is the cavity, and the cavity's only way out is the grille. The base keeps three
+pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49 to 58 and the unit
+sits low (centre at 33) to free the upper half for the button at 76.
+`make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`)
+prove the openings are open through the walls, by boolean instead of by eye. Still to come: the gland
+and the membrane vent and the mounting ears (bottom or side, never the back), the cable route to the
+unit's USB-C -> joint (lip, gasket groove, bosses).
+
 ## Rules for this design
 
 1. **No hardcoded dimensions.** Every number lives in the parameter block at the top, with a comment
-   pointing at the item in `docs/dimensions.md`. If a measurement changes, one variable changes.
+   pointing at its source in `docs/dimensions.md`. If a measurement changes, one variable changes.
 2. **ASA, not ABS and not PETG.** Outdoors, in the sun, on a gate post (ADR-009).
-3. **Wall 3 mm minimum**, 3 perimeters at 0.4 mm. Nothing thinner than 1.2 mm anywhere.
-4. **No overhang beyond 45 degrees** and no bridge longer than 10 mm, so the part prints without
-   supports. The speaker grille is a ring of holes in a downward-facing wall for exactly this reason.
-5. **Clearances are for FDM and for ASA shrinkage**: 0.2 mm for a tight fit, 0.3 mm for sliding,
-   0.5 mm for loose. Heat-set inserts instead of printed threads.
+3. **Wall 3 mm minimum**, 3 perimeters at 0.4 mm. Nothing thinner than 1.2 mm anywhere except a gasket
+   groove.
+4. **No support material.** No overhang beyond 45 degrees and no bridge longer than 10 mm.
+5. **Both parts print lying down**, with the case's depth as the printer's Z: the base on its back plate
+   and the lid on its face. That is what makes the lid's grille holes print as vertical holes instead of
+   a 44 mm ceiling to bridge, and it depends on the flat lands that step 2 spot-faces into the front
+   face.
+6. **Clearances are for FDM and for ASA shrinkage**: 0.2 mm for a tight fit, 0.3 mm for sliding,
+   0.5 mm for loose. Heat-set inserts instead of printed threads. The board takes M2.5 inserts (its own
+   mounting holes are 4.00 mm); the case joint and the ears take M3 and M4.
 
 ## Print settings that work for ASA
 
@@ -36,19 +59,33 @@ groove, microphone membrane ports, cable gland and mounting tabs.
 
 ## Commands
 
-    make check     # compile the model and show any warning or error
+    make check     # compile the model and surface any warning or error
     make stl       # export build/case_base.stl and build/case_lid.stl
     make render    # PNG preview into cad/media/ (starts its own Xvfb display)
+    make section   # cutaway render, the review view: the assembled unit inside
+    make inside_render  # translucent shell: the unit inside, and the rejected bare-parts layout
+    make exploded  # the two printed parts pulled apart
+    make fit       # prove the ghosts touch no wall and the openings are open; must be empty six times
 
 `make check` must be clean before any export is taken seriously: OpenSCAD happily writes an STL with a
 non-manifold object, and a sliced mesh with gaps is a failed print, not a cosmetic problem.
 
+**Renders that show the inside of a shell must pass `--render`, and the shell must be a `%` object.**
+Measured on this model: a white shell with `color(..., 0.15)` produced zero pixels of the internal
+colours in the PNG, in preview and with `--render`, while the `%` (background) modifier with `--render`
+kept all of them. `make inside_render` does both and prints the md5 of the two images, because two
+views that must differ and come out byte-identical mean the render path ate the difference, not that
+the selector is wrong.
+
 ## Validation, not eyeballing
 
-`tools/check_case.py` (added in F2) loads the exported meshes with trimesh and asserts:
+`make fit` answers the interference question with a boolean, not with a picture: it intersects the wall
+(the body minus the cavity) with each ghost volume, and an empty result means the part clears every wall.
+A non-empty result comes with the ghost's name, and `-D 'fitwhich="speaker"'` narrows it to one part. That
+is how the first real error in this file was found: the flat face of the speaker met the curved inner face
+of the front, 0.2 mm of interference at the rim, invisible in a render.
 
-- every mesh is watertight and a single component,
-- the board volume, as a box with the measured dimensions, fits inside the cavity with the intended
-  clearance,
-- no wall intersects the board volume, the speaker or the battery bay,
-- the minimum wall thickness measured on the mesh matches the parameter.
+Still to come in F2: `tools/check_case.py`, which loads the exported meshes with trimesh and asserts that
+each is watertight and a single component, that the board volume fits inside the cavity with the intended
+clearance, that no wall intersects the board, the speaker or the battery bay, and that the measured wall
+thickness matches the parameter.

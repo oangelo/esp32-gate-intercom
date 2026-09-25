@@ -12,10 +12,13 @@ first parametric CAD file. Acceptance: `git clone` plus `make check` compiles th
 Deliverable: `docs/dimensions.md` filled in, from the vendor STEP/DXF and from caliper measurements on the
 physical board and speaker.
 
-Status: the RAR5 archive was extracted with `unar` and the DXF was measured with `tools/dxf_probe.py`, so
-the board outline (round, 58.00 mm), the three-hole pattern and the speaker diameters already have a
-stated source. What is missing is the caliper pass on the physical parts and the photographs of both faces
-of the board.
+Status: the RAR5 archive was extracted with `unar`, the DXF was measured with `tools/dxf_probe.py`, and
+the STEP was read headless with `freecadcmd` — it is the finished product assembled, so it returned the
+position of every connector, the acoustic port of each microphone, the speaker, the cell and the mounting
+hardware. `docs/dimensions.md` now carries the part-by-part table with the source of each number, and the
+cross-check that the two vendor files agree. What is missing is the short list left at the end of that
+file: the board outline under a caliper, the MEMS port face confirmed with a loupe, the three buttons and
+the MX1.25 header (library codes in the STEP), the speaker cable, and the weight of the stack.
 
 Acceptance: the board outline, hole pattern, connector positions, speaker and battery are all numbers
 with a stated source, and the STEP model (if extracted) agrees with the caliper within 0.5 mm. Where
@@ -25,11 +28,12 @@ this one.
 ## F2 - Enclosure v1, printable
 
 Deliverable: `cad/case.scad` producing three parts: base, lid with the speaker chamber, and a gasket
-groove. Design points from ADR-009, ADR-014, ADR-015, ADR-016 and ADR-017: ASA material, wall 3 mm,
+groove. Design points from ADR-009, ADR-014, ADR-016, ADR-017 and ADR-018: ASA material, wall 3 mm,
 speaker on the front face and microphones at the back and low, front profile a capsule (semicircle,
-straight sides, semicircle), rounded illuminated button in the middle, cable gland and a membrane vent
-instead of open holes, mounting tabs for a wall or a pole, screw bosses sized for heat-set inserts.
-Power enters as 5 V: the mains supply stays outside the printed part.
+straight sides, semicircle) with the illuminated button above and the speaker grille below, a recessed
+grille with a drip lip, microphone ports facing the floor behind hydrophobic membranes, cable gland and a
+membrane vent instead of open holes, mounting tabs for a wall or a pole, screw bosses sized for heat-set
+inserts. Power enters as 5 V: the mains supply stays outside the printed part.
 
 Acceptance:
 
@@ -37,6 +41,15 @@ Acceptance:
 - The board volume fits inside the cavity with at least 1 mm clearance everywhere.
 - No wall covers a connector that must stay reachable, checked geometrically, not by eye.
 - Renders (assembled and exploded) are committed under `cad/media/`.
+
+Status: **steps 1 and 2 done.** `cad/case.scad` revision 2 has the capsule profile, the crown on the
+front face, the cavity, the base/lid split, the speaker chamber with a flat seat and four retaining
+claws, the recessed grille field (49 tilted holes behind a drip lip) and the button's two spot-faced
+lands with the O22 cutout. `make fit` proves the board, the speaker and the buck clear every wall and
+each other; `probe_grille` and `probe_button` prove the holes are open through the wall, by boolean
+instead of by eye; `make section` and `make inside_render` are the review views. Left: microphone
+acoustic ports, membrane vent and cable gland (base), then the joint (lid lip, gasket groove, M3 bosses)
+and the mounting ears with the buck standoffs.
 
 ## F3 - Firmware and Home Assistant side in the repository
 
@@ -56,21 +69,68 @@ Acceptance: a documented before/after with numbers, and the changes folded back 
 External antenna on IPEX1 is evaluated here, not before: it is the highest-value change for link
 reliability at -73 to -80 dBm.
 
-## Where we stopped (2026-09-20)
+## Where we stopped (2026-09-21)
 
-The design conversation is recorded as ADR-014 through ADR-017. Decided: speaker on the front face and
-microphones at the back and low, front profile a capsule with a round illuminated button in the middle,
-mains conversion outside the printed part, and the moisture strategy (vent, acoustic membranes, coating).
+The design conversation is recorded as ADR-014 through ADR-018. Decided: speaker on the front face and
+microphones at the back and low, front profile a capsule with the illuminated button above and the
+speaker grille below (ADR-018 supersedes the arrangement in ADR-015), mains conversion outside the
+printed part, and the moisture strategy (vent, acoustic membranes, coating).
+
+Geometry: closed from the vendor STEP, which turned out to be the whole product assembled and named.
+`docs/dimensions.md` has the part-by-part table, including the two microphone acoustic ports, which open
+on the component side of the board — so with the board lying flat at the bottom, components down, both
+ports face the floor and the seven RGB LEDs face up.
 
 Not decided yet, needed before F2 starts:
 
-1. Photographs of both faces of the board, with a ruler in frame, and of the speaker.
-2. Whether the microphone acoustic port is top-port or bottom-port; this decides which side of the case
-   carries the microphone holes.
-3. The caliper pass over `docs/dimensions.md`.
-4. Where the 220 V comes from at the gate, and whether a supply point already exists there.
-5. Button: 12 mm or 16 mm, and whether its LED is always on from 5 V or controlled by the firmware
-   (free EXIO pins exist on the TCA9555; GPIO0 is already the doorbell input).
-6. Capsule width and the height of the straight section. The current proposal is 66 mm wide, 30 mm of
-   straight side, about 96 mm tall, which leaves room for a 46 to 48 mm speaker in the upper semicircle,
-   the button in the middle, and the board lying flat at the bottom with the microphones facing the floor.
+1. The panel button (ADR-018): head diameter and body depth behind the panel, measured when the part
+   arrives. The tactile switches on the board stop being a constraint, since the gate bell is an
+   external 22 mm switch wired to GPIO0.
+2. The board outline under a caliper: the STEP bounding box (57.63 x 56.54) is smaller than the DXF's
+   Ø58.00 circle, so something is not a pure circle. Where they disagree, the caliper wins.
+3. Where the 220 V comes from at the gate, and whether a supply point already exists there. The supply
+   chain itself is settled (ADR-016, parts in `hardware/bom.md`): a potted IP67 220 V to 12 V driver
+   outside, a 12 V to 5 V 3 A buck inside the case, and 5 V to the board through a USB-C pigtail. The
+   button LED is settled too: always on, off the same 5 V rail, nothing switched.
+4. Capsule width and the height of the straight section. Width is no longer a free choice: the board is
+   Ø58 and the walls are 3 mm, so 66 mm outer is the width that fits it with 1 mm of clearance a side,
+   and going under that means the board does not fit. Depth is the real decision: about **66 mm** if the
+   board lies flat (its Ø58 then sets the depth as well as the width), or about **52 mm** if the board
+   stands parallel to the front face (the tallest part on the component side is 5.0 mm, on the solder side
+   4.5 mm, and the button's body gets the free upper half). The concept render — convex
+   front, flat back, slim D profile — only matches the second. Height still about 96 mm: 30 mm of straight
+   side plus the two Ø66 semicircles, which holds a Ø46 grille field and the 22 mm button.
+5. **DECIDED (2026-09-24): the unit goes in ASSEMBLED.** The Waveshare goes in as it arrives — one
+   cylinder, Ø58, the black body with the speaker inside, the acrylic band and the cover, all screwed
+   together, and its own acoustic chamber and microphone ducting come with it. The case is built
+   around it: depth **58** (was 49), the unit's grille face 6.20 behind the crown at its rim sitting on
+   a spot-faced seat in the lid, held axially by three pads on the back plate, and the unit sits **low**
+   (centre at z = 33, the lowest the rounded bottom allows) because that is what frees the upper half
+   for the 22 mm button: the unit's top edge is at 62, the button's centre at 76.
+   This reverses the earlier "hollowed out" decision, which was taken to keep our own speaker chamber
+   because the vendor's ducting could not be resolved from the STEP. It is resolved now: **the unit
+   listens through its own cover** — the acrylic cover has eight Ø1 holes at r = 5.5 to 8.9 around its
+   axis (measured in the STEP), and the microphones' ports open into the air volume those holes vent.
+   That volume is now the cavity, and the cavity's only way to the outside is the **front grille**.
+   So the microphones' air comes in through the same holes the sound goes out of: the front is closed
+   over the unit with a recessed field of Ø2 through holes (its own grille sits right behind ours), and
+   the back plate is **solid** — it is mortared flat against the wall, so nothing goes through it, not
+   even a membrane. The open question moves to the field: the microphone level now depends on that air
+   path (a cavity in series with a small hole field, which low-cuts), so **F4 decides**. If F4 comes
+   back muffled, the fallback is a dedicated Ø3 port through the bottom shell into the cavity right
+   behind the unit, which restores a short path without touching the back.
+   The seat also turns into an acoustic part: the disc presses on it, and a 1 mm foam ring there is what
+   stops the speaker's front radiation from leaking into the cavity the microphones breathe. That leak is
+   the whole echo-coupling budget, so the ring is not optional in the build.
+   Costs accepted: +9 mm of depth (58 against 49) and the buck moves **outside** the case — the potted
+   supply feeds the unit's USB-C pigtail, which ADR-016 already had as its single-stage alternative.
+   The gland and the vent can no longer live on the back plate either: they move to the bottom or to a
+   side (step 3).
+   `make fit` proves the unit clears both printed parts and that the front grille and the button cutout
+   are both open.
+   The height readings, for the record: the product page drawing says 43.70 + 5.10 = 48.80, the DXF
+   says 46.90 to the body's bottom and 47.00 to the Ø52 disc's bottom, and the assembled product in the
+   STEP is 49.70 including the rubber feet. The model uses **47.00** = 49.70 minus the 2.70 feet, which
+   are peeled off because they stick out of the grille face and would land on the seat. If the real part
+   is 48.80 rather than 47.00, the case has 1.80 mm less margin than it thinks: the caliper decides
+   (`docs/dimensions.md`).

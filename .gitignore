@@ -7,6 +7,9 @@
 *.dxf
 build/
 
+# Generated renders (reproduce with `make section` / `inside_render` / `exploded`)
+cad/media/
+
 # ESPHome
 .esphome/
 *.bin
