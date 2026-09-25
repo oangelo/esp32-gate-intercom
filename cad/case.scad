@@ -311,7 +311,47 @@ screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DI
 screw_m4_r = 26.0;
 screw_m4_a = [60, 180, 300];
 screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
-pocket_m4  = 1.70;      // pocket depth in a 3 mm plate: 1.3 mm left
+pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.5 mm left
+
+// ------------------------------------------------- REVIEW 2: two screws and the unit's collar
+// (2026-09-25, second review.) The first proposal had six M3 in the upper two thirds. On review the
+// joint's screws are TWO, in the corridor between the unit and the button, and the unit's back gets a
+// collar on the floor instead of the three pads having to do all the locating.
+//
+// Where two screws can go: the unit's circle (O58, centre (0, 33)) and the switch's body (O22, centre
+// (0, 76)) leave a corridor that is 3 mm wide on the centre line and opens off it. At (17, 68) the
+// unit is 9.91 mm clear, the switch's body 7.79 mm, its O30 nut flange 3.79 mm, and the case's
+// outline at that height is +/-32.6, so a O6.3 countersink (its edge at 20.15) is well inside. Mirror
+// it and that is the pair. The screw is 13 mm behind the joint plane: M3 x 16, 12 mm of thread.
+// The boss cannot stand off the wall there (the cavity's wall is 12.6 mm out at z = 68, measured), so
+// it is a rib that runs from the screw's axis out to the side wall, which is also what stiffens it.
+m3b       = [17.0, 68.0];
+m3b_d     = 3.4;
+m3b_sink  = 1.65;       // countersunk head, flush in the dome (ISO 10642 / DIN 7991)
+m3b_rib   = 13.0;       // rib length along X, from the axis into the side wall
+m3b_rib_z = 11.0;       // rib width in Z
+m3b_rib_y = 13.0;       // rib depth in Y: 12 mm of thread plus 1 mm of margin at the tip
+//
+// The collar on the floor (the "lábio"): it locates the unit's O58 body. Bore O58.4, so the unit has
+// 0.2 mm to find it, 1.75 mm tall (the same plane as the pads' tops, so the unit's back stays
+// square), and it opens out to the cavity's wall all round, which is what attaches it to the print.
+lip_bore  = 58.4;
+lip_h     = unit_pad_h;
+
+module screw_markers2() {
+    // REVIEW 2, drawn only, nothing cut: the two M3 as rods along Y, their ribs, the collar in place.
+    for (s = [m3b, [-m3b[0], m3b[1]]])
+        color("red", 0.9) translate([s[0], -3, s[1]]) rotate([-90, 0, 0])
+            cylinder(d = m3b_d, h = case_d + 6);
+    for (s = [m3b, [-m3b[0], m3b[1]]])
+        color("blue", 0.5)
+            translate([s[0] > 0 ? s[0] : s[0] - m3b_rib, joint_y, s[1] - m3b_rib_z / 2])
+                cube([m3b_rib, m3b_rib_y, m3b_rib_z]);
+    color("green", 0.85) difference() {
+        prism_xz(lip_h, inner_d - lip_h) outline_inner();
+        translate([0, inner_d, unit_cz]) rotate([-90, 0, 0]) cylinder(d = lip_bore, h = 6, center = true);
+    }
+}
 
 module screw_markers() {
     // PROPOSED positions only: rods along Y, nothing cut. Red = lid to base, blue = base to wall.
@@ -427,6 +467,19 @@ if (part == "base") {
 } else if (part == "inside_parts") {
     // The layout that was rejected (bare board, bare speaker, our own chamber), kept as the record.
     translucent("parts");
+} else if (part == "screwplan2") {
+    // REVIEW 2, cut on the same plane as `section` (the cube takes X < 0, so the half that remains is
+    // X > 0 and the near screw of the pair is the one at x = +17). Shows the two M3, their ribs and the
+    // collar's section against the unit's ghost. Review only: nothing here is cut.
+    difference() {
+        union() {
+            color("grey") base();
+            color("silver") lid();
+            ghosts("unit");
+            screw_markers2();
+        }
+        translate([-200, -60, -60]) cube([200, 400, 400]);
+    }
 } else if (part == "screwplan") {
     // The under-review plan: the shell semi-transparent (as the default view), the unit inside, and
     // the two screw sets as rods. Review only: nothing here is cut.
