@@ -661,11 +661,19 @@ vent_z      = 48.40;    // the middle of the side: the middle of the capsule's s
                         // 63.40) and of the case's height, which come to the same number
 vent_y      = case_d / 2;   // 29.35: the middle of the depth, so the patch sits centred on the panel
 vent_d      = 4.00;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it
+vent_recess_d = 11.00;  // the counterbore the patch drops into: 0.50 mm of clearance around a O10.00
+                        // patch, so the adhesive seats flat instead of the disc standing proud on the
+                        // surface (the user's call, 2026-09-26). A pocket on the OUTSIDE, and this is the
+                        // one place that is right: the patch fills it, the finish comes out flush, and
+                        // the only thing left in the weather is the membrane's own face.
+vent_recess_t = 0.35;   // its depth: the patch's own thickness, so the adhesive lands on the pocket's
+                        // floor and the top face finishes level with the wall. Patches are sold 0.30 and
+                        // 0.35 thick; a 0.30 one then sits 0.05 below flush, which is if anything better.
 vent_face_x = face_x(vent_z);   // 33.40: on the straight band the case's surface is the flat plane, so
                         // the wall is exactly 3.40 from outside to the cavity -- uniform, and square on
 vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A flat disc, and here that is
                         // exact rather than a simplification: the surface it lands on IS flat (ADR-023)
-vent_mem_t  = 0.30;     // membrane plus its adhesive
+vent_mem_t  = 0.35;     // membrane plus its adhesive, and equal to vent_recess_t: the marker ends flush
 
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
@@ -883,20 +891,34 @@ module mic_probe() {
 // ----------------------------------------------------------------- the vent (base, a side), CUT
 
 module vent_cut() {
-    // The hole through the case's -X wall, cut from outside in. Its axis runs along the case's X, which
-    // is IN the bed plane when the base prints: the tunnel is horizontal, its ceiling is the 4 mm
-    // bridge, and it needs no teardrop -- the 4.00 diameter is the whole of it, and rule 4 allows 10.
+    // The opening through the case's -X wall, cut from outside in, in two steps: the hole itself, and
+    // the counterbore the membrane patch drops into.
+    // The hole's axis runs along the case's X, which is IN the bed plane when the base prints: the
+    // tunnel is horizontal, its ceiling is the 4 mm bridge, and it needs no teardrop -- the 4.00
+    // diameter is the whole of it, and rule 4 allows 10.
     // It starts 4 mm outside the surface and ends 6 mm inside it, so the 3.40 of wall is crossed with
     // room to spare at both ends whatever the wall's own thickness turns out to be.
     translate([vent_side * (vent_face_x + 4), vent_y, vent_z]) rotate([0, -90 * vent_side, 0])
         cylinder(d = vent_d, h = 10);
+    // The recess, cut from 1 mm outside the surface inward by its own depth plus that 1 mm, so it
+    // crosses the face with room to spare the way the hole does. A counterbore in a VERTICAL wall adds
+    // no overhang to the print -- every layer is still a 2D cross-section, and the only bridge in this
+    // opening is still the 4 mm one over the hole. What it does add is a floor: 3.40 of wall becomes
+    // 3.05 under the patch, which is still well over rule 3's 1.20.
+    translate([vent_side * (vent_face_x + 1), vent_y, vent_z]) rotate([0, -90 * vent_side, 0])
+        cylinder(d = vent_recess_d, h = vent_recess_t + 1);
 }
 
 module vent_probe() {
-    // A rod 1 mm narrower than the hole, spanning it from inside the cavity to outside: empty against
-    // the base means the opening is a hole through the wall and not a pocket in it.
-    translate([vent_side * (vent_face_x - 3), vent_y, vent_z]) rotate([0, 90 * vent_side, 0])
-        cylinder(d = vent_d - 1, h = 6);
+    // One piece per step of the cut, each placed by its own inner end and each 0.50 smaller in diameter
+    // than what it spans -- the hole's rod 0.50 under the 4.00, the recess's disc 0.50 under the 11.00.
+    // If both intersections with the base are empty then the whole path is open: cavity, 3.05 of wall,
+    // recess, out. Neither piece stops short of the band it is here to test, and no face of either sits
+    // on a face of the part that is within 0.10 of it.
+    translate([vent_side * (vent_face_x - 5), vent_y, vent_z]) rotate([0, 90 * vent_side, 0])
+        cylinder(d = vent_d - 0.5, h = 8);
+    translate([vent_side * (vent_face_x - vent_recess_t + 0.10), vent_y, vent_z])
+        rotate([0, 90 * vent_side, 0]) cylinder(d = vent_recess_d - 0.5, h = 1.25);
 }
 
 module vent_marker() {
@@ -904,12 +926,14 @@ module vent_marker() {
     // the two microphone membranes are stuck over their slots -- ADR-023). Flat here, and exact rather
     // than a simplification: the band's wall is a plane, so the disc lands on it with nothing to conform
     // over.
-    // It is placed BY ITS OWN INNER FACE: the disc spans the wall's surface (|x| = vent_face_x) outward
-    // by its own thickness, 0 to 0.30 outside. The first version translated it to vent_face_x + vent_mem_t
-    // and the cylinder grew further out from there, so the patch floated 0.30 mm off the wall it is
-    // supposed to be stuck to -- the same +axis placement slip as the gland's collar. Review-only, so
-    // nothing about the printed part changes.
-    translate([vent_side * vent_face_x, vent_y, vent_z])
+    // It is placed BY ITS OWN INNER FACE, and that face is the recess's FLOOR, not the wall: the disc
+    // spans from |x| = vent_face_x - vent_recess_t outward by its own thickness, so with the two equal
+    // it finishes flush with the surface, and the adhesive has the floor to sit on rather than the
+    // rounded shoulder of a wall. (It used to be translated to vent_face_x + vent_mem_t and the cylinder
+    // grew further out from there, floating 0.30 mm off the wall -- the same +axis placement slip as the
+    // gland's collar.) Review-only marker, so nothing about the printed part depends on it; what it
+    // shows is where the patch lands.
+    translate([vent_side * (vent_face_x - vent_recess_t), vent_y, vent_z])
         rotate([0, 90 * vent_side, 0]) cylinder(d = vent_mem_d, h = vent_mem_t);
 }
 

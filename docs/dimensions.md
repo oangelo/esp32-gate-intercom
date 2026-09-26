@@ -244,10 +244,13 @@ the case. It sits on a raised boss, so that its gasket and its locknut both land
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
 a 50 degree tail, a **Ø12.50 mm** hole whose first 1.20 mm stay round for the gasket's washer and which then
 becomes a teardrop into the cavity, and a pad under the locknut that leaves **7.65 mm** of material to
-thread into (ADR-025). The **vent** is decided too, and cut: high on the **-X side**, a Ø4.00 hole with its
-membrane stuck over it — the side is the one face with nothing else on it, and high up is both the case's
-driest air and as far from the microphone ports as the design gets (ADR-026). The hole needs no teardrop:
-its axis lies in the bed plane, so it prints as a horizontal tunnel with a 4 mm bridge for a ceiling.
+thread into (ADR-025). The **vent** is decided too, and cut: on the **-X side**, mid-height, a Ø4.00 hole
+whose mouth carries a **Ø11.00 × 0.35 recess** for the membrane patch to drop into, so the adhesive lands
+on a floor and the patch finishes flush with the wall. The side is the one face with nothing else on it,
+and the middle is where the capsule's straight band makes the wall a flat plane and the hole square to it
+(ADR-026). The hole needs no teardrop: its axis lies in the bed plane, so it prints as a horizontal tunnel
+with a 4 mm bridge for a ceiling, and the recess is a counterbore in a vertical wall, which adds no
+overhang. The wall under the recess's floor is **3.05**.
 
 Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
 upper part, above the unit's top edge at 62.15, which is where the button's body and the cable route to the

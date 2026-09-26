@@ -653,6 +653,31 @@ pocket in it. Measured on the STL: r = 2.00 at both mouths, the outer one at x =
 −30.00, with exactly **3.40 mm** of material between them; the hole took **42.5 mm³** off the base
 (65325.39 → 65282.93 mm³, against the 47.9 mm³ the first, longer and sloped tunnel took).
 
+**Amendment (2026-09-26, the user's call the same day): the patch gets a recess to sit in.** The Ø4.00 hole
+is unchanged; what the mouth carries now is a **counterbore, Ø11.00 × 0.35 deep**, and the stick-on patch
+drops into it. Ø10.00 of patch in a Ø11.00 pocket leaves 0.50 mm of clearance all round, and 0.35 is the
+patch's own thickness, so the membrane finishes **flush with the wall** instead of standing proud on it.
+Two things come out of that: the patch's edge sits inside the rim, where nothing can lift it from the
+side, and the panel's surface stays smooth — which is what the user asked for, the adhesive parallel to
+the surface rather than a disc stuck on top of it.
+
+The wall under the pocket's floor goes from 3.40 to **3.05** (rule 3's floor is 1.20), and the print is
+untouched: a counterbore in a **vertical** wall is just a different 2D cross-section per layer, so it adds
+no overhang and no bridge — the only bridge in this opening is still the 4 mm one over the hole. Patches
+are sold 0.30 and 0.35 thick; a 0.30 one lands 0.05 below flush, which is if anything better.
+
+**Proved in two pieces now, one per step of the cut** (each 0.50 smaller in diameter than what it spans,
+each placed by its own inner end): the hole's rod runs from inside the cavity out past the face, the
+recess's disc sits across the counterbore's band, and `probe_vent` is empty against the base only if
+cavity, 3.05 of wall, recess and out are one path. On the exported mesh the ray cast along +X at the
+vent's own height settles it band by band, 3.00 mm off the axis: at |x| = 33.20 the point is in the
+**recess's void** (its crossings run −33.05, −30.00, 30.00, 33.40 — the pocket's floor, then clean through
+the case), while 0.40 further out, at |x| = 32.80, the same point is in **material**, and that pair *is*
+the floor; at 6.00 mm off the axis, outside the Ø11.00, the same depth is material as well. The mesh's own
+vertices say it in one line: a floor at |x| = 33.05 spanning r = 2.00 to r = 5.50, and the wall's face at
+33.40 only from r = 5.50 outward. The base's volume fell **28.86 mm³** (65135.77 → 65106.91), which is
+π × (5.50² − 2.00²) × 0.35 = 28.86 by hand.
+
 **Still to design:** nothing. The microphone membranes' seats are answered — ADR-023 dropped the Ø9
 spot-face, so there is no seat to cut and the patches are drawn on the bottom's curve — and the mounting
 question closed on 2026-09-26 with ADR-027: **no ears, the two M4 through the back plate are the fixing**.
