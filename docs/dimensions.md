@@ -227,8 +227,8 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
 Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the panel button (ADR-018) with a
 flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
 now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent — a **Ø4.00
-hole in the -X side wall**, high up (z = 78, on the unit's axis in depth), with its membrane stuck over it
-(ADR-026) — and M4
+hole in the -X side wall**, at mid-height (z = 48.40) and mid-depth (y = 29.35), with its membrane stuck
+over it (ADR-026) — and M4
 wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
 (z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
 hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. The button's head

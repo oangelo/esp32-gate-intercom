@@ -213,8 +213,8 @@ clear coat or a silicone spray, so the sealing step is specified as a coating.
 **Amendment (2026-09-26):** the joint's gasket is drawn now, as its own part — a **1.70 mm wide** ring of
 closed-cell silicone foam, **1.00 mm** free and squeezed to **0.70** (the 30 percent above), lying flat on
 the lap's shoulder. Its dimensions, its seat and the boolean that proves them are in ADR-024's "The ring
-itself". The **vent** is cut too: a Ø4.00 hole through the case's -X wall, high up, with its membrane stuck
-over it — its position and the reasons for it are ADR-026.
+itself". The **vent** is cut too: a Ø4.00 hole through the case's -X wall, at mid-height on that side, with
+its membrane stuck over it — its position and the reasons for it are ADR-026.
 
 ## ADR-018: button above, speaker grille below (reverses the front face of ADR-015)
 
@@ -576,40 +576,52 @@ mounting ears. The wall screws' own pockets and holes went in with this one — 
 cut item with a decision behind it (ADR-021's amendment). The gland itself is drawn as a marker, exactly
 like the M4 screws: what is cut is the hole, the boss and the pad.
 
-## ADR-026: the vent goes high on the -X side
+## ADR-026: the vent goes in the middle of the -X side
 
-**Decision (2026-09-26):** the case breathes through a **Ø4.00 mm hole** in its **-X side wall**, high up —
-z = 78, clear of the unit's top edge (62.15) and of the gland's boss (94) — on the unit's own axis in depth
-(y = 29.85 = `unit_cy`). A breathable membrane is **stuck over it** from outside, exactly as the two
-microphone membranes are stuck over their slots (ADR-023): nothing is cut for the membrane, and no
-spot-face either.
+**Decision (2026-09-26; the position is the user's call, and it moved the same day from the first cut at
+z = 78):** the case breathes through a **Ø4.00 mm hole** in its **-X side wall**, at **z = 48.40** — the
+case's own mid-height — and **y = 29.35**, the middle of its depth. A breathable membrane is **stuck over
+it** from outside, exactly as the two microphone membranes are stuck over their slots (ADR-023): nothing is
+cut for the membrane, and no spot-face either.
+
+**First, what it is not:** it is not the same opening as the microphone slots, and neither replaces the
+other. Those two 1.20 × 8.00 slots are the case's **acoustic** ports — they exist to let sound in, they
+are covered by hydrophobic membranes whose job is to pass sound while keeping water out, and between them
+they are 19 mm² of open area. This hole is the case's **pressure** path. Hanging the daily pressure cycle
+on the acoustic membranes would spend the microphones' own ports on it, and the two jobs want different
+membranes: an acoustic one is thin and transparent to sound, a breather flows far more air.
 
 **Why:** ADR-017 already decided that the case is vented, and why — the failure mode outdoors is thermal
-pumping, not the rain that lands on the box. This only fixes where, and three constraints decide it:
+pumping, not the rain that lands on the box. This only fixes where, and three things decide it:
 
 - **not the back plate**: that face beds flat on the post (ADR-021) and carries nothing at all except the
   wall screws' own holes;
-- **high up, and away from the microphones**: it breathes the case's warmest air, and the two microphone
-  ports are on the bottom behind their own membranes. The microphones once shared the speaker's field and
-  that was direct coupling, so the vent stays as far from them as the case allows;
+- **mid-height, and this is a geometric argument rather than an aesthetic one**: the capsule's outline is
+  straight from z = 33.40 to 63.40, so in that band the case's outer surface is a **flat plane at ±33.40**
+  and the cavity's wall the same plane at ±30.00. At 48.40 the hole is therefore **square to the surface
+  at both ends** and crosses a **uniform 3.40 mm** of wall — the cleanest cut in the case. In the rounded
+  ends the surface curves away and the wall deepens: at the first position, z = 78, it was 3.84 and the
+  outer mouth was cut on a slope. The middle of the band is also the case's mid-height and the middle of
+  its depth, so the patch reads as placed rather than as an accident;
 - **the -X side specifically**: the only other opening in the upper half is the gland, on the TOP and
   centred, and the button, on the front. A side is the one face with nothing on it, and it puts the vent
-  and the gland as far apart as the case permits.
+  and the gland as far apart as the case permits. The microphone ports are 40 mm below the new position, on
+  the bottom, which is as far from them as this case gets — the microphones once shared the speaker's field
+  and that was direct coupling, so nothing gets added near them if it can be avoided.
 
 **What it costs:** nothing that has to be designed around. The hole's axis runs along the case's X, which
 in the print is **in the bed plane** — the base prints on its back plate, so the case's X and Z are the
 printer's X and Y — so the hole comes out as a **horizontal tunnel** whose ceiling is a **4 mm bridge**,
 two fifths of what rule 4 allows, and it needs no teardrop. It is also the right orientation for rain: a
-horizontal hole through a vertical wall cannot be run into, only climbed into. The wall there is **3.83 mm**
-rather than the flat 3.40, because the outer surface (the capsule's top end circle, r = 33.4) and the inner
-one (r = 30) curve about different centres — measured on the STL, which is where that number comes from,
-not from the drawing.
+horizontal hole through a vertical wall cannot be run into, only climbed into. And because the band's wall
+is a plane, the membrane's patch is a **flat disc on a flat surface** — the one membrane here that has
+nothing to conform over.
 
 **Proved by boolean, not by eye:** `probe_vent` runs a rod 1 mm narrower than the hole from inside the
 cavity to outside; empty against the base is the statement that this is a hole through the wall and not a
-pocket in it. Measured on the STL: r = 2.00 at both mouths, the outer one at x = -30.04 and the inner at
--26.21, with 3.83 mm of material between them; the hole took **47.9 mm³** off the base (65325.39 →
-65277.49 mm³).
+pocket in it. Measured on the STL: r = 2.00 at both mouths, the outer one at x = −33.40 and the inner at
+−30.00, with exactly **3.40 mm** of material between them; the hole took **42.5 mm³** off the base
+(65325.39 → 65282.93 mm³, against the 47.9 mm³ the first, longer and sloped tunnel took).
 
-**Still to design:** the microphone membranes' seats — which ADR-023 may already have answered by dropping
-the Ø9 spot-face, since the membranes stick straight to the bottom's curve — and the mounting ears.
+**Still to design:** the mounting ears — and the microphone membranes' seats, which ADR-023 answered by
+dropping the Ø9 spot-face: there is no seat to cut, and the patches are drawn on the bottom's curve.

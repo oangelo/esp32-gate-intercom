@@ -9,9 +9,9 @@
 //   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
 //      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
 //      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
-//   2. the mounting ears, the last item. The vent is cut as of 2026-09-26, high on the -X side (ADR-026);
-//      the cable gland's top went in with ADR-025; and the microphone membranes need NO seat -- they are
-//      drawn as patches on the bottom's curve (mic_membrane_marker()), which is ADR-023's answer
+//   2. the mounting ears, the last item. The vent is cut as of 2026-09-26, in the middle of the -X side
+//      (ADR-026); the cable gland's top went in with ADR-025; and the microphone membranes need NO seat --
+//      they are drawn as patches on the bottom's curve (mic_membrane_marker()), which is ADR-023's answer
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -277,6 +277,10 @@ module outline_offset(d) {
         translate([0, z_top]) circle(r = r_end - d);
     }
 }
+
+// The capsule's own OUTER surface at a given z: r_end out on the straight band (the flat sides), and the
+// end circle's radius where an end curves away -- which end by which half of the case the z falls in.
+function face_x(z) = (z > z_btm && z < z_top) ? r_end : sqrt(pow(r_end, 2) - pow(z - (z > z_top ? z_top : z_btm), 2));
 
 module crown_outer() { translate([0, crown_r, -1]) cylinder(r = crown_r, h = case_h + 2); }
 module crown_inner() { translate([0, crown_r, -1]) cylinder(r = crown_in, h = case_h + 2); }
@@ -631,26 +635,35 @@ gland_nut_z   = z_top + cav_x - gland_nut_cut;   // 92.15: the seat's plane
 // ------------------------------------------------------------- features: vent (base, a side)
 // The breathable membrane that equalises pressure, and the reason it exists is ADR-017: the failure mode
 // outdoors is not the rain, it is thermal pumping -- the box heats, expels air, cools, and pulls damp air
-// back in once a day, forever. The vent removes the differential that drives that cycle.
-// WHERE (2026-09-26): high up on the case's -X side, on the unit's own axis in depth. Three reasons, and
-// none of them is looks. (1) A side and not the back: the back plate beds flat on the post (ADR-021). (2)
-// High up: it breathes the case's warmest, driest air, and it is as far as the design gets from the two
-// microphone ports, which are on the bottom behind their own membranes -- the microphones used to share
-// the speaker's field and that was direct coupling, so nothing gets added near them if it can be avoided.
-// (3) On the -X side specifically: the only other thing on either side is the gland, which is on the TOP
-// and centred, so the two openings are as far apart as the case allows and neither shadows the other.
-// The hole is also the best-behaved cut in the whole case: its axis runs along the case's X, which in the
-// print is IN the bed plane, so it comes out as a horizontal tunnel whose ceiling is a 4 mm bridge --
-// half of what rule 4 allows -- and, since it is horizontal through a vertical wall, water cannot run
-// into it: it would have to climb.
+// back in once a day, forever. The vent removes the differential that drives that cycle. It is NOT
+// redundant with the microphone slots: those two 1.20 x 8.00 slots are the ACOUSTIC ports, behind
+// hydrophobic membranes whose job is to let sound through, and they are small (19 mm2 of open area
+// between them). This is the pressure path, and hanging that duty on the acoustic membranes would spend
+// the microphones' own ports on it.
+// WHERE (2026-09-26, the user's call: the middle of the side). Three reasons, and none of them is looks.
+// (1) A side and not the back: the back plate beds flat on the post (ADR-021). (2) Mid-height, and this
+// is the geometric reason for it: the capsule is straight from z_btm (33.40) to z_top (63.40), so 48.40
+// is the one place where the case's outer surface is a FLAT PLANE at +-33.40 and the hole is square to
+// it for its whole length -- a uniform 3.40 mm tunnel, perpendicular at both faces. Out in the ends the
+// surface curves away and the wall deepens (3.84 at z = 78, where this hole first went), so the middle
+// of the band is the best-behaved cut in the case. It is also, by coincidence or not, the case's own
+// mid-height, and the middle of the depth, so it reads as deliberate rather than as a scuff.
+// (3) On the -X side: the only other opening on the upper half is the gland, which is on the TOP and
+// centred, so the two are as far apart as the case allows and neither shadows the other. The microphone
+// ports are 40 mm below it, on the bottom -- as far from this hole as the case gets. The microphones
+// once shared the speaker's field and that was direct coupling, so nothing gets added near them.
+// The hole is also well behaved in the print: its axis runs along the case's X, which is IN the bed
+// plane, so it comes out as a horizontal tunnel whose ceiling is a 4 mm bridge -- under rule 4's 10 --
+// and, being horizontal through a vertical wall, water cannot run into it: it would have to climb.
 vent_side   = -1;       // -1: the case's -X wall. 1 would mirror it, for nothing
-vent_z      = 78.0;     // high: above the unit's top edge (62.15) and clear of the gland's boss (94)
-vent_y      = unit_cy;  // 29.85: on the unit's axis in depth, so the hole meets the wall square on
+vent_z      = 48.40;    // the middle of the side: the middle of the capsule's straight band (33.40 to
+                        // 63.40) and of the case's height, which come to the same number
+vent_y      = case_d / 2;   // 29.35: the middle of the depth, so the patch sits centred on the panel
 vent_d      = 4.00;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it
-vent_face_x = sqrt(pow(r_end, 2) - pow(vent_z - z_top, 2));   // 30.04: where the case's own surface
-                        // is at this z -- the capsule's top end circle, so the wall is 3.84 thick here
-vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A flat disc: the surface's
-                        // sag over +-5 mm is 0.37, and a membrane is made to conform (ADR-023)
+vent_face_x = face_x(vent_z);   // 33.40: on the straight band the case's surface is the flat plane, so
+                        // the wall is exactly 3.40 from outside to the cavity -- uniform, and square on
+vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A flat disc, and here that is
+                        // exact rather than a simplification: the surface it lands on IS flat (ADR-023)
 vent_mem_t  = 0.30;     // membrane plus its adhesive
 
 module screw_markers2() {
@@ -872,7 +885,7 @@ module vent_cut() {
     // The hole through the case's -X wall, cut from outside in. Its axis runs along the case's X, which
     // is IN the bed plane when the base prints: the tunnel is horizontal, its ceiling is the 4 mm
     // bridge, and it needs no teardrop -- the 4.00 diameter is the whole of it, and rule 4 allows 10.
-    // It starts 4 mm outside the surface and ends 6 mm inside it, so the 3.84 of wall is crossed with
+    // It starts 4 mm outside the surface and ends 6 mm inside it, so the 3.40 of wall is crossed with
     // room to spare at both ends whatever the wall's own thickness turns out to be.
     translate([vent_side * (vent_face_x + 4), vent_y, vent_z]) rotate([0, -90 * vent_side, 0])
         cylinder(d = vent_d, h = 10);
@@ -887,9 +900,9 @@ module vent_probe() {
 
 module vent_marker() {
     // The stick-on membrane, as a marker (nothing is cut for it: it is stuck over the hole, exactly as
-    // the two microphone membranes are stuck over their slots -- ADR-023). Drawn flat, which is a
-    // simplification worth naming: the surface's sag over the patch's +-5 mm is 0.37 mm, and a
-    // breathable membrane is made to conform.
+    // the two microphone membranes are stuck over their slots -- ADR-023). Flat here, and exact rather
+    // than a simplification: the band's wall is a plane, so the disc lands on it with nothing to conform
+    // over.
     translate([vent_side * (vent_face_x + vent_mem_t), vent_y, vent_z])
         rotate([0, 90 * vent_side, 0]) cylinder(d = vent_mem_d, h = vent_mem_t);
 }

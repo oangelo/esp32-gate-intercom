@@ -145,8 +145,10 @@ Not decided yet, needed before F2 starts:
    alternative. Neither the gland nor the vent can live on the back plate any more: that face beds flat on
    the post. **The gland goes to the TOP** (2026-09-26, the user), straight above the unit's USB-C, which
    points up: the shortest route, and the only one that needs no bend inside the case (ADR-025). Its boss,
-   its hole and the locknut's pad are cut in the base. The vent goes high on the -X side (ADR-026), the one
-   face with nothing else on it, and as far from the microphone ports as the case allows.
+   its hole and the locknut's pad are cut in the base. The vent goes in the middle of the -X side
+   (ADR-026) -- mid-height, where the capsule's straight band makes the wall a flat plane and the hole
+   square to it -- the one face with nothing else on it, and as far from the microphone ports as the case
+   allows.
    `make fit` proves the unit clears both printed parts and that the front grille and the button cutout
    are both open.
    The height readings, for the record: the product page drawing says 43.70 + 5.10 = 48.80, the DXF says

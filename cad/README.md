@@ -75,8 +75,10 @@ markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 Still to come: the mounting ears. Everything else on that list is done as of 2026-09-26. The joint's gasket
 is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of closed-cell silicone
 foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
-itself"). The vent is a Ø4.00 hole high on the -X side, a horizontal tunnel with a 4 mm bridge for a ceiling,
-proved by `probe_vent`, with a breathable membrane stuck over it (ADR-026). The two microphone membranes are
+itself"). The vent is a Ø4.00 hole in the middle of the -X side — mid-height, where the capsule's straight
+band makes the wall a flat plane and the hole square to it, so the 3.40 mm of wall is crossed cleanly — a
+horizontal tunnel with a 4 mm bridge for a ceiling, proved by `probe_vent`, with a breathable membrane
+stuck over it (ADR-026). The two microphone membranes are
 drawn too, as patches on the bottom's own curve — `show_mic_mem` — and nothing is cut for them, which is
 ADR-023's answer to "the membranes' seats". The gland's top is cut (ADR-025):
 a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the gasket's
