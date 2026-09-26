@@ -359,7 +359,7 @@ its edge out of the way of anything that slides past.
 **Open, and it is a mounting question rather than a CAD one:** these two ports face the wall the case is
 fixed to, so bedding the plate flat on mortar buries them and the microphones fall back to listening
 through the grille. The plate has to stand a few millimetres off the wall in front of them, or that area
-has to stay clear — the two M4 at x = 0, z = 24 and 72 leave the lower corners free, so the fix can live
+has to stay clear — the two M4 at x = 0, z = 24.2 and 72.6 leave the lower corners free, so the fix can live
 there. Steps 3 and 5 (gland, vent, mounting ears) should settle it before anything is printed.
 
 **Superseded by ADR-023:** the answer to that open question is that the plate is *not* going to stand

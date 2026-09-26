@@ -323,10 +323,11 @@ module button_lands_cut() {
 // ------------------------------------------------- PROPOSED: the joint and the screws (2026-09-25)
 // Not cut yet: this block is the plan, and the render view `screwplan` draws it.
 // CORRECTED (2026-09-25), on review: no boss on the back plate's outer face. The head seats on the
-// plate's inner face, 3 mm off the wall, which is what "rente" means here. The plate is 3 mm, so a
-// O8 counterbore 1.5 mm deep on the inner face plus a low or button head M4 (2.2 mm tall) is the
-// combination that works: 1.5 mm of plate left, 0.7 mm of head in the 1.8 mm gap behind the unit.
-// A countersunk M4 (2.35 mm) would leave 0.65 mm of plate: it does not work in 3 mm. The numbers come
+// plate's inner face, 3 mm off the wall, which is what "rente" means here. The plate is 3.4 mm now (it
+// was 3.0), so a O8 counterbore 1.5 mm deep on the inner face plus a low or button head M4 (2.2 mm
+// tall) is the combination that works: 1.9 mm of plate left, 0.7 mm of head in the 1.8 mm gap behind
+// the unit. A countersunk M4 (2.35 mm) would leave 1.05 mm of plate -- 0.65 when the plate was 3.0 --
+// which is still under rule 3's 1.2, so the counterbore stays the way to go. The numbers come
 // from working the case's own clearances backwards, and one of them decides the whole layout.
 //
 // The joint moves to y = 8 (CUT 2026-09-26). At 27.5 it is 27.5 mm behind the front face: a screw
@@ -394,19 +395,19 @@ screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DI
 // the plate's inner face.
 // WHERE (user's call, 2026-09-26): a quarter of the case's height up from the floor and a quarter
 // down from the top, on the centre line. In X they were already there -- the old 26 mm radius at 90
-// and 270 degrees lands on x = 0 too -- so only Z moved, from 7/59 to 24/72. Two things improve and
-// one gets slightly worse. Better: the pair is now symmetric about the case's own centre (48), so
+// and 270 degrees lands on x = 0 too -- so only Z moved, from 7/59 to 24.2/72.6. Two things improve and
+// one gets slightly worse. Better: the pair is now symmetric about the case's own centre (48.4), so
 // the hanging weight reaches the screws as shear instead of loading one of them with a moment -- at
-// 7 and 59 their centre sat at 33, below the mass. Better again: at 24 the screw is 9 mm off the
+// 7 and 59 their centre sat at 33.4, below the mass. Better again: at 24.2 the screw is 9.2 mm off the
 // unit's axis, so its head is nowhere near the collar's O60.4 (which is what retired the collar's
-// M4 windows, ADR-020) while still landing in the 1.8 mm gap behind the unit, and at 72 it is clear
-// ABOVE the unit (top edge 62) and below the switch's body (y = 31.2), so it is reachable with the
-// unit already installed. Worse: 48 mm between them instead of 52, a little less leverage against
+// M4 windows, ADR-020) while still landing in the 1.8 mm gap behind the unit, and at 72.6 it is clear
+// ABOVE the unit (top edge 62.4) and below the switch's body (y = 31.2), so it is reachable with the
+// unit already installed. Worse: 48.4 mm between them instead of 52, a little less leverage against
 // tipping -- the price of the symmetry, and a small one.
-m4_z = [case_h / 4, case_h - case_h / 4];   // 24 and 72: the quarter points
+m4_z = [case_h / 4, case_h - case_h / 4];   // 24.2 and 72.6: the quarter points
 m4_x = 0.0;                                 // the centre line
 screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
-pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.5 mm left
+pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.9 mm left
 
 // ------------------------------------------------- REVIEW 3: socket head screws into brass inserts
 // (2026-09-25, third review.) Two changes, both from the user's review of review 2, and together they
@@ -819,8 +820,8 @@ module m4_points() {
 
 module m4_heads() {
     // Just the two M4 heads, seated in their pockets on the plate's inner face. The collar's fit check
-    // bites these: at 24 the screw is 9 mm off the unit's axis and the collar lives at 29.2, so they do
-    // not meet -- and that check is what keeps it that way if either one moves.
+    // bites these: at 24.2 the screw is 9.2 mm off the unit's axis and the collar lives at 29.2, so they
+    // do not meet -- and that check is what keeps it that way if either one moves.
     color("darkorange", 0.95)
         m4_points() translate([0, inner_d - pocket_m4, 0])
             rotate([-90, 0, 0]) cylinder(d = m4_head_d, h = pocket_m4);
