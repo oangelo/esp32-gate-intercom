@@ -3,8 +3,10 @@
 Parametric OpenSCAD for the gate intercom enclosure. Two printed parts plus the hardware that goes
 through their walls:
 
-- **base** - the back tray: **closed**, because this face is mortared flat against the wall. It carries
-  the three pads that push the unit forward onto the seat, and (step 3) the mounting ears.
+- **base** - the back tray: **closed on the wall face**, which is the one face that carries nothing
+  because it beds flat on the post, and opened through its **bottom**, where the two microphone slots
+  are cut (ADR-023). It carries the three pads that push the unit forward onto the seat, and (step 3)
+  the mounting ears.
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
   unit's disc presses on, and the flat land and O22 cutout for the panel button.
 
@@ -19,12 +21,13 @@ Status of `case.scad`: **revision 3, steps 1 and 2 done, re-cut around the assem
 item 5 was decided the other way on 2026-09-24: the Waveshare goes in whole, as it arrives, so the lid
 no longer builds its own speaker chamber — its front stays **closed** over the unit's grille and just
 drills the sound holes (a O44 recessed field of O2 holes, the unit's own grille right behind them).
-Those same holes are the speaker's air path out, and the microphones have their own way in: **two Ø4 mm
-ports through the back plate**, low and behind them, each behind a hydrophobic membrane on a spot-faced
-seat (ADR-022). Keeping the two apart is the point — the microphones used to share the speaker's field,
-which is direct coupling. The base keeps three pads that push the unit onto a spot-faced seat in the
-lid. Case depth went from 49 to 58 and the unit sits low (centre at 33) to free the upper half for the
-button at 76.
+Those same holes are the speaker's air path out, and the microphones have their own way in: **two thin
+slots, 1.20 × 8.00 mm, through the BOTTOM of the base** close behind the unit, one each side at the
+microphones' own x, each over a hydrophobic membrane on a spot-faced seat cut along the surface's own
+normal (ADR-023, which moved them off the back plate: that face beds flat against the post). Keeping the
+two apart is the point — the microphones used to share the speaker's field, which is direct coupling.
+The base keeps three pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49
+to 58 and the unit sits low (centre at 33) to free the upper half for the button at 76.
 `make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`,
 `probe_mic`) prove the openings are open through the walls, by boolean instead of by eye.
 

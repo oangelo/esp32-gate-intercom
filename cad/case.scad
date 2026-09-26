@@ -90,12 +90,14 @@ show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not
 // microphone ducting come with it. The case is built around that, which is what the depth above and
 // the unit placement below are.
 //
-// The case is closed except for two openings, both deliberate: the front is solid over the unit with a
-// recessed grille field drilled through it (the sound leaves through ours and then through the unit's),
-// and the back plate carries the two microphone ports, low and behind the microphones. Those ports are
-// the only thing that goes through that face, and they are what keeps the microphones out of the
-// speaker's air path (ADR-014, ADR-022): they open into the 1.80 mm gap behind the unit, which is the
-// volume the microphones breathe.
+// The case is closed except for two kinds of opening, both deliberate: the front is solid over the unit
+// with a recessed grille field drilled through it (the sound leaves through ours and then through the
+// unit's), and the BOTTOM carries the two microphone ports, low and close behind the unit. Neither of
+// the other two faces will do for the microphones: the front field is the speaker's own air path (the
+// direct coupling ADR-014 exists to prevent) and the wall face is bedded flat on the gate post, so a
+// port there breathes mortar, not air. The bottom is what is left, and it is what ADR-014 asked for all
+// along ("on the back and low side, facing down where the geometry allows"). The two slots open into
+// the 1.80 mm gap behind the unit, which is the volume the microphones breathe.
 //
 // Height, and why the model uses 47.00: the assembled product measures 49.70 in the vendor STEP,
 // which includes the three rubber feet (2.70) stuck on the grille face. With the unit's grille face
@@ -407,20 +409,49 @@ lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind th
 m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inner face
 
 // --------------------------------------------- features: microphone ports (base, step 3 of the list)
-// The two ports, CUT through the back plate. This corrects a decision that had the case fully closed
-// with the microphones listening through the front grille: that path runs through the speaker's own
-// field, which is the direct acoustic coupling ADR-014 exists to keep down. The ports open into the
-// 1.80 mm gap behind the unit instead -- the volume the microphones actually breathe, which the unit's
-// own back cover connects to its chamber through eight O1 holes at r = 5.5 to 8.9 (STEP).
-// WHERE: r = mic_port_r at mic_port_a, in the BOARD's own frame, whose +Y points down in the case
-// (see ghost_board), so a point at radius r and angle a lands at x = r*cos(a), z = board_cz - r*sin(a).
-// Both ports therefore come out at z = 17.3, one each side of x = 0, low: behind the microphones and as
-// far from the speaker as this case goes (ADR-014, ADR-018 sketches the same two holes).
-mic_hole_d   = 4.0;     // ADR-018 says O3 to O4; the top of the range, because area here is
-                        // microphone level the AEC does not have to earn back
-mic_face_d   = 9.0;     // spot face on the OUTSIDE of the plate: the flat seat for the hydrophobic
-mic_face_dep = 1.0;     // membrane, which is how ADR-017 keeps water out of the port. 1 mm of the
-                        // plate's 3 leaves 2 mm of hole with nothing to catch on it
+// The two ports, CUT through the BOTTOM of the base, close behind the unit. This is the third face they
+// have been on and the first one that survives the mounting. They started on the front, sharing the
+// speaker's grille field -- the direct acoustic coupling ADR-014 exists to prevent. ADR-022 moved them
+// to the back plate, which is the one face this case cannot use: the plate is bedded flat on the gate
+// post (ADR-010, ADR-021), so a port there breathes mortar, and ADR-022 left exactly that open.
+// ADR-014 had the answer from the start: "on the back and low side, facing down where the geometry
+// allows".
+//
+// SHAPE: a thin slot, and the printing rules decide that as much as the water does. The base prints
+// lying on its back plate, so the case's depth is the printer's Z: a slot whose long axis runs along
+// the depth prints as a VERTICAL slit, same cross section from the first layer to the last, with
+// nothing to bridge and nothing to support under it. A round hole through the bottom, or a slot lying
+// across the width, is a horizontal tunnel in the print whose ceiling is a bridge over the opening --
+// 8.00 mm for a slot lying the other way, which rule 4 forbids. Facing down and 1.20 wide, the slot
+// also sheds rain and refuses insects, but the seal is the MEMBRANE, not the geometry: capillary
+// pressure holds a film in a 1.20 mm slot against only 12 mm of water head, and the wall is 4.7.
+//
+// WHERE: at the microphones' own x (r = 26.83 at 47.2 degrees in the board's frame -- ADR-018's
+// measured numbers), one each side, running along the depth across the collar's band and into the gap
+// behind the unit. Each slot's last 0.80 mm opens straight into that 1.80 mm gap (the slot ends at
+// 54.00, the unit's back face is at 53.20); the rest opens into the 1.00 mm annulus between the unit
+// and the cavity wall, which the collar's own 0.20 mm clearance connects to the same gap. The two slots
+// are 19.2 mm2 of open area against the 6.3 mm2 of the eight Ø1 holes they feed, so the slots are not
+// the restriction in the path (ADR-022's reasoning, unchanged), and both of them cut a 1.20 mm notch
+// in the collar's ring, one each side of the bottom.
+mic_slot_x   = mic_port_r * cos(mic_port_a[0]);   // 18.23: the microphones' own x, mirrored below
+mic_slot_w   = 1.20;    // across the width. 1.20 and not 0.80: below 0.90 the two lines that form the
+                        // slot's walls (0.45 each at a 0.4 nozzle) meet in the middle and it prints shut
+mic_slot_l   = 8.00;    // along the depth -- the printer's Z, so it prints as a vertical slit
+mic_slot_top = 13.0;    // how far the cut reaches up: past the collar's bore (10.19 at this x), so the
+                        // slot is open through the wall AND the collar, not a pocket in either
+mic_face_cy  = 50.0;    // the seat's centre along the depth. The collar spans 50 to 55 and the unit's
+                        // back face is at 53.20, so the seat lands on the collar's band and the slot's
+                        // back end (54.00) reaches 0.80 mm into the gap behind the unit
+mic_face_d   = 9.0;     // spot face on the OUTSIDE of the bottom: the flat seat for the hydrophobic
+mic_face_dep = 1.0;     // membrane (ADR-017; BOM: ePTFE acoustic vent, adhesive backed, 8 to 12 mm).
+                        // 1 mm of the wall's 4.7 leaves 3.7 under the membrane, and the 8.00 slot fits
+                        // inside the seat's Ø9 with 0.50 to spare at each end
+mic_face_tilt = asin(mic_slot_x / r_end);   // 33.5 degrees: the bottom is a Ø66 cylinder, so the seat
+                        // is cut along the surface's own normal. Cut along Z instead and its floor
+                        // would be a 6 mm ramp that a flat membrane cannot stick to
+mic_zy       = z_btm - sqrt(pow(r_end, 2) - pow(mic_slot_x, 2));   // 5.49: where the bottom's outer
+                        // surface sits at the slot's own x -- the point the seat is cut from
 
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
@@ -558,10 +589,12 @@ module unit_collar() {
     // raised floor: outline_inner() would have made it a slab with a hole in it (60 x 60, minus the
     // bore), a 5 mm step across the whole floor. Just the annulus -- the unit drops into lip_bore and
     // the pads carry it forward onto the seat.
-    // A plain ring now, with no windows in it. It had two (a O9 on each M4 axis) while the wall screws
+    // A plain ring, with no windows in it. It had two (a O9 on each M4 axis) while the wall screws
     // sat on the 26 mm radius around the unit's axis: an O8 head reaches r = 30, past lip_bore's 29.2,
     // so the ring would have stood on the screw heads. The screws are at 24 and 72 as of ADR-021, and
-    // 24 is 9 mm off that axis -- far inside the bore -- so there is nothing left to clear.
+    // 24 is 9 mm off that axis -- far inside the bore -- so there is nothing left to clear. The two
+    // microphone slots do cut it now, a 1.20 mm notch each side of the bottom: they go through the wall
+    // and the collar to reach the gap behind the unit, which is why mic_slot_top is above the bore.
     translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
         difference() {
             cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
@@ -572,36 +605,53 @@ module unit_collar() {
 // ----------------------------------------------------- the microphone ports (base, step 3)
 
 module mic_points() {
-    // Where the two ports are, in the case's frame. The board's own +Y points down here (ghost_board),
-    // so a point at radius r and angle a in the board's frame lands at x = r*cos(a), z = board_cz - r*sin(a).
-    // Children land on that axis, y = 0 being the plate's inner face.
-    for (a = mic_port_a) translate([mic_port_r * cos(a), 0, board_cz - mic_port_r * sin(a)]) children();
+    // Where the two slots are: at the microphones' own x, mirrored on X. Children land on one slot's
+    // own axis, in the case's frame, y = 0 being the case's depth origin (the apex of the front face).
+    for (s = [mic_slot_x, -mic_slot_x]) translate([s, 0, 0]) children();
 }
 
-module mic_port_cut(d) {
-    // The through hole, one per port, on Y through the back plate's 3 mm. Length wall + 2 so it breaks
-    // both faces whatever the plate's thickness becomes.
-    mic_points() translate([0, inner_d - 1, 0])
-        rotate([-90, 0, 0]) cylinder(d = d, h = wall + 2);
+module mic_slot_cut() {
+    // One prism each, cut up through the wall and through the collar that sits on it. It runs from 1 mm
+    // below the bottom surface (so the cut breaks out clean whatever the wall's own thickness is) up to
+    // mic_slot_top, which is above the collar's bore at this x: the slot is a through opening, not a
+    // pocket. Along the depth it spans 46.00 to 54.00, flush inside the membrane seat and 0.80 mm into
+    // the gap behind the unit.
+    mic_points() translate([-mic_slot_w / 2, mic_face_cy - mic_slot_l / 2, -1])
+        cube([mic_slot_w, mic_slot_l, mic_slot_top + 1]);
+}
+
+module mic_face_cut() {
+    // The membrane's seat: Ø9 x 1 mm, cut along the bottom's own normal at the slot's x. The normal is
+    // the radius at that point, so the seat is tilted mic_face_tilt off the vertical and its floor is
+    // perpendicular to the surface it sits in -- a flat land for an adhesive-backed membrane on a Ø66
+    // cylinder, which is what ADR-017 asks for and what the old Ø9 seat on the flat plate already was.
+    mic_points() translate([0, mic_face_cy, mic_zy]) rotate([0, -mic_face_tilt, 0])
+        translate([0, 0, -eps]) cylinder(d = mic_face_d, h = mic_face_dep + eps, $fn = 64);
 }
 
 module mic_ports_cut() {
-    // Everything the plate loses for the microphones: the two holes and the two membrane seats, which
-    // are 9 mm of flat on the OUTSIDE of the plate for a stick-on hydrophobic membrane (ADR-017). The
-    // seat is only 1 mm deep, so the port keeps 2 mm of round wall behind it.
-    mic_port_cut(mic_hole_d);
-    mic_points() translate([0, case_d - mic_face_dep, 0])
-        rotate([-90, 0, 0]) cylinder(d = mic_face_d, h = mic_face_dep + 1);
+    // Everything the base loses for the microphones: the two slots and the two membrane seats.
+    mic_slot_cut();
+    mic_face_cut();
+}
+
+module mic_probe() {
+    // A rod through the intended opening, narrower and shorter than the cut and long enough to emerge
+    // inside the cavity: if its intersection with the base is empty, the slot is open end to end and
+    // not a pocket through either the wall or the collar.
+    mic_points() translate([-(mic_slot_w - 0.6) / 2, mic_face_cy - (mic_slot_l - 2) / 2, -1])
+        cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
 
 // ------------------------------------------------------------------- the two parts
 
 module base() {
-    // Back tray: closed, except for the two microphone ports that go through its plate (step 3 of the
-    // feature list -- the one opening in this face, and the reason the microphones stop listening
-    // through the speaker's grille). What it carries is the three pads that push the unit forward onto
-    // the seat, and (review 3) the two pillars the lid screws into and the collar that locates the
-    // unit. The gland and the vent still live here in name only: they move to a side or to the bottom.
+    // Back tray: closed on the wall face -- the one face that cannot carry anything, because the case
+    // is bedded flat on the post -- and opened instead through its BOTTOM, where the two microphone
+    // slots pierce the wall just behind the unit (step 3 of the feature list). What it carries is the
+    // three pads that push the unit forward onto the seat, and (review 3) the two pillars the lid
+    // screws into and the collar that locates the unit. The gland and the vent still live here in name
+    // only: they move to a side or to the bottom.
     difference() {
         union() {
             difference() {
@@ -814,10 +864,10 @@ if (part == "base") {
 } else if (part == "probe_button") {
     intersection() { lid(); button_cut_hole(btn_cut - 1.0); }
 } else if (part == "probe_mic") {
-    // Against the BASE, like probe_grille is against the lid: empty means both microphone ports are
-    // open through the back plate's 3 mm. The probe is 1.0 mm smaller than the cut, so it does not ride
-    // on the hole's wall.
-    intersection() { base(); mic_port_cut(mic_hole_d - 1.0); }
+    // Against the BASE, like probe_grille is against the lid: empty means both microphone slots are open
+    // from outside the case into the cavity, wall and collar both. The probe is narrower and shorter
+    // than the cut and spans the whole depth of the wall, so it proves the opening end to end.
+    intersection() { base(); mic_probe(); }
 } else {
     // Default, so opening this file shows where the planned screws go. In one piece: a cutaway was not
     // readable.

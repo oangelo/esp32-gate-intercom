@@ -163,11 +163,15 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   62, so the Ø22 button's centre goes at **76** — above the unit's top edge and clear of the seat's rim
   at 59.5, while its land keeps 2 mm of material below the cavity's ceiling (ADR-018).
 - The microphones listen through the unit's own cover: eight Ø1 holes at r = 5.5 to 8.9 around its axis
-  (STEP). Their air volume is the 1.80 mm gap behind the unit, and **two Ø4 mm ports through the back
-  plate** open that gap to the outside: at `r = 26.83`, `±47.2° / 132.8°` in the board's frame, which is
-  z = 17.3 in the case — low, behind the microphones, and as far from the speaker as this case goes
-  (ADR-014, ADR-022). Each port is spot-faced Ø9 × 1 mm on the outside as the seat for its hydrophobic
-  membrane (ADR-017).
+  (STEP). Their air volume is the 1.80 mm gap behind the unit, and the case opens that gap to the
+  outside through its **bottom**, close behind the unit: **two slots of 1.20 × 8.00 mm** (ADR-023), one
+  each side at the microphones' own x of ±18.23 mm (`r = 26.83`, `47.2° / 132.8°` in the board's frame,
+  which is z = 17.3 in the case), running from y = 46.00 to 54.00 along the depth. Each slot passes
+  through the shell **and** the collar — 4.70 mm of material at that x, because the collar's bore is at
+  10.19 and `mic_slot_top` is 13.00 — and its back end (54.00) reaches 0.80 mm into the gap the unit
+  breathes: the unit's own back face is at 53.20. Each slot keeps the **Ø9 × 1 mm seat** for its
+  hydrophobic membrane (ADR-017), now cut along the bottom's own normal, 33.5° off the vertical at that
+  x. The back plate carries nothing at all any more: it is the face that beds on the wall (ADR-023).
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share
@@ -179,8 +183,8 @@ flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the 
 now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent, and M4
 wall/pole mounting holes. The button's head diameter and the depth of its body behind the panel are
 measured on arrival and become parameters in the same file. The gland and the vent go through the
-**bottom or a side**, never the back plate: that face is what beds against the wall, and the two
-microphone ports (ADR-022) are all it gives up.
+**bottom or a side**, never the back plate: that face is what beds against the wall, so it carries
+nothing at all — the microphone ports are on the bottom with them now (ADR-023).
 
 Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
 upper part, above the unit's top edge at 62, which is where the button's body and — still to design —

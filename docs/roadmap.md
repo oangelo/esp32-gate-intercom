@@ -111,12 +111,13 @@ Not decided yet, needed before F2 starts:
    because the vendor's ducting could not be resolved from the STEP. It is resolved now: **the unit
    listens through its own cover** — the acrylic cover has eight Ø1 holes at r = 5.5 to 8.9 around its
    axis (measured in the STEP), and the microphones' ports open into the air volume those holes vent.
-   That volume is now the 1.80 mm gap behind the unit, and the case opens it to the outside with **two
-   Ø4 mm ports through the back plate**, low and behind the microphones (ADR-022), each with a
-   hydrophobic membrane. They deliberately do **not** use the front grille: that field is the speaker's
-   own air path, and sharing it means the speaker fires straight into the microphones, which is the one
-   geometry error ADR-014 exists to prevent. **F4 decides the level anyway**: if it comes back muffled,
-   the ports grow before any geometry moves.
+   That volume is now the 1.80 mm gap behind the unit, and the case opens it to the outside through its
+   **bottom**, with **two thin slots (1.20 × 8.00 mm)** cut close behind the unit, one each side at the
+   microphones' own x (ADR-023, which moved them off the back plate: that face beds flat on the post),
+   each under a hydrophobic membrane. They deliberately do **not** use the front grille: that field is
+   the speaker's own air path, and sharing it means the speaker fires straight into the microphones,
+   which is the one geometry error ADR-014 exists to prevent. **F4 decides the level anyway**: if it
+   comes back muffled, the ports grow before any geometry moves.
    The seat also turns into an acoustic part: the disc presses on it, and a 1 mm foam ring there is what
    stops the speaker's front radiation from leaking into the cavity the microphones breathe. That leak is
    the whole echo-coupling budget, so the ring is not optional in the build.

@@ -361,3 +361,41 @@ fixed to, so bedding the plate flat on mortar buries them and the microphones fa
 through the grille. The plate has to stand a few millimetres off the wall in front of them, or that area
 has to stay clear — the two M4 at x = 0, z = 24 and 72 leave the lower corners free, so the fix can live
 there. Steps 3 and 5 (gland, vent, mounting ears) should settle it before anything is printed.
+
+**Superseded by ADR-023:** the answer to that open question is that the plate is *not* going to stand
+off the wall, and the ports moved to the bottom of the case as thin slots.
+
+## ADR-023: the microphone ports go through the bottom of the case, as thin slots
+
+**Decision:** the two microphone ports are cut through the **bottom** of the base, close behind the unit,
+as **slots of 1.20 × 8.00 mm** instead of holes — one each side at the microphones' own x (±18.23 mm),
+running along the case's depth from y = 46.00 to 54.00, with `mic_slot_top` (13.00) taking each cut past
+the collar's bore so it is a through opening in the shell **and** the collar. Each keeps the **Ø9 × 1 mm
+seat** for its hydrophobic membrane (ADR-017), now cut along the bottom's own normal, which is 33.5
+degrees off the vertical at that x. `probe_mic` proves the path rather than the mouth: a rod narrower
+and shorter than the slot, running from outside the wall to inside the cavity, must intersect the base
+in nothing.
+
+**Why:** ADR-022 moved the ports to the back plate and left one question open, and the answer kills the
+back plate. The plate is bedded flat on the gate post (ADR-010, ADR-021), so a port there breathes
+mortar, not air, and the microphones fall back to listening through the speaker's grille — the direct
+coupling ADR-014 exists to prevent. ADR-014 also asked for the bottom from the start ("on the back and
+low side, facing down where the geometry allows"). The shape is a printing decision as much as a water
+one: the base prints lying on its back plate, so the case's depth is the printer's Z, and a slot running
+along that depth prints as a **vertical slit** with the same cross section at every layer, nothing to
+bridge and nothing to support. A round hole through the bottom, or a slot lying across the width, is a
+horizontal tunnel in the print whose ceiling is a bridge (8.00 mm for the slot here against rule 4's
+limit of 10). The slot is 1.20 wide and not 0.90 because below about 0.90 the two lines that form its
+walls meet and it prints shut. Two slots are 19.2 mm² of open area against the 6.3 mm² of the eight Ø1
+holes they feed, so the slots are not the restriction in the path — ADR-022's acoustics hold unchanged —
+and 19.2 mm² of slit facing the ground is exposed to less rain than 25 mm² of Ø4 hole facing a wall. The
+seal is still the membrane, not the geometry: capillary pressure holds a film in a 1.20 mm slot against
+only 12 mm of water head, and the material there is 4.70 mm thick.
+
+**Accepted, and it is the price of cutting through the bottom:** the wall is 4.70 mm at that x, not 3.00,
+because the slot passes through the collar as well as the shell; the two slots cut a 1.20 mm notch on
+each side of the collar's ring, so the ring is no longer closed, though it still locates the Ø58 unit
+and each of its arcs still holds on the 0.20 mm of outer face that fuses into the cavity's wall. The
+mic_face_cy (50.00) also decides how deep into the unit's own volume each slot reaches, and the answer
+is deliberate: 0.80 mm of it opens straight into the gap behind the unit, whose back face is at 53.20,
+so the microphones keep a path even if the unit ends up tight against the collar.
