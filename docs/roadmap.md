@@ -50,13 +50,14 @@ y = 8 as a half-lap -- the lid's lip into the base's recess, 0.20 mm apart, the 
 own surface (the 0.40 mm drip shadow was dropped the same day: ADR-024) -- closed by two M3 x 12 into
 inserts on pillars off the back plate.
 `make fit` proves the board, the speaker and the buck clear every wall and each other, that the two
-printed parts clear each other across the lap, and -- with `probe_grille`, `probe_button`, `probe_mic` and
-`probe_gland` -- that the openings are open through the wall, by boolean instead of by eye; `make section`
-and `make inside_render` are the review views. The caliper's pass is in as well (the unit is Ø57.5 x 47.30
-and the case is 66.80 x 96.80 x **58.70**), and so is the gland's top -- its boss, its hole and its
-locknut's pad (ADR-025, `docs/dimensions.md`). Left: the gasket ring itself (it lies flat on the 1.70 mm
+printed parts clear each other across the lap, and -- with `probe_grille`, `probe_button`, `probe_mic`,
+`probe_gland` and `probe_m4` -- that the openings are open through the wall, by boolean instead of by eye;
+`make section` and `make inside_render` are the review views. The caliper's pass is in as well (the unit is
+Ø57.5 x 47.30 and the case is 66.80 x 96.80 x **58.70**), and so are the gland's top -- its boss, its hole
+and its locknut's pad -- and the two wall screws' pockets and holes through the back plate (ADR-025,
+ADR-021's amendment, `docs/dimensions.md`). Left: the gasket ring itself (it lies flat on the 1.70 mm
 shoulder the lap leaves; no groove fits at that width), the microphone membranes' seats, the membrane vent,
-then the mounting ears and the M4 pockets in the back plate.
+and the mounting ears.
 
 ## F3 - Firmware and Home Assistant side in the repository
 

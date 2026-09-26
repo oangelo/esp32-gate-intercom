@@ -31,8 +31,8 @@ The base keeps three pads that push the unit onto a spot-faced seat in the lid. 
 to 58.70 — 58 when the unit went in, 58.4 when the shell grew to 3.4 mm, and the last 0.30 from the
 caliper's height — and the unit sits low (centre at 33.4) to free the upper half for the button at 76.4.
 `make fit` proves the unit clears both printed parts, that the two parts clear each other across the lap
-(`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`) — that the
-openings are open through the walls, by boolean instead of by eye.
+(`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`, `probe_gland`,
+`probe_m4`) — that the openings are open through the walls, by boolean instead of by eye.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
 into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
@@ -72,12 +72,14 @@ background object. All of them default to on, so an untouched file opens exactly
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
-Still to come: the membrane vent and the mounting ears (bottom or side, never the back), the gasket ring
-itself (flat on the lap's shoulder -- a groove does not fit at 1.70 mm) and the M4 pockets in the back
-plate. The gland's top is cut (ADR-025): a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first
-1.20 mm stay round for the gasket's washer and which then becomes a teardrop into the cavity, and a pad
-under the locknut. The pigtail leaves the gland and drops straight into the unit's USB-C, which points up at
-the unit's top edge. `probe_gland` is what proves that opening is one hole.
+Still to come: the membrane vent and the mounting ears (bottom or side, never the back), and the gasket
+ring itself (flat on the lap's shoulder -- a groove does not fit at 1.70 mm). The gland's top is cut
+(ADR-025): a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the
+gasket's washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
+leaves the gland and drops straight into the unit's USB-C, which points up at the unit's top edge.
+`probe_gland` is what proves that opening is one hole. The two wall screws are cut as well, since ADR-021
+had them decided: a Ø8.00 x 1.50 pocket in the plate's inner face for the head and a Ø4.50 hole on through
+the 3.40 of plate, which leaves 1.90 of it, proved by `probe_m4`.
 
 ## Rules for this design
 

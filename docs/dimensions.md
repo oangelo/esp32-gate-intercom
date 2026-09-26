@@ -221,10 +221,13 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
 Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the panel button (ADR-018) with a
 flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
 now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent, and M4
-wall/pole mounting holes. The button's head diameter and the depth of its body behind the panel are
-measured on arrival and become parameters in the same file. Neither the gland nor the vent touches the back
-plate: that face is what beds against the wall, so it carries nothing at all — the microphone ports are on
-the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user), on the unit's own axis
+wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
+(z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
+hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. The button's head
+diameter and the depth of its body behind the panel are measured on arrival and become parameters in the
+same file. Neither the gland nor the vent touches the back
+plate: that face is what beds against the wall, so nothing but the wall screws' own holes goes through it,
+and the microphone ports are on the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user), on the unit's own axis
 29.85 mm back from the crown — the unit's centre in the depth: the unit's USB-C points **up** at its top
 edge, so a gland directly above it is the shortest cable route and the only one that needs no bend inside
 the case. It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of

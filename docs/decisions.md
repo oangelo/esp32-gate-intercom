@@ -307,8 +307,9 @@ thinnest unsupported thing in the case (rule 3 asks for 1.2). The height is what
 "hold": of the 5.00 mm, 1.80 is the gap behind the unit and 3.20 is skirt over the unit's own body, which
 drops the unit's free cocking from atan(0.4/1.75) = 12.9° to atan(0.4/3.2) = 7.1°. `fitcheck_joint` covers
 it as `-D 'fc="collar"'`: the collar against the unit, empty. It bites `unit_collar()`, not `base()`,
-because `base()` still has its back plate whole — the M4 pockets are markers, not cuts — and an M4 head
-always meets that; that is also why `m4_heads()` rides along in that check.
+because the collar is part of `base()`: against the base that check would meet by construction and say
+nothing. `m4_heads()` rides along in it, which is what keeps the heads off the ring if either moves. (The
+M4 pockets themselves are cut as of ADR-021's amendment; before that a head met the whole back plate.)
 
 **Superseded in part** by ADR-021: this ADR first carried a **Ø9 window** on each M4 axis, cut into the
 ring, because the wall screws sat on the 26 mm radius around the unit's axis and an Ø8 head reaches r = 30,
@@ -337,6 +338,14 @@ wall and the mortar take the rest.
 Both still sit in a 1.5 mm pocket in the plate's inner face — the gap behind the unit is 1.80 mm, which is
 why the pocket has to stay shallow — and both still clear the unit's three standoffs. The pockets
 themselves are still markers: cutting them is part of "the rest of the joint" in `cad/README.md`.
+
+**Amendment (2026-09-26):** they are **cut** now (`m4_pockets()` in `cad/case.scad`). They were the last cut
+item with a decision already behind it, so they went in with the gland (ADR-025); nothing about the decision
+changed. The cut is exactly what the numbers above describe, taken from the plate's inner face: Ø8.00 × 1.50
+for the head, then Ø4.50 on through the 3.40 of plate, which leaves **1.90 mm** of it (rule 3). `probe_m4`
+is what proves both holes are open end to end, and the measured STL reads the mouth at r = 4.00, its floor
+1.50 behind it, and nothing but the hole at the plate's back face. The two pockets and their holes took
+**210.7 mm³** off the base (65536.06 → 65325.39 mm³).
 
 ## ADR-022: the microphone ports go through the back plate, low and behind the microphones
 
@@ -535,6 +544,7 @@ The measured STL agrees with the drawing: the base now reaches **z = 99.80**, th
 r = 6.25 inside an edge at 11.00 with the tail out to 14.36, and the pad's seat reads 6.25 to 8.50 with
 its own tail to 12.02.
 
-**Still to design:** the gasket ring (ADR-024's shoulder), the membranes' seats, the vent, and the ears
-with the M4 pockets. The gland itself is drawn as a marker, exactly like the M4 screws: what is cut is
-the hole, the boss and the pad.
+**Still to design:** the gasket ring (ADR-024's shoulder), the membranes' seats, the vent, and the
+mounting ears. The wall screws' own pockets and holes went in with this one — they were the only remaining
+cut item with a decision behind it (ADR-021's amendment). The gland itself is drawn as a marker, exactly
+like the M4 screws: what is cut is the hole, the boss and the pad.

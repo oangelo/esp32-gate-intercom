@@ -9,7 +9,7 @@
 //   1. the gasket itself: the foam ring lies flat on the 1.70 mm shoulder the lap leaves. No groove --
 //      at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the ring (ADR-024)
 //   2. the microphone membranes' seats, the breathable vent and the cable gland (bottom or side)
-//   3. mounting ears and the M4 pockets in the back plate
+//   3. mounting ears
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -44,6 +44,7 @@
 //   openscad -D 'part="probe_button"' ...                                     # must be EMPTY
 //   openscad -D 'part="probe_mic"'    ...                                     # must be EMPTY
 //   openscad -D 'part="probe_gland"'  ...                                     # must be EMPTY
+//   openscad -D 'part="probe_m4"'     ...                                     # must be EMPTY
 //
 // Everything is selected through `part`, one selector for every view. The translucent views need
 // --render: without it the PNG export draws the shell as opaque and the internals disappear, which
@@ -71,7 +72,7 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
                         // section | exploded | screwplan | fitcheck | fitcheck_parts |
                         // fitcheck_internal | fitcheck_joint | fitcheck_pair | probe_grille |
-                        // probe_button | probe_mic
+                        // probe_button | probe_mic | probe_gland | probe_m4
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -97,7 +98,8 @@ show_unit     = true;   // [true,false]  the assembled Waveshare, as a ghost
 show_screws   = true;   // [true,false]  the two M3, their pillars and the brass inserts
 show_collar   = true;   // [true,false]  the unit's collar (now cut into the base; drawn green so it
                         //                reads under the shell)
-show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not cut yet)
+show_m4       = true;   // [true,false]  the two M4 into the wall, as markers: the pockets and holes they
+                        //                sit in are cut in the base (m4_pockets())
 show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with its cable (a marker: the
                         //                hole and the boss are cut into the base, the gland is not)
 
@@ -422,7 +424,7 @@ screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DI
 // 7 and 59 their centre sat at 33.4, below the mass. Better again: at 24.2 the screw is 9.2 mm off the
 // unit's axis, so its head is nowhere near the collar's O60.4 (which is what retired the collar's
 // M4 windows, ADR-020) while still landing in the 1.8 mm gap behind the unit, and at 72.6 it is clear
-// ABOVE the unit (top edge 62.4) and below the switch's body (y = 31.2), so it is reachable with the
+// ABOVE the unit (top edge 62.15) and below the switch's body (y = 31.2), so it is reachable with the
 // unit already installed. Worse: 48.4 mm between them instead of 52, a little less leverage against
 // tipping -- the price of the symmetry, and a small one.
 m4_z = [case_h / 4, case_h - case_h / 4];   // 24.2 and 72.6: the quarter points
@@ -635,9 +637,9 @@ module fitcheck_joint() {
             // The collar is no longer a drawing, so its clearance is a real question: 0.2 mm round the
             // unit, which is what lip_bore is for. The M4 heads ride along: they are at 24 and 72 now
             // (ADR-021), far from a ring that lives at r = 29.2-30.2, and including them is what keeps
-            // them clear if either one moves. It bites the collar itself, not base(): base() still has
-            // the whole back plate solid -- the M4 pockets are markers, not cuts -- so a head would
-            // always meet it.
+            // them clear if either one moves. It bites the collar itself rather than base(), which the
+            // collar is part of: against base() this check would meet by construction and say nothing.
+            // (The pockets are cut now, ADR-021's amendment, so a head does seat in one.)
             unit_collar();
             union() { ghost_unit(); m4_heads(); }
         }
@@ -707,6 +709,23 @@ module m3_pillar_holes() {
     // on plastic before it clamps.
     m3b_points() translate([0, m3b_pil_y - eps, 0]) rotate([-90, 0, 0])
         cylinder(d = m3b_ins_d, h = m3b_ins_h);
+}
+
+module m4_pockets() {
+    // The wall screws' holes and pockets, cut from the plate's INNER face (y = inner_d = 55.30): a
+    // O4.50 clearance hole on through the plate -- and on into the masonry behind it, when it is
+    // drilled -- with a O8.00 pocket 1.50 deep for the head. The pocket is what keeps the head out of
+    // the unit's way: the gap behind the unit is 1.80 mm and the head stands 2.20 (ADR-021), so it
+    // seats in the plate and only its top 0.70 reaches the gap. The plate is 3.40 there, so the pocket
+    // leaves 1.90 (rule 3). Unlike the locknut of the gland, this pocket faces a FLAT surface -- the
+    // back plate's inner face -- so it is a plain counterbore, not a teardrop: both its axis and its
+    // floor lie in the bed plane, and nothing about it overhangs.
+    m4_points() {
+        translate([0, inner_d - eps, 0]) rotate([-90, 0, 0])
+            cylinder(d = m4_head_d, h = pocket_m4 + eps);
+        translate([0, inner_d - eps, 0]) rotate([-90, 0, 0])
+            cylinder(d = screw_m4_d, h = wall + 2 * eps);
+    }
 }
 
 module m3_insert() {
@@ -839,6 +858,14 @@ module gland_probe() {
             teardrop_xy(gland_d / 2 - 0.5, gland_tear);
 }
 
+module m4_probe() {
+    // The wall screws' way through, as a rod 1 mm narrower than the hole: it starts in the cavity, in
+    // the air 3.5 mm clear of the pocket's mouth, crosses the pocket's floor and the plate, and ends
+    // outside the case. Empty against the base means both cuts are there and line up.
+    m4_points() translate([0, inner_d - pocket_m4 - 2, 0]) rotate([-90, 0, 0])
+        cylinder(d = screw_m4_d - 1, h = pocket_m4 + wall + 4);
+}
+
 module gland_marker() {
     // The bought PG7 and its cable, as markers: what the printed parts have to accept, drawn where it
     // will sit. The thread passes through the hole, the flange's washer lands on the flat, the locknut
@@ -902,6 +929,7 @@ module base() {
         m3_pillar_holes();
         mic_slot_cut();
         gland_hole_cut();
+        m4_pockets();
         joint_recess_cut();
     }
     unit_pads();
@@ -1129,6 +1157,12 @@ if (part == "base") {
     // shell, the cavity's ceiling and the locknut's pad -- and that the teardrop, in the round collar,
     // in the pad and in the shell at once, is one continuous opening rather than a pocket in any of them.
     intersection() { base(); gland_probe(); }
+} else if (part == "probe_m4") {
+    // Against the BASE. Empty means both wall screws have a way through: the head's pocket in the
+    // plate's inner face, then the O4.50 clearance hole through the 3.40 of plate and out the back.
+    // The rod is 1 mm narrower than the hole and spans the pocket's floor as well, so a pocket cut
+    // without its hole -- or a hole without its pocket -- cannot pass this.
+    intersection() { base(); m4_probe(); }
 } else {
     // Default, so opening this file shows where the planned screws go. In one piece: a cutaway was not
     // readable.
