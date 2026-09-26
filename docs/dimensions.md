@@ -169,9 +169,10 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   which is z = 17.3 in the case), running from y = 46.00 to 54.00 along the depth. Each slot passes
   through the shell **and** the collar — 4.70 mm of material at that x, because the collar's bore is at
   10.19 and `mic_slot_top` is 13.00 — and its back end (54.00) reaches 0.80 mm into the gap the unit
-  breathes: the unit's own back face is at 53.20. Each slot keeps the **Ø9 × 1 mm seat** for its
-  hydrophobic membrane (ADR-017), now cut along the bottom's own normal, 33.5° off the vertical at that
-  x. The back plate carries nothing at all any more: it is the face that beds on the wall (ADR-023).
+  breathes: the unit's own back face is at 53.20. No spot face: the hydrophobic membrane (ADR-017) is
+  an adhesive-backed patch and the bottom is a Ø66 cylinder, so a 9 mm patch follows that curve to
+  within 0.31 mm with nothing to peel its edge. The Ø9 × 1 mm seat that ADR-022 carried as its land is
+  out (ADR-023). The back plate carries nothing at all: it is the face that beds on the wall.
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share

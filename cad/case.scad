@@ -421,10 +421,13 @@ m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inne
 // lying on its back plate, so the case's depth is the printer's Z: a slot whose long axis runs along
 // the depth prints as a VERTICAL slit, same cross section from the first layer to the last, with
 // nothing to bridge and nothing to support under it. A round hole through the bottom, or a slot lying
-// across the width, is a horizontal tunnel in the print whose ceiling is a bridge over the opening --
-// 8.00 mm for a slot lying the other way, which rule 4 forbids. Facing down and 1.20 wide, the slot
-// also sheds rain and refuses insects, but the seal is the MEMBRANE, not the geometry: capillary
-// pressure holds a film in a 1.20 mm slot against only 12 mm of water head, and the wall is 4.7.
+// across the width, is a horizontal tunnel in the print whose ceiling is a BRIDGE over the opening --
+// 8.00 mm for the slot here and over 40 for one laid across, which rule 4 forbids. Facing down and
+// 1.20 wide, the slot also sheds rain and refuses insects, but the seal is the MEMBRANE, not the
+// geometry: capillary pressure holds a film in a 1.20 mm slot against only 12 mm of water head, and the
+// material is 4.7 mm thick. NO SEAT: the membrane is an adhesive-backed patch and the bottom is a Ø66
+// cylinder, so a 9 mm patch follows that curve to within 0.31 mm and needs no flat land cut for it. A
+// Ø9 x 1 mm spot face was here and is out (2026-09-26, on review); see the note under the parameters.
 //
 // WHERE: at the microphones' own x (r = 26.83 at 47.2 degrees in the board's frame -- ADR-018's
 // measured numbers), one each side, running along the depth across the collar's band and into the gap
@@ -440,18 +443,18 @@ mic_slot_w   = 1.20;    // across the width. 1.20 and not 0.80: below 0.90 the t
 mic_slot_l   = 8.00;    // along the depth -- the printer's Z, so it prints as a vertical slit
 mic_slot_top = 13.0;    // how far the cut reaches up: past the collar's bore (10.19 at this x), so the
                         // slot is open through the wall AND the collar, not a pocket in either
-mic_face_cy  = 50.0;    // the seat's centre along the depth. The collar spans 50 to 55 and the unit's
-                        // back face is at 53.20, so the seat lands on the collar's band and the slot's
-                        // back end (54.00) reaches 0.80 mm into the gap behind the unit
-mic_face_d   = 9.0;     // spot face on the OUTSIDE of the bottom: the flat seat for the hydrophobic
-mic_face_dep = 1.0;     // membrane (ADR-017; BOM: ePTFE acoustic vent, adhesive backed, 8 to 12 mm).
-                        // 1 mm of the wall's 4.7 leaves 3.7 under the membrane, and the 8.00 slot fits
-                        // inside the seat's Ø9 with 0.50 to spare at each end
-mic_face_tilt = asin(mic_slot_x / r_end);   // 33.5 degrees: the bottom is a Ø66 cylinder, so the seat
-                        // is cut along the surface's own normal. Cut along Z instead and its floor
-                        // would be a 6 mm ramp that a flat membrane cannot stick to
-mic_zy       = z_btm - sqrt(pow(r_end, 2) - pow(mic_slot_x, 2));   // 5.49: where the bottom's outer
-                        // surface sits at the slot's own x -- the point the seat is cut from
+mic_slot_cy  = 50.0;    // the slot's centre along the depth. The collar spans 50 to 55 and the unit's
+                        // back face is at 53.20, so the slot crosses the collar's band (where its 0.20
+                        // mm clearance reaches the same gap) and its back end lands at 54.00, 0.80 mm
+                        // inside the gap behind the unit
+// DROPPED (2026-09-26, on review): the Ø9 x 1 mm spot face that ADR-022 had as the membrane's land.
+// Two reasons. It bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66
+// cylinder, so a 9 mm patch conforms to that curve (0.31 mm of sag) with nothing to peel its edge --
+// nothing slides past the bottom of a case on a post. And it went in WRONG on one side: the seat was a
+// cylinder along the surface's own normal and mic_points() mirrors the slot on X without mirroring that
+// rotation, so the left seat was cut 67 degrees off its normal and left almost no mark -- which is
+// exactly how the review found it, a recess on one port and none on the other. What is cut now is a
+// plain prism along the depth, which mirrors by construction.
 
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
@@ -614,32 +617,18 @@ module mic_slot_cut() {
     // One prism each, cut up through the wall and through the collar that sits on it. It runs from 1 mm
     // below the bottom surface (so the cut breaks out clean whatever the wall's own thickness is) up to
     // mic_slot_top, which is above the collar's bore at this x: the slot is a through opening, not a
-    // pocket. Along the depth it spans 46.00 to 54.00, flush inside the membrane seat and 0.80 mm into
-    // the gap behind the unit.
-    mic_points() translate([-mic_slot_w / 2, mic_face_cy - mic_slot_l / 2, -1])
+    // pocket. Along the depth it spans 46.00 to 54.00, 0.80 mm of that inside the gap behind the unit.
+    // A prism and nothing else: the Ø9 seat that used to sit on it is gone (see the note above the
+    // parameters), so this cut mirrors on X by construction, which the seat's rotated cylinder did not.
+    mic_points() translate([-mic_slot_w / 2, mic_slot_cy - mic_slot_l / 2, -1])
         cube([mic_slot_w, mic_slot_l, mic_slot_top + 1]);
-}
-
-module mic_face_cut() {
-    // The membrane's seat: Ø9 x 1 mm, cut along the bottom's own normal at the slot's x. The normal is
-    // the radius at that point, so the seat is tilted mic_face_tilt off the vertical and its floor is
-    // perpendicular to the surface it sits in -- a flat land for an adhesive-backed membrane on a Ø66
-    // cylinder, which is what ADR-017 asks for and what the old Ø9 seat on the flat plate already was.
-    mic_points() translate([0, mic_face_cy, mic_zy]) rotate([0, -mic_face_tilt, 0])
-        translate([0, 0, -eps]) cylinder(d = mic_face_d, h = mic_face_dep + eps, $fn = 64);
-}
-
-module mic_ports_cut() {
-    // Everything the base loses for the microphones: the two slots and the two membrane seats.
-    mic_slot_cut();
-    mic_face_cut();
 }
 
 module mic_probe() {
     // A rod through the intended opening, narrower and shorter than the cut and long enough to emerge
     // inside the cavity: if its intersection with the base is empty, the slot is open end to end and
     // not a pocket through either the wall or the collar.
-    mic_points() translate([-(mic_slot_w - 0.6) / 2, mic_face_cy - (mic_slot_l - 2) / 2, -1])
+    mic_points() translate([-(mic_slot_w - 0.6) / 2, mic_slot_cy - (mic_slot_l - 2) / 2, -1])
         cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
 
@@ -662,7 +651,7 @@ module base() {
             unit_collar();
         }
         m3_pillar_holes();
-        mic_ports_cut();
+        mic_slot_cut();
     }
     unit_pads();
 }

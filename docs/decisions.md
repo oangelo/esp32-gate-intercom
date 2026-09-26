@@ -370,11 +370,11 @@ off the wall, and the ports moved to the bottom of the case as thin slots.
 **Decision:** the two microphone ports are cut through the **bottom** of the base, close behind the unit,
 as **slots of 1.20 × 8.00 mm** instead of holes — one each side at the microphones' own x (±18.23 mm),
 running along the case's depth from y = 46.00 to 54.00, with `mic_slot_top` (13.00) taking each cut past
-the collar's bore so it is a through opening in the shell **and** the collar. Each keeps the **Ø9 × 1 mm
-seat** for its hydrophobic membrane (ADR-017), now cut along the bottom's own normal, which is 33.5
-degrees off the vertical at that x. `probe_mic` proves the path rather than the mouth: a rod narrower
-and shorter than the slot, running from outside the wall to inside the cavity, must intersect the base
-in nothing.
+the collar's bore so it is a through opening in the shell **and** the collar. Nothing else is cut: the
+**Ø9 × 1 mm spot face** that ADR-022 carried as the membrane's land is **out** (see the amendment below),
+and the membrane is stuck straight on the bottom's curve. `probe_mic` proves the path rather than the
+mouth: a rod narrower and shorter than the slot, running from outside the wall to inside the cavity,
+must intersect the base in nothing.
 
 **Why:** ADR-022 moved the ports to the back plate and left one question open, and the answer kills the
 back plate. The plate is bedded flat on the gate post (ADR-010, ADR-021), so a port there breathes
@@ -396,6 +396,19 @@ only 12 mm of water head, and the material there is 4.70 mm thick.
 because the slot passes through the collar as well as the shell; the two slots cut a 1.20 mm notch on
 each side of the collar's ring, so the ring is no longer closed, though it still locates the Ø58 unit
 and each of its arcs still holds on the 0.20 mm of outer face that fuses into the cavity's wall. The
-mic_face_cy (50.00) also decides how deep into the unit's own volume each slot reaches, and the answer
-is deliberate: 0.80 mm of it opens straight into the gap behind the unit, whose back face is at 53.20,
-so the microphones keep a path even if the unit ends up tight against the collar.
+slot's centre along the depth (`mic_slot_cy`, 50.00) also decides how deep into the unit's own volume it
+reaches, and the answer is deliberate: 0.80 mm of it opens straight into the gap behind the unit, whose
+back face is at 53.20, so the microphones keep a path even if the unit ends up tight against the collar.
+
+**Amended in the same review — the Ø9 × 1 mm spot face is out, on the user's call.** It was the
+membrane's flat land, carried over from ADR-022 without asking whether the bottom needed one, and it
+bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66 cylinder, so a 9 mm
+patch follows that curve to within 0.31 mm, and there is nothing at the bottom of a case on a post to
+peel its edge — which was the second half of ADR-022's reason for the seat on the flat plate. Two
+things come out of dropping it. The cut is a plain prism along the depth, which mirrors on X by
+construction. And the seat had gone in **wrong on one side**, which is how the review caught it: a
+recess on one port and none on the other. `mic_face_cut` built the seat as a cylinder along the
+surface's own normal, and `mic_points` mirrors the slot on X without mirroring that rotation — so the
+left seat was cut 67 degrees off its normal and left almost no mark, and the right one was the only one
+that read. The lesson for this file: anything whose cut is a **rotation** needs the mirror inside the
+loop, and the slot's prism needs nothing.

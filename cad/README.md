@@ -23,9 +23,10 @@ no longer builds its own speaker chamber — its front stays **closed** over the
 drills the sound holes (a O44 recessed field of O2 holes, the unit's own grille right behind them).
 Those same holes are the speaker's air path out, and the microphones have their own way in: **two thin
 slots, 1.20 × 8.00 mm, through the BOTTOM of the base** close behind the unit, one each side at the
-microphones' own x, each over a hydrophobic membrane on a spot-faced seat cut along the surface's own
-normal (ADR-023, which moved them off the back plate: that face beds flat against the post). Keeping the
-two apart is the point — the microphones used to share the speaker's field, which is direct coupling.
+microphones' own x, each under a hydrophobic membrane stuck straight on the bottom's curve (ADR-023,
+which moved them off the back plate — that face beds flat against the post — and dropped the Ø9 spot
+face that was meant as the membrane's land). Keeping the two apart is the point — the microphones used
+to share the speaker's field, which is direct coupling.
 The base keeps three pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49
 to 58 and the unit sits low (centre at 33) to free the upper half for the button at 76.
 `make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`,
