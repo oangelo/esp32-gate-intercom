@@ -904,7 +904,12 @@ module vent_marker() {
     // the two microphone membranes are stuck over their slots -- ADR-023). Flat here, and exact rather
     // than a simplification: the band's wall is a plane, so the disc lands on it with nothing to conform
     // over.
-    translate([vent_side * (vent_face_x + vent_mem_t), vent_y, vent_z])
+    // It is placed BY ITS OWN INNER FACE: the disc spans the wall's surface (|x| = vent_face_x) outward
+    // by its own thickness, 0 to 0.30 outside. The first version translated it to vent_face_x + vent_mem_t
+    // and the cylinder grew further out from there, so the patch floated 0.30 mm off the wall it is
+    // supposed to be stuck to -- the same +axis placement slip as the gland's collar. Review-only, so
+    // nothing about the printed part changes.
+    translate([vent_side * vent_face_x, vent_y, vent_z])
         rotate([0, 90 * vent_side, 0]) cylinder(d = vent_mem_d, h = vent_mem_t);
 }
 
