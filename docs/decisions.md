@@ -623,5 +623,53 @@ pocket in it. Measured on the STL: r = 2.00 at both mouths, the outer one at x =
 −30.00, with exactly **3.40 mm** of material between them; the hole took **42.5 mm³** off the base
 (65325.39 → 65282.93 mm³, against the 47.9 mm³ the first, longer and sloped tunnel took).
 
-**Still to design:** the mounting ears — and the microphone membranes' seats, which ADR-023 answered by
-dropping the Ø9 spot-face: there is no seat to cut, and the patches are drawn on the bottom's curve.
+**Still to design:** nothing. The mounting ears went in on 2026-09-26 (ADR-027) and the microphone
+membranes' seats are answered: ADR-023 dropped the Ø9 spot-face, so there is no seat to cut and the
+patches are drawn on the bottom's curve.
+
+## ADR-027: two mounting ears, low on the sides, with their eyes along the depth
+
+**Decision (2026-09-26):** the case gets a **lug on each side**, low on the -X and +X walls at **z = 14.00**,
+each a prism along the case's depth from **y = 42.00 to 54.00** whose cross-section is the hull of two
+**Ø9.00** circles — one hub buried in the case's wall, one carrying the eye. Through each lug runs a
+**Ø5.00 eye along the case's Y**, centred at x = ±30.90, **3.70 mm out from the case's own surface at that
+height**: that leaves 1.20 mm of material inside the eye (rule 3's floor) and 2.00 mm at the lug's tip. The
+case is **70.78 mm across the ears**, against 66.80 across its body. The eye takes an **M4** (rule 6's
+0.3 mm for a sliding fit) or a **narrow cable tie** — which is the "mounting tabs for a wall or a pole" F2
+asked for: the two M4 through the back plate need masonry or a wooden post behind them, and the ears do not.
+
+**Why there, and not somewhere else:**
+
+- **not the back plate**: that face beds flat on the post (ADR-021) and carries nothing but the wall
+  screws' own holes — the same reason the vent and the gland are off it;
+- **not the bottom**: the bottom carries the two microphone slots and their membranes (ADR-023), and a lug
+  down there would sit in the middle of the acoustic path. The microphones once shared the speaker's field
+  and that was direct coupling;
+- **low, at z = 14**: that is the empty corner of the case. The wall screws are on the centre line, where
+  ADR-021 moved them; the vent is at mid-height (48.40, ADR-026); the collar is at the back, from 50.30 to
+  55.30 of depth. In z the lug spans 9.50 to 18.50, clearing the top of the microphone membranes' own arc
+  (7.21) by 2.3 mm and staying under the bottom end circle's shoulder.
+
+**Why the eye runs along the depth, and not across the lug:** because the case's Y is the printer's Z. The
+base prints on its back plate, so a solid extruded along the case's Y is a solid extruded along the print's
+axis: every side face of it is a vertical wall, and the eye comes out as a **plain vertical hole with
+nothing to bridge, nothing to teardrop and nothing to support**. Turned across the lug instead, the eye
+would be a Ø5.00 bridge — legal under rule 4, but a worse hole for no gain. The lug's only cost in the
+print is its own underside at y = 54.00, the face that looks at the wall: **8.20 mm of unsupported
+cantilever, under rule 4's 10 mm**, and invisible once the case is mounted.
+
+**The cavity trims the inner hub, on purpose:** the hub's edge lands at 23.10, which is 0.22 mm outside the
+cavity's wall at z = 14 (22.88) — but the two circles cross just above and below that height, the hub's
+being a 4.50 radius against the cavity's 30, so between z = 14.56 and 17.96 the hub's flank dips about
+0.2 mm INTO the cavity. The ears are therefore grown **inside the shell's own difference**, so that the
+cavity's cut passes over them: the intrusion cannot exist by construction, and what the cut removes is
+43.30 mm³ over both ears. Found, not assumed — `intersection() { mounting_ears(); cavity(); }` is *not*
+empty on its own, which is how this was caught.
+
+**Proved by boolean, not by eye:** `probe_ear` runs a rod 1 mm narrower than the eye through each lug, end
+to end; empty against the base means both eyes are holes through their lugs and not pockets in them.
+Measured on the STL: the radii about the eye's axis are 2.50 (the Ø5.00 eye) and 4.50 (the Ø9.00 hub); the
+lug's tip reaches x = ±35.388 against the 35.40 wanted, and its z spans 9.525 to 18.475 — 14.00 ± 4.50,
+exactly the hub's diameter. The ears added **1088.83 mm³** net to the base (65282.93 → 66371.76 mm³); the
+two lugs on their own are 2191.45 mm³, the difference being the part of the inner hub that is buried in the
+case's own wall.

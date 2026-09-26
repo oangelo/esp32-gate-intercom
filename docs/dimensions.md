@@ -231,7 +231,10 @@ hole in the -X side wall**, at mid-height (z = 48.40) and mid-depth (y = 29.35),
 over it (ADR-026) — and M4
 wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
 (z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
-hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. The button's head
+hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. There are also **two
+mounting ears**, one per side, low (z = 14.00) and 12.00 long in depth from y = 42.00: a **Ø5.00 eye along
+the depth** at 3.70 out from the case's own surface, which makes the case **70.78 mm across the ears**
+against 66.80 across its body — M4 clearance, or a narrow cable tie (ADR-027). The button's head
 diameter and the depth of its body behind the panel are measured on arrival and become parameters in the
 same file. Neither the gland nor the vent touches the back
 plate: that face is what beds against the wall, so nothing but the wall screws' own holes goes through it,

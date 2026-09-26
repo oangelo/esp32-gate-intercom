@@ -72,7 +72,7 @@ background object. All of them default to on, so an untouched file opens exactly
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
-Still to come: the mounting ears. Everything else on that list is done as of 2026-09-26. The joint's gasket
+Still to come: nothing. The feature list is complete as of 2026-09-26. The joint's gasket
 is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of closed-cell silicone
 foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
 itself"). The vent is a Ø4.00 hole in the middle of the -X side — mid-height, where the capsule's straight
@@ -84,7 +84,11 @@ ADR-023's answer to "the membranes' seats". The gland's top is cut (ADR-025):
 a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the gasket's
 washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
 leaves the gland and drops straight into the unit's USB-C, which points up at the unit's top edge.
-`probe_gland` is what proves that opening is one hole. The two wall screws are cut as well, since ADR-021
+`probe_gland` is what proves that opening is one hole. The two mounting ears are cut too (ADR-027): a lug
+each side, low at z = 14.00, with a Ø5.00 eye along the depth — the one orientation in this case that comes
+out as a plain vertical hole, with nothing to bridge or tear-drop — so the case measures 70.78 mm across
+them against 66.80 across its body, and `probe_ear` is what proves the eyes are open. The two wall screws
+are cut as well, since ADR-021
 had them decided: a Ø8.00 x 1.50 pocket in the plate's inner face for the head and a Ø4.50 hole on through
 the 3.40 of plate, which leaves 1.90 of it, proved by `probe_m4`.
 

@@ -9,9 +9,9 @@
 //   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
 //      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
 //      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
-//   2. the mounting ears, the last item. The vent is cut as of 2026-09-26, in the middle of the -X side
-//      (ADR-026); the cable gland's top went in with ADR-025; and the microphone membranes need NO seat --
-//      they are drawn as patches on the bottom's curve (mic_membrane_marker()), which is ADR-023's answer
+//   2. the list is complete as of 2026-09-26. The cable gland's top went in with ADR-025, the vent is cut
+//      in the middle of the -X side with ADR-026, the microphone membranes need NO seat (they are drawn as
+//      patches on the bottom's curve -- ADR-023), and the mounting ears closed it out with ADR-027
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -48,6 +48,7 @@
 //   openscad -D 'part="probe_gland"'  ...                                     # must be EMPTY
 //   openscad -D 'part="probe_m4"'     ...                                     # must be EMPTY
 //   openscad -D 'part="probe_vent"'   ...                                     # must be EMPTY
+//   openscad -D 'part="probe_ear"'    ...                                     # must be EMPTY
 //   openscad -D 'part="fitcheck_gasket"' ...                                   # must be EMPTY
 //   openscad -D 'part="gasket"'       -o build/gasket.stl ...                 # the foam ring on its own
 //
@@ -78,7 +79,7 @@ part    = "review";     // the one selector: review | inside | assembly | inside
                         // gasket | section | exploded | screwplan | fitcheck | fitcheck_parts |
                         // fitcheck_internal | fitcheck_joint | fitcheck_pair | fitcheck_gasket |
                         // probe_grille | probe_button | probe_mic | probe_gland | probe_m4 |
-                        // probe_vent
+                        // probe_vent | probe_ear
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -666,6 +667,41 @@ vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A fla
                         // exact rather than a simplification: the surface it lands on IS flat (ADR-023)
 vent_mem_t  = 0.30;     // membrane plus its adhesive
 
+// ------------------------------------------------------- features: mounting ears (base, the sides)
+// The case is held by the two M4 through its back plate, which need masonry or a wood screw behind them.
+// The ears are the other way to fix it: a lug each side, low, with an eye through it -- an M4 clearance
+// hole, or a narrow cable tie round a post, which is the "mounting tabs for a wall or a pole" of F2.
+// WHERE (2026-09-26): low on the case, on the two sides. Not the back -- that face beds flat on the post
+// (ADR-021) -- and not the bottom either, since the bottom carries the two microphone slots and their
+// membranes (ADR-023) and the ears would land in the middle of the acoustic path. Low, because that is
+// the empty corner of the case: the wall screws are on the centre line, the vent is up at 48.40 and the
+// collar sits at the back (50.30 to 55.30 in depth). z = 14 leaves 2.3 mm above the microphone
+// membranes' own arc.
+// WHY THE EYE RUNS ALONG THE DEPTH: because that is the printer's Z. The lug is a prism along the case's
+// Y, so every face of it is a vertical wall in the print, and the eye comes out as a plain VERTICAL hole
+// with nothing to bridge -- the one orientation in this case that needs no teardrop, no bridge and no
+// support anywhere. The lug's only cost is its own underside, 8.20 mm of unsupported cantilever facing
+// the wall, against rule 4's 10.
+ear_z      = 14.00;     // low, above the microphone membranes' arc (which ends at 7.21) with margin
+ear_y      = 42.00;     // the lug's front edge along the depth, 12.00 long so it ends at 54.00: 1.30
+ear_l      = 12.00;     // clear of the plate's inner face at 55.30, and clear of the collar (50.30 up)
+ear_out    = 8.20;      // how far the lug reaches past the case's own surface. Set by the eye: the hub
+                        // is O9.00 and the eye O5.00, so the eye's centre sits 3.70 out and the lug
+                        // needs 3.70 + 2.50 + 1.20 (rule 3) = 7.40. 8.20 leaves 2.00 at the tip
+ear_hub_d  = 9.00;      // the lug's width in z: two O9.00 hubs and the hull between them
+ear_hole_d = 5.00;      // the eye: M4 clearance (rule 6's 0.3 sliding), or a narrow cable tie
+ear_face_x = face_x(ear_z);     // 27.20: the case's own surface at ear_z, where the bottom's end circle
+                        // has curved in to meet the wall
+ear_hub_x  = ear_face_x + 0.40;         // 27.60: the inner hub's centre, so its edge lands at 23.10 --
+                        // 0.22 OUTSIDE the cavity's wall at z = 14 (22.88). The two circles cross just
+                        // above and below that height, though: from z = 14.56 to 17.96 the hub's flank
+                        // dips about 0.2 mm INTO the cavity, and the cavity's own cut trims it flush
+                        // (43.30 mm3 over both ears, measured on the STL). That is why the ears are
+                        // grown inside the shell's difference -- nothing they do can bulge into the
+                        // cavity, whatever these numbers round to
+ear_tip_x  = ear_face_x + ear_out - ear_hub_d / 2;   // 30.90: the outer hub, and the eye with it, so
+                        // the lug's tip lands exactly ear_out past the surface (35.40)
+
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
     // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
@@ -907,6 +943,41 @@ module vent_marker() {
         rotate([0, 90 * vent_side, 0]) cylinder(d = vent_mem_d, h = vent_mem_t);
 }
 
+module ear_profile() {
+    // The lug's cross-section, drawn in (x = width, y = height) like every other 2D shape in this file:
+    // the hull of two O9.00 hubs, the inner one buried in the case's wall and the outer one carrying the
+    // eye. A hull and not a rectangle, so the lug's top and bottom edges ARE the hubs' and there is no
+    // corner at the tip for a strap or a sleeve to catch on.
+    hull() {
+        translate([ear_hub_x, ear_z]) circle(d = ear_hub_d);
+        translate([ear_tip_x, ear_z]) circle(d = ear_hub_d);
+    }
+}
+
+module mounting_ears() {
+    // The two lugs, +X and -X, each a prism along the case's Y from ear_y to ear_y + ear_l. Prisms along
+    // Y are what this case is made of, and it is also why the ears print clean: a shape extruded along
+    // the case's Y has every side face vertical in the print, and only its two ends face the printer's
+    // Z. The one at ear_y + ear_l is the lug's underside -- the 8.20 mm of unsupported cantilever the
+    // parameters above own up to. It faces the wall it is mounted on, so nothing is seen of it.
+    for (s = [1, -1]) scale([s, 1, 1]) prism_xz(ear_l, ear_y) ear_profile();
+}
+
+module ear_holes() {
+    // The eye through each lug, along the case's Y: in the print that is the printer's Z, so it comes
+    // out as a plain vertical hole with nothing to bridge, which is the whole reason the eye runs this
+    // way rather than across the lug. Cut from 1 mm past either end face, for clean booleans.
+    for (s = [1, -1]) translate([s * ear_tip_x, ear_y - 1, ear_z]) rotate([-90, 0, 0])
+        cylinder(d = ear_hole_d, h = ear_l + 2);
+}
+
+module ear_probe() {
+    // A rod 1 mm narrower than the eye and a little longer than it, through each lug end to end: empty
+    // against the base means the eye is open through the lug and not a pocket in it.
+    for (s = [1, -1]) translate([s * ear_tip_x, ear_y - 2, ear_z]) rotate([-90, 0, 0])
+        cylinder(d = ear_hole_d - 1, h = ear_l + 4);
+}
+
 // --------------------------------------------------------------- the gland (base, top), CUT
 // The shapes here are the print's, not the drawing's. A teardrop is a circle with the side that would
 // hang replaced by two lines tangent at `tip` degrees; `tip` is 45 because that is rule 4's own limit,
@@ -1045,11 +1116,15 @@ module base() {
     // where the cable gland does (ADR-025). What it carries is the three pads that push the unit forward
     // onto the seat, the two pillars the lid screws into, the collar that locates the unit, the recess
     // the lid's lip drops into (the lap), the boss the gland sits on and the pad its locknut bears on.
-    // The vent still lives here in name only: it goes on the bottom or on a side.
+    // The vent is cut through its side (ADR-026), and the two mounting ears are grown out of its sides
+    // here, inside the shell's own difference so that the cavity's cut passes over them too (ADR-027).
     difference() {
         union() {
             difference() {
-                intersection() { body(); keep_above(joint_y); }
+                union() {
+                    intersection() { body(); keep_above(joint_y); }
+                    mounting_ears();
+                }
                 cavity();
             }
             m3_pillars();
@@ -1062,6 +1137,7 @@ module base() {
         gland_hole_cut();
         m4_pockets();
         vent_cut();
+        ear_holes();
         joint_recess_cut();
     }
     unit_pads();
@@ -1306,6 +1382,10 @@ if (part == "base") {
     // Against the BASE. Empty means the vent is a hole through the side wall and not a pocket in it:
     // the rod is 1 mm narrower than the O4.00 and spans the wall from inside the cavity to outside.
     intersection() { base(); vent_probe(); }
+} else if (part == "probe_ear") {
+    // Against the BASE. Empty means both eyes are holes through their lugs and not pockets in them: each
+    // rod is 1 mm narrower than the O5.00 and runs the whole 12.00 of the lug, end to end.
+    intersection() { base(); ear_probe(); }
 } else if (part == "fitcheck_gasket") {
     // The ring against both halves AT THE JOINT'S CLOSED GAP: the lid lifted the 0.70 the ring is
     // squeezed to, because in the dry, printed position that space is simply the lid's own material.
