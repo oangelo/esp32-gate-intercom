@@ -573,6 +573,26 @@ The measured STL agrees with the drawing: the base now reaches **z = 99.80**, th
 r = 6.25 inside an edge at 11.00 with the tail out to 14.36, and the pad's seat reads 6.25 to 8.50 with
 its own tail to 12.02.
 
+**Amendment (2026-09-26 — this voids the two paragraphs above as written until now):** the hole was **not**
+open at the top, and the user found it by looking at the part: *"a parte de cima do cilindro está
+fechada"*. The round collar's cut was `translate([0, gland_cy, gland_flat_z + 1]) cylinder(...)`, and
+`cylinder()` grows toward **+Z from its own origin** — so the collar was cut *upward*, outside the case:
+the hole stopped at z = 98.60 and the **1.20 mm above it, the very face the gland's washer seals on, stayed
+solid**. `probe_gland` reported empty all along because the probe's collar piece had the same mistake and
+never entered that band either: an empty probe that does not span the feature it claims to test proves
+nothing. Both are now placed by their **lower** end, so the cut runs 98.60 to 101.80 and the probe 98.40
+to 101.80. The wrong paragraph above was itself written from a measurement read against its *label*
+instead of its numbers — the radius list at the flat was `[11.0, 14.36]`, with no 6.25 in it, while
+inviting the reader to see one.
+
+**Measured after the fix, by ray-casting the exported STL along the gland's own axis (x = 0, y = 29.85):**
+at z = 99.50, 0.30 under the flat, the axis is in the **void** — the ray crosses the hole's wall at 6.25
+and the boss's outer wall at 11.00 — where that same point was in **material** before the fix. 8.00 out at
+the same height is still material (one crossing, at 11.00), which is the pair that keeps the first result
+from being "a hole in nothing". The axis is void again at 98.30 and 96.40, and the pad's ring is material
+at 92.30. The base's volume fell **147.16 mm³** (65282.93 → 65135.77) — the collar, π × 6.25² × 1.20 =
+147.26 by hand.
+
 **What came after, and all of it is now drawn or cut:** the gasket ring (ADR-024's shoulder), the vent
 (ADR-026), the membranes' seats (ADR-023 answered them: there is nothing to cut), and the mounting closed
 with ADR-027 — no ears, because the two M4 through the back plate are the fixing. The wall screws' own

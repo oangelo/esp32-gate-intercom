@@ -946,7 +946,13 @@ module gland_hole_cut(d = gland_d, round_h = gland_round, tear = gland_tear) {
     // the gasket's ring seals on that face, and a teardrop opening would reach O17.7, past the washer --
     // and a teardrop from there into the cavity, which is what keeps the roof printable. Cut as one
     // difference, so between them they are the hole.
-    translate([0, gland_cy, gland_flat_z + 1]) cylinder(d = d, h = round_h + 1);
+    // CAREFUL, AND THIS WAS A REAL BUG (found by the user on 2026-09-26, looking at the part): cylinder()
+    // grows toward +Z from its own origin, so a collar that has to run from a point ABOVE the flat down
+    // to gland_flat_z - round_h must be placed by its LOWER end. The first version put the origin at
+    // gland_flat_z + 1 and cut straight up, outside the case: the hole stopped at 98.60 and the top
+    // 1.20 mm -- the gasket's own seat -- stayed solid, with probe_gland passing empty because the probe
+    // had the same mistake and never reached that band either.
+    translate([0, gland_cy, gland_flat_z - round_h]) cylinder(d = d, h = round_h + 2);
     translate([0, gland_cy, gland_nut_z - 2])
         prism_xy(gland_flat_z - round_h - gland_nut_z + 2) teardrop_xy(d / 2, tear);
 }
@@ -966,9 +972,15 @@ module gland_probe() {
     // A rod through the intended opening, 1 mm narrower than the cut and 0.5 mm narrower than its
     // teardrop, from above the flat to below the nut's seat: if its intersection with the base is
     // empty, the hole is open end to end -- flat, boss, shell, ceiling and seat -- and no face of the
-    // seat swallowed it. It is two pieces with 0.2 mm of clearance either side of where the cut's own
-    // round collar ends, so nothing rides on a coplanar face.
-    translate([0, gland_cy, gland_flat_z + 1]) cylinder(d = gland_d - 1, h = gland_round + 1.2);
+    // seat swallowed it.
+    // ONE PIECE PER STEP OF THE CUT, EACH PLACED BY ITS LOWER END, because cylinder() grows toward +Z:
+    // the collar's piece runs 98.40 to 101.80 and the teardrop's 91.65 to 98.40, so they meet 0.2 mm
+    // either side of the collar's own end at 98.60 and nothing rides on a coplanar face. Placing the
+    // collar's piece from the flat upward -- which is what this probe used to do -- leaves the collar's
+    // own band untested, and an untested band is exactly where a hole that never got cut hides: the
+    // probe then reports empty on a closed part (see gland_hole_cut).
+    translate([0, gland_cy, gland_flat_z - gland_round - 0.2])
+        cylinder(d = gland_d - 1, h = gland_round + 2.2);
     translate([0, gland_cy, gland_nut_z - 0.5])
         prism_xy(gland_flat_z - gland_round - 0.2 - gland_nut_z + 0.5)
             teardrop_xy(gland_d / 2 - 0.5, gland_tear);
