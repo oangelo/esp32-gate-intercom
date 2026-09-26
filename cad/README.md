@@ -74,9 +74,10 @@ markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
 Still to come: the membrane vent and the mounting ears (bottom or side, never the back), the gasket ring
 itself (flat on the lap's shoulder -- a groove does not fit at 1.70 mm) and the M4 pockets in the back
-plate. The gland and the cable route are decided but not cut yet: the gland goes through the TOP, on a
-raised boss on the unit's own axis, so the pigtail leaves it and drops straight into the unit's USB-C,
-which points up at the unit's top edge (ADR-025).
+plate. The gland's top is cut (ADR-025): a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first
+1.20 mm stay round for the gasket's washer and which then becomes a teardrop into the cavity, and a pad
+under the locknut. The pigtail leaves the gland and drops straight into the unit's USB-C, which points up at
+the unit's top edge. `probe_gland` is what proves that opening is one hole.
 
 ## Rules for this design
 

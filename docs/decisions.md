@@ -490,3 +490,51 @@ its 2D profile as a **child**. Called with no child inside an `intersection()`, 
 and silently swallows the whole intersection. The first `joint_recess_cut()` did exactly that, the recess
 came out uncut, and `fitcheck_pair` reported 1181 mm³ of interference in the band. **An empty cut is not
 an error in OpenSCAD**: it is geometry that quietly does not happen. Check every prism for its profile.
+
+## ADR-025: the cable gland goes through the TOP, on a boss, above the USB-C
+
+**Decision (2026-09-26, the user's):** the 5 V entry is a **PG7 through the top of the case**, on the
+unit's own axis — (x = 0, y = 29.85), the unit's centre in the depth — standing on a **raised boss**, so
+that the gland's gasket and its locknut both land on flat faces. The vent stays on the bottom or on a
+side; the back plate still carries nothing at all.
+
+**Why the top, and not the bottom or a side as the earlier rounds had it:** the unit's own USB-C is at the
+unit's top edge, pointing **up** (its centre in the vendor's frame is (0, −24.60), which in the case's
+frame is z = 58.30, and the unit's top edge is at 62.15). A gland directly above it is the shortest route
+the pigtail can take, and the only one that reaches the port without a bend: put the gland on the bottom
+and the cable has to climb the whole cavity and then turn through 90 degrees into a port that faces the
+way it came. Nothing else has to move for it — the free space above the unit is where the cable route
+already lived — and the boss takes 22 mm of the top, 3 mm above the crown of the top's own cylinder.
+
+**What it costs, and why it is paid there:** the top is a cylinder — the capsule's upper semicircle,
+radius 33.4, straight along the depth and curved in X by 0.9 mm over ±9 — so a gland cannot sit on it,
+hence the boss: **Ø22**, 3.00 mm proud, its root buried at z = 94 where the shell's own surface is still
+12.93 mm wide, so its sides emerge from the shell and leave **no ledge** around it. And because both parts
+print lying down, the case's Z is the printer's Y: **the gland's axis lies in the bed plane**, and three
+consequences follow, each answered by the shape the print wants rather than by support material:
+
+- the boss's own back side faces straight down — a 90 degree overhang — so the boss carries a **tail** on
+  its +Y side, its sides tangent to the boss's circle at 40 degrees. It is the same teardrop the microphone
+  slots' walls get, and it puts the worst surface 40 degrees off vertical against rule 4's 45;
+- the hole's roof would be a **12.50 mm bridge** where rule 4 allows 10, so from 1.20 mm below the flat the
+  hole becomes a teardrop whose point reaches Ø17.7. The first 1.20 mm stays **round**, deliberately: that
+  is the face the gland's Ø16 washer seals on, and a teardrop opening under a circular washer is a leak
+  path, not a compromise. This is the case's one knowing concession to rule 4: 2.5 mm of span over 1.2 mm
+  of depth, on a face that carries no load, and it is named in the parameters;
+- the locknut needs a flat seat, and the cavity's ceiling is a Ø30 cylinder **arching up** over the hole
+  (93.40 at the centre, 92.17 over the seat's rim) — so there is nothing to spot-face: over the arch there
+  is no material to cut. The seat is a **pad** instead, a teardrop (Ø17, its point on +Y) filling the arch
+  and stopping at 92.15. It leaves the nut a 2.25 mm ring to bear on, and **7.65 mm of material through
+  the hole** — the boss's 3, the shell's 3.4 and the ceiling's rise — which is what the PG7's 6 mm of
+  thread wants.
+
+**Proved by boolean, not by eye:** `probe_gland` runs a rod 1 mm narrower than the hole, and 0.5 mm
+narrower than its teardrop, from above the flat to below the nut's pad. Empty against the base is the
+statement that flat, boss, shell, ceiling and pad make **one hole** rather than a pocket in any of them.
+The measured STL agrees with the drawing: the base now reaches **z = 99.80**, the hole at its flat reads
+r = 6.25 inside an edge at 11.00 with the tail out to 14.36, and the pad's seat reads 6.25 to 8.50 with
+its own tail to 12.02.
+
+**Still to design:** the gasket ring (ADR-024's shoulder), the membranes' seats, the vent, and the ears
+with the M4 pockets. The gland itself is drawn as a marker, exactly like the M4 screws: what is cut is
+the hole, the boss and the pad.

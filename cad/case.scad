@@ -16,12 +16,19 @@
 // Z = height (0 at the floor). The case stands upright in use.
 //
 // PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
-// The base prints on its back plate (cavity opening up, pillars vertical, microphone slots and gland
-// vertical) and the lid prints on its face (cavity opening up, so the grille's 49 holes come out as
+// The base prints on its back plate (cavity opening up, pillars vertical, microphone slots vertical)
+// and the lid prints on its face (cavity opening up, so the grille's 49 holes come out as
 // vertical holes instead of a 44 mm ceiling to bridge, and the lands that step 2 spot-faces into the
 // crown give it its bed contact). The lap costs neither part a support, and with the lip flush there is
 // no sideways step in either part: through its last 3 mm the base's wall goes from 3.40 to 1.70 mm and
 // the lid's from 3.40 to 1.50, so both shapes only lose material as the print rises.
+//
+// One feature has its axis IN the bed, and it is the one that costs: the cable gland goes through the
+// TOP, along the case's Z, which is the printer's Y. A boss and a hole lying in the bed plane would need
+// support on one side (the print rises along -Y, so everything facing +Y hangs), so the boss carries a
+// 45 degree tail on its back side and the hole a teardrop inside -- the same shapes the microphone slots
+// get, for the same reason. Rule 4's one concession in the whole case is named where it is made, with
+// the gland's parameters.
 //
 // Usage:
 //   openscad -D 'part="base"'         -o build/case_base.stl  cad/case.scad
@@ -36,6 +43,7 @@
 //   openscad -D 'part="probe_grille"' ...                                     # must be EMPTY
 //   openscad -D 'part="probe_button"' ...                                     # must be EMPTY
 //   openscad -D 'part="probe_mic"'    ...                                     # must be EMPTY
+//   openscad -D 'part="probe_gland"'  ...                                     # must be EMPTY
 //
 // Everything is selected through `part`, one selector for every view. The translucent views need
 // --render: without it the PNG export draws the shell as opaque and the internals disappear, which
@@ -90,6 +98,8 @@ show_screws   = true;   // [true,false]  the two M3, their pillars and the brass
 show_collar   = true;   // [true,false]  the unit's collar (now cut into the base; drawn green so it
                         //                reads under the shell)
 show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not cut yet)
+show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with its cable (a marker: the
+                        //                hole and the boss are cut into the base, the gland is not)
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
@@ -117,7 +127,7 @@ show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not
 unit_dia  = 57.50;
 unit_h    = 47.30;      // 50.00 calipered with the feet on, minus their 2.70
 unit_face_y = 6.20;     // its grille face: clears the inner crown at the unit's rim by 1.00 mm
-unit_cy   = unit_face_y + unit_h / 2;   // 29.70: unit centre on the depth axis
+unit_cy   = unit_face_y + unit_h / 2;   // 29.85: unit centre on the depth axis
 unit_cz   = 33.40;      // = z_btm, the centre of the bottom end (33.4): the LOWEST it can sit and still
                         // clear the rounded bottom, and low is what frees the upper half for the panel
                         // button (ADR-018). Was 33.00 at a 3.0 mm wall: the skin grew 0.4 and the whole
@@ -221,6 +231,12 @@ btn_cz      = 76.4;     // button centre. Constraints, all three: below the cavi
 module prism_xz(depth, y0 = 0) {
     // Extrude a 2D shape drawn in (x = width, y = height) along the case's Y (depth).
     translate([0, y0 + depth, 0]) rotate([90, 0, 0]) linear_extrude(height = depth) children();
+}
+
+module prism_xy(h, z0 = 0) {
+    // Extrude a 2D shape drawn in (x = width, y = depth) along the case's Z (height). The gland's boss
+    // is this kind of prism: its own axis is the case's Z, so its cross-section is the case's XY.
+    translate([0, 0, z0]) linear_extrude(height = h) children();
 }
 
 module outline_outer() {
@@ -519,6 +535,68 @@ mic_slot_cy  = 50.30;   // the slot's centre along the depth. The collar spans 5
 // exactly how the review found it, a recess on one port and none on the other. What is cut now is a
 // plain prism along the depth, which mirrors by construction.
 
+// ------------------------------------------------------ features: cable gland (base, the top)
+// The 5 V entry, and the cable route with it: a PG7 through the TOP of the case, on the unit's own axis
+// (0, 29.85). That is exactly where the pigtail wants to be -- the unit's USB-C is on that axis at its
+// top edge, pointing up (its centre in the vendor's frame is (0, -24.60), which in the case's own frame
+// is z = 58.30, right at the top of the unit) -- so the cable leaves the gland and drops straight into
+// the port, with no bend inside the cavity and nothing to tie it to. That is the whole argument for the
+// top over the bottom: geometry, not looks (ADR-025).
+//
+// Two things make the top awkward, and both are answered here rather than worked around:
+//
+//  1. The top is the capsule's upper semicircle: a cylinder of radius r_end whose AXIS runs along the
+//     case's depth, so it is straight in Y and curved in X (0.9 mm of sag over +-9 mm). Nothing flat
+//     lands on it, so the gland gets a raised boss, and the face it stands on is turned square to the
+//     case's Z.
+//  2. Both parts print lying down, so the case's Z is the printer's Y and this whole feature lies IN the
+//     bed plane, horizontally. Three consequences, all handled below: the boss's own back side faces
+//     straight down (a 90 degree overhang) and gets a 45 degree tail; the hole's roof would be a
+//     12.50 mm bridge (rule 4 allows 10) and gets a teardrop; and the locknut's seat inside, which has
+//     to be a PAD raised on the cavity's curved ceiling rather than a spot-face cut into it -- there is
+//     no material over the arch to cut -- gets the same teardrop for the same reason.
+gland_cz      = case_h;                 // 96.80: the apex of the top's cylinder, where the boss stands
+gland_cy      = unit_cy;                // 29.85: on the unit's axis, straight above the USB-C
+gland_proud   = 3.00;                   // how far the boss's flat stands above that apex
+gland_flat_z  = gland_cz + gland_proud; // 99.80: the face the gland's gasket lands on
+gland_root_z  = 94.00;                  // where the boss's prism is buried. At z = 94 the case's own
+                                        // surface is 12.93 mm wide in X, wider than the boss's 11, so
+                                        // the base face hides inside the material: the sides simply
+                                        // emerge from the shell and no ledge is left around them
+gland_boss_d  = 22.00;                  // its diameter. A PG7's sealing washer is about O16, so this
+                                        // leaves 3 mm of land -- and 2.16 mm of material between the
+                                        // hole's own teardrop (which reaches 8.84) and the flat's edge,
+                                        // above rule 3's 1.2
+gland_boss_r  = gland_boss_d / 2;       // 11.00
+gland_tail    = 50.0;                   // the tail's half-angle, off the case's Y on the +Y (back)
+                                        // side. It is the print that sets it: the printer builds this
+                                        // run with the case's Y as its vertical, the boss's back side
+                                        // faces down, and 50 leaves the worst surface 40 degrees off
+                                        // vertical against rule 4's 45
+gland_tail_a  = 90 - gland_tail;        // 40: where the tail's two lines touch the circle, off +Y
+gland_tail_y  = gland_cy + gland_boss_r * (cos(gland_tail_a) + sin(gland_tail_a) / tan(gland_tail));
+                                        // 44.21: the tail's point, in the case's frame, 14.36 out from
+                                        // the axis
+gland_d       = 12.50;                  // the PG7's thread O.D.: the hole cut through boss and shell
+gland_round   = 1.20;                   // how deep the hole stays ROUND from the flat inwards. The
+                                        // gasket's ring seals on that face, and a teardrop opening
+                                        // would reach O17.7 -- past the washer -- so the round collar
+                                        // stays. It is the case's one deliberate concession to rule 4:
+                                        // 12.50 mm of bridge over 1.2 mm of depth, against the rule's
+                                        // 10. The alternative was a wider seal, not a leak
+gland_tear    = 45.0;                   // from there in, the hole is a teardrop with its sides at this
+                                        // angle to the hole's axis, tip pointing -Y (the print's up for
+                                        // this run is the case's -Y, so the overhang is on that side)
+gland_nut_d   = 17.00;                  // the locknut's seat inside: O17 across the flats
+gland_nut_cut = 1.25;                   // how deep, and it is the ceiling's own curve that sets it: over
+                                        // +-8.5 mm the O30 ceiling falls 1.23 mm, so this is within
+                                        // 0.02 mm of flat for the whole seat. What is left above it
+                                        // runs 2.15 mm at the rim to 3.4 at the centre, and through the
+                                        // hole itself the material is 7.65 mm -- the boss's 3, the
+                                        // shell's 3.4 and the ceiling's rise, which is what a PG7's
+                                        // 6 mm of thread wants
+gland_nut_z   = z_top + cav_x - gland_nut_cut;   // 92.15: the seat's plane
+
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
     // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
@@ -695,7 +773,85 @@ module mic_probe() {
         cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
 
-// ------------------------------------------------------------ the lap, CUT (2026-09-26)
+// --------------------------------------------------------------- the gland (base, top), CUT
+// The shapes here are the print's, not the drawing's. A teardrop is a circle with the side that would
+// hang replaced by two lines tangent at `tip` degrees; `tip` is 45 because that is rule 4's own limit,
+// and a shallower tip (a longer tail) would put the tail's own sides past 45 degrees off vertical.
+// Which side hangs is always the +Y one: the parts print with the case's Y as the printer's Z and the
+// print rises along -Y, so every surface that faces +Y -- and nothing else -- needs help.
+
+module teardrop_xy(r, tip = 45, n = 48) {
+    // A circle of radius r about the origin with a point on the -Y side: the tangent lines leave the
+    // circle at ±tip off -Y and meet at r / cos(tip) = 1.414 r. Mirror([0,1,0]) puts the point on +Y.
+    polygon(concat(
+        [[0, -r / cos(tip)]],
+        [for (i = [0:n]) let (a = tip - 90 + (360 - 2 * tip) * i / n) [r * cos(a), r * sin(a)]]));
+}
+
+module gland_boss_profile() {
+    // The boss's cross-section: the O22 circle plus its tail, a triangle whose two lower vertices are
+    // exactly where the tail's lines touch the circle. Those lines are tangent by construction
+    // (gland_tail_a = 90 - gland_tail), so the union has no corner at the join.
+    union() {
+        circle(r = gland_boss_r);
+        polygon([[gland_boss_r * sin(gland_tail_a), gland_boss_r * cos(gland_tail_a)],
+                 [0, gland_boss_r * (cos(gland_tail_a) + sin(gland_tail_a) / tan(gland_tail))],
+                 [-gland_boss_r * sin(gland_tail_a), gland_boss_r * cos(gland_tail_a)]]);
+    }
+}
+
+module gland_boss() {
+    // The boss itself: that profile extruded from inside the shell up to the gland's flat. Its base is
+    // buried at gland_root_z, so its sides emerge from the case's own surface and no ledge is left.
+    translate([0, gland_cy, 0]) prism_xy(gland_flat_z - gland_root_z, gland_root_z) gland_boss_profile();
+}
+
+module gland_hole_cut(d = gland_d, round_h = gland_round, tear = gland_tear) {
+    // The gland's hole in two steps: a plain round collar for the first round_h down from the flat --
+    // the gasket's ring seals on that face, and a teardrop opening would reach O17.7, past the washer --
+    // and a teardrop from there into the cavity, which is what keeps the roof printable. Cut as one
+    // difference, so between them they are the hole.
+    translate([0, gland_cy, gland_flat_z + 1]) cylinder(d = d, h = round_h + 1);
+    translate([0, gland_cy, gland_nut_z - 2])
+        prism_xy(gland_flat_z - round_h - gland_nut_z + 2) teardrop_xy(d / 2, tear);
+}
+
+module gland_nut_pad() {
+    // The locknut's seat, and it has to be ADDED, not cut: the cavity's ceiling is a O30 cylinder
+    // arching up over the hole (93.40 at the centre, 92.17 over the seat's rim), so there is nothing to
+    // spot-face -- a flat face there means material, a pad that fills the arch and stops at 92.15. It is
+    // a teardrop with its point on +Y, for the same reason the boss has its tail there: this pad's own
+    // back side would hang. What the nut sees is a seat 2.25 mm wide round the hole, on a pad 1.25 mm
+    // thick at its centre, and 7.65 mm of material through the hole.
+    translate([0, gland_cy, gland_nut_z]) prism_xy(2.00) mirror([0, 1, 0])
+        teardrop_xy(gland_nut_d / 2, gland_tear);
+}
+
+module gland_probe() {
+    // A rod through the intended opening, 1 mm narrower than the cut and 0.5 mm narrower than its
+    // teardrop, from above the flat to below the nut's seat: if its intersection with the base is
+    // empty, the hole is open end to end -- flat, boss, shell, ceiling and seat -- and no face of the
+    // seat swallowed it. It is two pieces with 0.2 mm of clearance either side of where the cut's own
+    // round collar ends, so nothing rides on a coplanar face.
+    translate([0, gland_cy, gland_flat_z + 1]) cylinder(d = gland_d - 1, h = gland_round + 1.2);
+    translate([0, gland_cy, gland_nut_z - 0.5])
+        prism_xy(gland_flat_z - gland_round - 0.2 - gland_nut_z + 0.5)
+            teardrop_xy(gland_d / 2 - 0.5, gland_tear);
+}
+
+module gland_marker() {
+    // The bought PG7 and its cable, as markers: what the printed parts have to accept, drawn where it
+    // will sit. The thread passes through the hole, the flange's washer lands on the flat, the locknut
+    // comes up inside onto the pad's seat, and the cable leaves straight up.
+    color("orange", 0.85) {
+        translate([0, gland_cy, gland_flat_z]) cylinder(d = 16.0, h = 3.50);         // the body's flange
+        translate([0, gland_cy, gland_flat_z]) cylinder(d = 12.0, h = 9.00);         // its thread, outside
+        translate([0, gland_cy, gland_flat_z + 9.00]) cylinder(d = 5.00, h = 26.0);  // the cable
+    }
+    color("gold", 0.85) translate([0, gland_cy, gland_nut_z]) cylinder(d = gland_nut_d, h = 2.40);
+}
+
+
 
 module joint_lip() {
     // The LID's lip: the lap band as an added ring, its outer surface the case's own (lap_proud is 0.0,
@@ -727,10 +883,11 @@ module joint_recess_cut() {
 module base() {
     // Back tray: closed on the wall face -- the one face that cannot carry anything, because the case
     // is bedded flat on the post -- and opened instead through its BOTTOM, where the two microphone
-    // slots pierce the wall just behind the unit (step 3 of the feature list). What it carries is the
-    // three pads that push the unit forward onto the seat, the two pillars the lid screws into, the
-    // collar that locates the unit, and the recess the lid's lip drops into (the lap). The gland and
-    // the vent still live here in name only: they move to a side or to the bottom.
+    // slots pierce the wall just behind the unit (step 3 of the feature list), and through its TOP,
+    // where the cable gland does (ADR-025). What it carries is the three pads that push the unit forward
+    // onto the seat, the two pillars the lid screws into, the collar that locates the unit, the recess
+    // the lid's lip drops into (the lap), the boss the gland sits on and the pad its locknut bears on.
+    // The vent still lives here in name only: it goes on the bottom or on a side.
     difference() {
         union() {
             difference() {
@@ -739,9 +896,12 @@ module base() {
             }
             m3_pillars();
             unit_collar();
+            gland_boss();
+            gland_nut_pad();
         }
         m3_pillar_holes();
         mic_slot_cut();
+        gland_hole_cut();
         joint_recess_cut();
     }
     unit_pads();
@@ -868,6 +1028,7 @@ module review_view() {
     if (show_screws) screw_markers2();
     if (show_collar) color("green", 0.85) unit_collar();
     if (show_m4)     wall_markers();
+    if (show_gland)  gland_marker();
 }
 
 module translucent(which) {
@@ -963,6 +1124,11 @@ if (part == "base") {
     // from outside the case into the cavity, wall and collar both. The probe is narrower and shorter
     // than the cut and spans the whole depth of the wall, so it proves the opening end to end.
     intersection() { base(); mic_probe(); }
+} else if (part == "probe_gland") {
+    // Against the BASE as well. Empty means the gland's hole is open end to end -- the boss's flat, the
+    // shell, the cavity's ceiling and the locknut's pad -- and that the teardrop, in the round collar,
+    // in the pad and in the shell at once, is one continuous opening rather than a pocket in any of them.
+    intersection() { base(); gland_probe(); }
 } else {
     // Default, so opening this file shows where the planned screws go. In one piece: a cutaway was not
     // readable.
