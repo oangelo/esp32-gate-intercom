@@ -55,7 +55,7 @@ section: display
 ## Prove the ghosts touch neither a wall nor each other, and that the openings are open.
 ## Everything except nothing: all of these must print "empty".
 fit:
-	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint probe_grille probe_button; do \
+	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint probe_grille probe_button probe_mic; do \
 		printf '%-22s ' $$p; \
 		openscad -D "part=\"$$p\"" -o $(BUILD)/$$p.stl $(SCAD) 2>&1 \
 			| grep -q 'top level object is empty' && echo 'empty: no interference' || echo 'GEOMETRY: interference, look at it'; \

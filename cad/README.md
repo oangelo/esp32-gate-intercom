@@ -19,12 +19,14 @@ Status of `case.scad`: **revision 3, steps 1 and 2 done, re-cut around the assem
 item 5 was decided the other way on 2026-09-24: the Waveshare goes in whole, as it arrives, so the lid
 no longer builds its own speaker chamber — its front stays **closed** over the unit's grille and just
 drills the sound holes (a O44 recessed field of O2 holes, the unit's own grille right behind them).
-Those same holes are the microphones' air path: the unit listens through eight O1 holes in its own
-cover, that air volume is the cavity, and the cavity's only way out is the grille. The base keeps three
-pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49 to 58 and the unit
-sits low (centre at 33) to free the upper half for the button at 76.
-`make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`)
-prove the openings are open through the walls, by boolean instead of by eye.
+Those same holes are the speaker's air path out, and the microphones have their own way in: **two Ø4 mm
+ports through the back plate**, low and behind them, each behind a hydrophobic membrane on a spot-faced
+seat (ADR-022). Keeping the two apart is the point — the microphones used to share the speaker's field,
+which is direct coupling. The base keeps three pads that push the unit onto a spot-faced seat in the
+lid. Case depth went from 49 to 58 and the unit sits low (centre at 33) to free the upper half for the
+button at 76.
+`make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`,
+`probe_mic`) prove the openings are open through the walls, by boolean instead of by eye.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
 into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
@@ -91,7 +93,7 @@ the cable route to the unit's USB-C, and the rest of the joint (the gasket groov
     make section   # cutaway render, the review view: the assembled unit inside
     make inside_render  # translucent shell: the unit inside, and the rejected bare-parts layout
     make exploded  # the two printed parts pulled apart
-    make fit       # prove the ghosts touch no wall and the openings are open; must be empty six times
+    make fit       # prove the ghosts touch no wall and the openings are open; must be empty seven times
 
 `make check` must be clean before any export is taken seriously: OpenSCAD happily writes an STL with a
 non-manifold object, and a sliced mesh with gaps is a failed print, not a cosmetic problem.

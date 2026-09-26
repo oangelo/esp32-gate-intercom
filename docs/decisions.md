@@ -335,3 +335,29 @@ wall and the mortar take the rest.
 Both still sit in a 1.5 mm pocket in the plate's inner face — the gap behind the unit is 1.80 mm, which is
 why the pocket has to stay shallow — and both still clear the unit's three standoffs. The pockets
 themselves are still markers: cutting them is part of "the rest of the joint" in `cad/README.md`.
+
+## ADR-022: the microphone ports go through the back plate, low and behind the microphones
+
+**Decision:** the case carries **two Ø4 mm ports** through the **back plate**, at the microphones' own
+positions — `r = 26.83 mm` at `±47.2° / 132.8°` in the board's frame (ADR-018's measured numbers), which
+puts both of them at **z = 17.3** in the case, one either side of x = 0: low, and behind the microphones.
+On the outside each port gets a **Ø9 × 1 mm spot face** as the flat seat for a stick-on hydrophobic
+membrane (ADR-017). `probe_mic` proves both are open through the plate's 3 mm.
+
+**Why:** this retires the "nothing goes through the back plate" reading that ADR-010, ADR-017 and the
+roadmap had settled on, and the reason is acoustic rather than geometric. With the case closed except for
+the front grille, the microphones' only air path was the same Ø44 field the speaker fires through — a
+direct coupling path between speaker and microphone, which is the one thing ADR-014 exists to prevent
+(the measured pre-case baseline is a tone at -13.7 dBFS on the DAC coming back at -7.7 dB peak on the
+microphone). The ports open into the 1.80 mm gap behind the unit instead, which is the volume the
+microphones actually breathe: the unit's own back cover carries eight Ø1 holes at r = 5.5 to 8.9 between
+that gap and its chamber. Two Ø4 holes are also far more open area than the eight Ø1 holes they feed, so
+they are not the restriction in the path, and at z = 17.3 they sit as far from the speaker as this case
+goes. The spot face is what makes the membrane work: it gives it a flat, flush seat 9 mm across and keeps
+its edge out of the way of anything that slides past.
+
+**Open, and it is a mounting question rather than a CAD one:** these two ports face the wall the case is
+fixed to, so bedding the plate flat on mortar buries them and the microphones fall back to listening
+through the grille. The plate has to stand a few millimetres off the wall in front of them, or that area
+has to stay clear — the two M4 at x = 0, z = 24 and 72 leave the lower corners free, so the fix can live
+there. Steps 3 and 5 (gland, vent, mounting ears) should settle it before anything is printed.
