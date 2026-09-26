@@ -74,8 +74,8 @@ Note that the shells are background (`%`) objects and `--render` does not draw t
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
 Still to come: nothing. The feature list is complete as of 2026-09-26. The joint's gasket
-is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of closed-cell silicone
-foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
+is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of TPU 95A printed soft
+and squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
 itself"). The vent is a Ø4.00 hole in the middle of the -X side — mid-height, where the capsule's straight
 band makes the wall a flat plane and the hole square to it, so the 3.40 mm of wall is crossed cleanly — a
 horizontal tunnel with a 4 mm bridge for a ceiling, proved by `probe_vent`, with a breathable membrane

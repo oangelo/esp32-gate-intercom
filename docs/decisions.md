@@ -504,8 +504,16 @@ edge, its inner edge the case's inner surface, so the lap's 0.20 mm is all that 
 — and **1.00 mm** of closed-cell silicone foam, squeezed **30 percent** as ADR-017 asks. That squeeze is
 what sets the joint's **closed gap**: **0.70 mm**, i.e. how far the lid ends up forward of the printed
 joint plane once the two screws are home, with the 3.00 mm lip reaching **2.30 mm** into the recess and
-nothing bottoming out. It is a separate part and belongs to neither half — cut from a sheet or bought as a
-ring — so it is unioned into nothing, and its own printability is not a question. Proved by
+nothing bottoming out. It is a separate part and belongs to neither half, so it is unioned into nothing.
+
+**Amendment (2026-09-26, the user's call): it is printed in TPU 95A, not cut from foam.** A printed ring
+springs back instead of taking a set, it is the one material already on the shelf, and the same geometry
+serves: 1.70 wide, 1.00 thick, squeezed to 0.70. Print it **soft** — the 1.70 mm of ring fits about two
+0.45 mm lines, so 2 walls, 10 to 20 % infill (none at all leaves a soft hollow tube) and 2 top/bottom layers
+so the two seal faces come out solid — because the 30 % squeeze is the design's own number (ADR-017)
+and the material has to deliver it, not the other way round: a *solid* TPU ring would need far more force
+to reach 30 % than two M3 screws can put into printed ASA. If a solid print is wanted, `gasket_t` drops to
+0.80 and the squeeze becomes 12 percent. Proved the same way as before, by
 `fitcheck_gasket`: the ring against both halves **at that closed gap** (the lid lifted 0.70, because in
 the dry position the ring's space is the lid's own material) must be empty, and it is. Measured on the
 STL: 63.40 × 93.40 outside, 60.00 × 90.00 inside, 1.00 thick, 431.45 mm³ — the contour's 1.70 mm band to

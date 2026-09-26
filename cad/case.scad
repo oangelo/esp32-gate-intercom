@@ -6,9 +6,10 @@
 // base's recess), the closed grille field over the unit, the button's lands and its cutout, the two
 // microphone slots through the bottom, the two M3 x 12 that close the case, and the unit, speaker and
 // buck as ghosts to prove they fit. Still to come, in this order, each one reviewed before the next:
-//   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
-//      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
-//      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
+//   1. the gasket itself: the ring is drawn now -- printed in TPU 95A, soft -- and it lies flat on the
+//      1.70 mm shoulder the lap leaves. No groove -- at that width a groove would leave 0.35 mm of wall
+//      -- and the two screws squeeze the ring from 1.00 to 0.70, which is what the joint closes by
+//      (ADR-024 and its 2026-09-26 amendment, ADR-017)
 //   2. the list is complete as of 2026-09-26. The cable gland's top went in with ADR-025, the vent is cut
 //      in the middle of the -X side with ADR-026, and the microphone membranes need NO seat (they are drawn
 //      as patches on the bottom's curve -- ADR-023). There are NO mounting ears: what holds the case is the
@@ -50,7 +51,7 @@
 //   openscad -D 'part="probe_m4"'     ...                                     # must be EMPTY
 //   openscad -D 'part="probe_vent"'   ...                                     # must be EMPTY
 //   openscad -D 'part="fitcheck_gasket"' ...                                   # must be EMPTY
-//   openscad -D 'part="gasket"'       -o build/gasket.stl ...                 # the foam ring on its own
+//   openscad -D 'part="gasket"'       -o build/gasket.stl ...                 # the ring on its own, to print in TPU
 //
 // Everything is selected through `part`, one selector for every view. The translucent views need
 // --render: without it the PNG export draws the shell as opaque and the internals disappear, which
@@ -109,8 +110,8 @@ show_m4       = true;   // [true,false]  the two M4 into the wall, as markers: t
                         //                sit in are cut in the base (m4_pockets())
 show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with its cable (a marker: the
                         //                hole and the boss are cut into the base, the gland is not)
-show_gasket   = true;   // [true,false]  the joint's foam ring, on the shoulder the lap leaves (it is a
-                        //                separate part: neither half carries it)
+show_gasket   = true;   // [true,false]  the joint's gasket ring -- printed in TPU -- on the shoulder the
+                        //                lap leaves (a separate part: neither half carries it)
 show_vent     = true;   // [true,false]  the breathable membrane over the vent hole (a marker: the hole
                         //                through the side wall is cut, the membrane is stuck on)
 show_mic_mem  = true;   // [true,false]  the two hydrophobic membranes over the microphone slots (also
@@ -401,26 +402,31 @@ module button_lands_cut() {
 // What that gives up is the drip shadow the 0.40 was doing: water now runs straight across the parting
 // line instead of falling off an overhang 1.90 mm outboard of the mouth of the gap. What is left to stop
 // it is the mouth itself -- 0.20 mm, which water enters by capillary action -- and then the whole
-// 3.00 mm of lap to climb and the shoulder at the joint plane, where the foam ring goes (ADR-017). If
+// 3.00 mm of lap to climb and the shoulder at the joint plane, where the gasket ring goes (ADR-017). If
 // the film at the mouth ever shows up as a problem in use, a 0.40 mm deep rain groove on the parting
 // line buys the break back without a ridge; it is not cut because it was not asked for.
 //
 // The shoulder is 1.70 mm now -- the wall is 3.4 and the recess spends 1.70 -- and still too narrow to
 // groove: a 1.00 mm groove would leave 0.35 mm of wall on each side. So the ring lies flat on it and
-// the two screws squeeze it. Drawn as of 2026-09-26 (gasket()): 1.70 mm wide, 1.00 mm of closed-cell
-// silicone foam, squeezed 30 percent (ADR-017) -- so the joint's closed gap is 0.70, the lid ends up
+// the two screws squeeze it. Drawn as of 2026-09-26 (gasket()): 1.70 mm wide, 1.00 mm of TPU 95A
+// printed soft (closed-cell silicone foam until 2026-09-26 -- ADR-024's amendment), squeezed 30 percent
+// (ADR-017): the joint's closed gap is 0.70, the lid ends up
 // that far forward of the printed plane, and the lip reaches 2.30 into the recess instead of 3.00.
 joint_y   = 8.0;        // CUT 2026-09-26: was 27.5, and the M3 x 12 screws already cut assume it
 lap_d     = 3.0;        // how far the lip reaches back past the joint plane
 lap_step  = 1.5;        // the lip's own thickness: the outer 1.5 mm of the lid's 3.4 mm wall
 lap_gap   = 0.2;        // radial clearance: the base's rim keeps the inner 1.7 mm and the lip slides on
 lap_proud = 0.0;        // FLUSH: the lip does not stand off the case's surface. Was 0.4 -- see above
-gasket_y  = joint_y;    // the foam ring's shoulder, now the face at the joint plane itself: the lap
+gasket_y  = joint_y;    // the gasket ring's shoulder, now the face at the joint plane itself: the lap
                         // moved the sealing face off the dome's brim and onto this 1.70 mm annulus
 gasket_od = lap_step + lap_gap;   // 1.70: the ring's outer edge IS the rim's outer edge, so what
                                   // separates it from the lip is the lap's own 0.20 mm
 gasket_id = wall;       // 3.40: and its inner edge is the case's inner surface
-gasket_t  = 1.00;       // free thickness. Closed-cell silicone foam (ADR-017), cut to a ring or bought
+gasket_t  = 1.00;       // free thickness. PRINTED IN TPU 95A (2026-09-26; closed-cell silicone foam
+                        // before that -- ADR-024's amendment). Print it soft (2 walls, 10 to 20 % infill,
+                        // 2 top/bottom layers) so the two M3 screws can actually take the 30 % below: a
+                        // solid TPU ring would need far more force than they can put into printed ASA.
+                        // If solid is wanted, drop this to 0.80 and the squeeze becomes 12 percent
 gasket_squash = 30;     // percent of it the two screws take out (ADR-017: about 30 percent)
 gasket_gap = gasket_t * (1 - gasket_squash / 100);   // 0.70: the joint's CLOSED gap, i.e. how far the
                         // lid ends up forward of the printed joint plane, with the ring squeezed in
@@ -1063,11 +1069,11 @@ module joint_recess_cut() {
 }
 
 module gasket(t = gasket_t, inset = 0) {
-    // The foam ring itself (ADR-017), drawn where it seals: flat on the shoulder the lap leaves -- the
+    // The gasket ring itself (ADR-017), drawn where it seals: flat on the shoulder the lap leaves -- the
     // base's 1.70 mm rim at the joint plane -- with the two screws squeezing it from 1.00 to the 0.70
-    // the joint closes by. It is a SEPARATE part and belongs to neither half: it is cut from a sheet or
-    // bought as a ring, which is why nothing here is unioned into base() or lid(), and why its own
-    // printability is not a question. Its outer edge is the rim's own outer edge and its inner edge the
+    // the joint closes by. It is a SEPARATE part and belongs to neither half: it is PRINTED IN TPU 95A
+    // (2026-09-26, ADR-024's amendment) and printed soft, which is why nothing here is unioned into
+    // base() or lid(). Its outer edge is the rim's own outer edge and its inner edge the
     // case's inner surface, so it is 1.70 mm wide and clears the lip by exactly the lap's 0.20 mm.
     //   t     -- thickness, from the rim's face forward (the default is the free one; the fit check
     //            asks for the squeezed 0.70, because that is the gap it has to fit in);
@@ -1258,7 +1264,7 @@ if (part == "base") {
 } else if (part == "lid") {
     lid();
 } else if (part == "gasket") {
-    // The foam ring on its own, for cutting or buying: 1.70 mm wide, 1.00 mm thick, and its shape is
+    // The gasket ring on its own, for printing in TPU: 1.70 mm wide, 1.00 mm thick, and its shape is
     // the case's own contour between the rim's edges.
     gasket();
 } else if (part == "assembly") {
