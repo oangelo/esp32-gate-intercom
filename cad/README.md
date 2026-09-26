@@ -34,6 +34,12 @@ the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its 
 head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and `-D
 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
 
+The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
+Ø60 inside and the unit is Ø58, so the ring has exactly **1.0 mm** to spend. It spends it — 1 mm of wall
+on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall — and it carries a Ø9
+window on each M4 axis so the wall screws' heads still land in their pockets (ADR-020).
+`-D 'fc="collar"'` isolates that check.
+
 Everything that view draws is switchable, without editing the file: OpenSCAD's **Customizer** panel
 (the `show_*` block at the top of `case.scad`) gives a tick box each for the lid, the base, the unit,
 the screws, the collar and the M4, plus `show_solid` for the shell drawn opaque instead of as a
@@ -42,7 +48,7 @@ Note that the shells are background (`%`) objects and `--render` does not draw t
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
 Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
-the cable route to the unit's USB-C, and the rest of the joint (the lip and the gasket groove).
+the cable route to the unit's USB-C, and the rest of the joint (the gasket groove and the M4 pockets).
 
 ## Rules for this design
 

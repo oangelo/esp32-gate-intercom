@@ -80,7 +80,8 @@ show_base     = true;   // [true,false]  the back tray, with the bosses and the 
 show_solid    = false;  // [true,false]  the shell solid and opaque, instead of a % (background) object
 show_unit     = true;   // [true,false]  the assembled Waveshare, as a ghost
 show_screws   = true;   // [true,false]  the two M3, their pillars and the brass inserts
-show_collar   = true;   // [true,false]  the unit's collar on the floor (a marker: not cut yet)
+show_collar   = true;   // [true,false]  the unit's collar (now cut into the base; drawn green so it
+                        //                reads under the shell)
 show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not cut yet)
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
@@ -379,12 +380,22 @@ m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.
 // Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
 // 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
 //
-// The collar on the floor (the "lábio"): it locates the unit's O58 body. Bore O58.4, so the unit has
-// 0.2 mm to find it, 1.75 mm tall (the same plane as the pads' tops, so the unit's back stays
-// square), and it opens out to the cavity's wall all round, which is what attaches it to the print.
-lip_bore  = 58.4;
-lip_od    = 63.0;       // 2.3 mm of rim: wide enough to bite, thin enough to print on the floor
-lip_h     = unit_pad_h;
+// The collar on the floor (the "lábio"): it locates the unit's O58 body -- and as of review 3 it is
+// CUT into the base, not a drawing. Both of its new numbers come from the cavity's own width: the
+// inner radius is cav_x = 30.0 and the unit is O58, so the gap all the way round is EXACTLY 1.0 mm.
+// A 2.3 mm wall (the old O63) had nowhere to go; the collar spends the millimetre instead: 1.0 mm of
+// collar on 0.2 mm of clearance. 58.4 + 2 x 1.0 = 60.4 outside, so its outer 0.2 mm sits INSIDE the
+// cavity's wall and fuses with it. Deliberate, not sloppy: that fusion is what backs a 1.0 mm ring,
+// which on its own would be the thinnest unsupported thing in the case (rule 3 asks for 1.2).
+lip_bore  = 58.4;       // the unit's own O58 plus 0.2 a side: rule 6's "tight fit"
+lip_wall  = 1.00;       // the collar's thickness: the whole of the gap, see above
+lip_od    = lip_bore + 2 * lip_wall;   // 60.4
+lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind the unit, 3.20 is skirt
+                        // over the unit's own body, and the skirt is the point: with 0.4 mm of total
+                        // clearance the unit can cock by atan(0.4/3.2) = 7.1 degrees where 1.75 mm of
+                        // collar let it cock by 12.9. It stays clear of the base/lid joint at 27.5.
+m4_head_d = 8.0;        // the M4 head seated in its pocket (below); the collar needs to clear it
+m4_window_d = 9.0;      // the collar's window on each M4 axis: that head plus 0.5 a side
 
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
@@ -396,17 +407,19 @@ module screw_markers2() {
     color("red", 0.95)   m3b_points() m3_screw();
 }
 
-fc = "all";             // narrows fitcheck_joint: all | screw | neighbours
+fc = "all";             // narrows fitcheck_joint: all | screw | neighbours | collar
 
 module fitcheck_joint() {
-    // The review-3 joint, by boolean instead of by eye. Two questions, one volume, and `fc` narrows
+    // The review-3 joint, by boolean instead of by eye. Three questions, one volume, and `fc` narrows
     // it to one of them when the answer is not empty:
     //  1. "screw": the screw's OWN solid against both printed parts: the counterbore, the shank hole
     //     and the pillar's blind hole all have to swallow it, with the lid's boss in the way and with
     //     the insert sharing the hole it is pressed into;
     //  2. "neighbours": the pillar and the boss against the unit, the collar, and the switch's body
     //     behind the panel (its O30 flange is the same obstruction, being what button_lands_cut
-    //     spot-faces away).
+    //     spot-faces away);
+    //  3. "collar": the collar is cut material now, so its own two clearances are a real question --
+    //     0.2 mm all round the unit, and the M4 heads landing in its windows.
     if (fc == "all" || fc == "screw")
         intersection() {
             m3b_points() m3_screw();
@@ -416,6 +429,15 @@ module fitcheck_joint() {
         intersection() {
             union() { m3_pillars(); m3b_points() m3_boss(); }
             union() { ghost_unit(); unit_collar(); switch_body(); button_lands_cut(); }
+        }
+    if (fc == "all" || fc == "collar")
+        intersection() {
+            // The collar is no longer a drawing, so its own two clearances are a real question: 0.2 mm
+            // around the unit (that is what lip_bore is for) and the M4 heads in its windows rather
+            // than under the ring. It bites the collar itself, not base(): base() still has the whole
+            // back plate solid -- the M4 pockets are markers, not cuts -- so a head always meets it.
+            unit_collar();
+            union() { ghost_unit(); m4_heads(); }
         }
 }
 
@@ -505,15 +527,24 @@ module switch_body() {
 }
 
 module unit_collar() {
-    // The collar on the floor: a ring of rim on the floor, not a raised floor. outline_inner() would
-    // have made it a slab with a hole in it (60 x 60, minus the bore) -- a 1.75 mm step across the
-    // whole floor. Just the annulus: the unit drops into lip_bore and the pads carry it forward onto
-    // the seat.
-    translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
-        difference() {
-            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
-            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
-        }
+    // The collar, now CUT into the base (review 3, second pass). A ring of rim on the floor, not a
+    // raised floor: outline_inner() would have made it a slab with a hole in it (60 x 60, minus the
+    // bore), a 5 mm step across the whole floor. Just the annulus -- the unit drops into lip_bore and
+    // the pads carry it forward onto the seat.
+    // The windows are for the two M4 heads. They sit at r = 26 from the unit's axis (that is why they
+    // are behind the unit), and each O8 head reaches r = 30, which is past lip_bore's 29.2: as a plain
+    // ring the collar would stand on the screw heads and neither the screw nor the collar would sit
+    // right. A O9 window on each axis gives the head its pocket back with 0.5 a side to spare.
+    difference() {
+        translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
+            difference() {
+                cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
+                translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
+            }
+        for (a = screw_m4_a)
+            translate([screw_m4_r * cos(a), inner_d - lip_h - 1, unit_cz + screw_m4_r * sin(a)])
+                rotate([-90, 0, 0]) cylinder(d = m4_window_d, h = lip_h + 2);
+    }
 }
 
 // ------------------------------------------------------------------- the two parts
@@ -521,8 +552,9 @@ module unit_collar() {
 module base() {
     // Back tray: closed. The back plate goes against the wall, so nothing goes through it -- no
     // acoustic window, no gland, no vent. What it carries is the three pads that push the unit
-    // forward onto the seat, and (review 3) the two pillars the lid screws into. The gland and the
-    // vent still live here in name only: they move to a side or to the bottom (step 3).
+    // forward onto the seat, and (review 3) the two pillars the lid screws into and the collar that
+    // locates the unit. The gland and the vent still live here in name only: they move to a side or
+    // to the bottom (step 3).
     difference() {
         union() {
             difference() {
@@ -530,6 +562,7 @@ module base() {
                 cavity();
             }
             m3_pillars();
+            unit_collar();
         }
         m3_pillar_holes();
     }
@@ -602,17 +635,24 @@ module ghosts_pairwise() {
     intersection() { ghost_board(); ghost_speaker(); }
 }
 
+module m4_heads() {
+    // Just the two M4 heads, seated in their pockets on the plate's inner face: the only part of those
+    // screws the collar can meet, and therefore what the collar's fit check bites into.
+    for (a = screw_m4_a)
+        color("darkorange", 0.95)
+            translate([screw_m4_r * cos(a), inner_d - pocket_m4, unit_cz + screw_m4_r * sin(a)])
+                rotate([-90, 0, 0]) cylinder(d = m4_head_d, h = pocket_m4);
+}
+
 module wall_markers() {
     // The three M4 into the masonry, as screws: a head seated in the 1.5 mm pocket on the plate's inner
     // face and a shank that carries on through the plate and into the wall behind it. The radius is 26
     // from the unit's axis, which is inside the unit's O58 footprint -- that is why they sit behind it.
+    m4_heads();
     for (a = screw_m4_a)
-        color("darkorange", 0.95) {
-            translate([screw_m4_r * cos(a), inner_d - pocket_m4, unit_cz + screw_m4_r * sin(a)])
-                rotate([-90, 0, 0]) cylinder(d = 8.0, h = pocket_m4);
+        color("darkorange", 0.95)
             translate([screw_m4_r * cos(a), inner_d, unit_cz + screw_m4_r * sin(a)])
                 rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = 22);
-        }
 }
 
 module review_view() {

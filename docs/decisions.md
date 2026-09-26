@@ -289,3 +289,23 @@ clearances, all from the model: 1.4 mm to the switch's Ø30 flange (the reason t
 (17, 68), where it came out as contact), 3.0 mm to the unit's collar, 5.1 mm to the switch's body,
 8.9 mm to the cavity's side wall. `fitcheck_joint` proves the whole arrangement by boolean, and
 `-D 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
+
+## ADR-020: the collar is 1 mm of wall, 5 mm tall, with windows for the two M4 heads
+
+**Decision:** the ring on the floor that locates the unit's Ø58 body is **cut material as of review 3**,
+not a drawing. The bore stays at Ø58.4 (0.2 mm a side, rule 6's tight fit), the wall is **1.00 mm** and it
+stands **5.00 mm** off the floor, so its outer Ø60.4 overlaps the cavity's wall by 0.2 mm and fuses with
+it. On each M4 axis it carries a **Ø9 window**: those heads are at r = 26 mm from the unit's axis, an Ø8
+head reaches r = 30, and the collar's bore is at 29.2, so a plain ring would have stood on the screw heads.
+
+**Why:** none of those numbers are free. The cavity's inner radius is `cav_x = 30.0` and the unit is Ø58,
+so the gap between them is **exactly 1.0 mm** all the way round — and the previous Ø63 collar (2.3 mm of
+wall) had nowhere to go: it would have cut into the wall. The collar spends the millimetre instead. The
+outer 0.2 mm landing inside the wall is deliberate: it is what backs a 1.0 mm ring, which standing free
+would be the thinnest unsupported thing in the case (rule 3 asks for 1.2). The height is what makes the fit
+"hold": of the 5.00 mm, 1.80 is the gap behind the unit and 3.20 is skirt over the unit's own body, which
+drops the unit's free cocking from atan(0.4/1.75) = 12.9° to atan(0.4/3.2) = 7.1°. The windows are the
+cheaper of two fixes — the alternative was moving the wall screws inwards, which would have moved the whole
+fixture. `fitcheck_joint` covers it as `-D 'fc="collar"'`: the collar against the unit and against the two
+heads, empty. It bites `unit_collar()`, not `base()`, because `base()` still has its back plate whole —
+the M4 pockets are markers, not cuts — and an M4 head always meets that.
