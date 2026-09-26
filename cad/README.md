@@ -44,15 +44,16 @@ head with nothing to pull against. `fitcheck_joint` answers the whole thing by b
 The joint itself is a **half-lap** as of this review (ADR-024): the lid carries a lip and the base the
 recess it drops into, all the way round the contour, so the two halves can no longer be shifted sideways
 against each other and no longer meet on a bare flat plane. The lip is the outer 1.50 mm of the lid's
-3.00 mm wall, reached 3.00 mm back past the plane and standing **0.40 mm proud** of the case's surface; the
-recess takes the outer 1.70 mm of the base's wall over the same 3.00 mm and leaves a 1.30 mm rim, so the
-two are **0.20 mm apart** all round. The stand-off is the lap's **drip shadow**: water running down the
-case leaves the lid at that edge and lands on the base 1.90 mm outboard of the mouth of the joint's
-0.20 mm gap, and anything that gets past it still has the 3.00 mm of lap to climb before the shoulder
-where the foam ring sits. `fitcheck_pair` proves the lap by boolean -- the two parts against each other,
-minus one `eps` either side of the joint plane, which is a contact and not an interference.
-Neither part pays for the lap with support: through its last 3 mm the base's wall goes 3.00 to 1.30 mm and
-the lid's 3.00 to 1.90, so both shapes only lose material as the print rises.
+3.40 mm shell, reached 3.00 mm back past the plane and **flush** with the case's surface; the recess takes
+the outer 1.70 mm of the base's wall over the same 3.00 mm and leaves a 1.70 mm rim, so the two are
+**0.20 mm apart** all round. Nothing protrudes any more: the first cut stood the lip 0.40 mm proud as a
+**drip shadow**, the user's call was that the ridge reads badly ("fica feio"), and the case grew 0.8 mm
+across instead -- its own surface is what a film of water runs down, and the mouth of the 0.20 mm gap is
+the first line against it, ahead of the 3.00 mm of lap and the shoulder where the foam ring sits.
+`fitcheck_pair` proves the lap by boolean -- the two parts against each other, minus one `eps` either side
+of the joint plane, which is a contact and not an interference.
+Neither part pays for the lap with support: through its last 3 mm the base's wall goes 3.40 to 1.70 mm and
+the lid's 3.40 to 1.50, so both shapes only lose material as the print rises.
 
 The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
 Ø60 inside and the unit is Ø58, so the ring has exactly **1.0 mm** to spend. It spends it — 1 mm of wall
@@ -72,7 +73,7 @@ markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
 Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
 the cable route to the unit's USB-C, the gasket ring itself (flat on the lap's shoulder -- a groove does
-not fit at 1.30 mm) and the M4 pockets in the back plate.
+not fit at 1.70 mm) and the M4 pockets in the back plate.
 
 ## Rules for this design
 

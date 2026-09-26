@@ -402,7 +402,7 @@ back face is at 53.20, so the microphones keep a path even if the unit ends up t
 
 **Amended in the same review — the Ø9 × 1 mm spot face is out, on the user's call.** It was the
 membrane's flat land, carried over from ADR-022 without asking whether the bottom needed one, and it
-bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66 cylinder, so a 9 mm
+bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66.8 cylinder, so a 9 mm
 patch follows that curve to within 0.31 mm, and there is nothing at the bottom of a case on a post to
 peel its edge — which was the second half of ADR-022's reason for the seat on the flat plate. Two
 things come out of dropping it. The cut is a plain prism along the depth, which mirrors on X by
@@ -416,10 +416,11 @@ loop, and the slot's prism needs nothing.
 ## ADR-024: the joint is a half-lap - the lid's lip into the base's recess
 
 **Decision (user's call, 2026-09-26):** the two halves no longer meet on a flat plane. The **lid** carries
-a **lip** -- the outer `lap_step` (1.50 mm) of its 3.00 mm wall, carried `lap_d` (3.00 mm) back past the
-joint plane and standing `lap_proud` (0.40 mm) clear of the case's own surface -- and the **base** carries
-the matching **recess**: the outer `lap_step + lap_gap` (1.70 mm) of its wall removed over the same
-3.00 mm, leaving it a **1.30 mm rim** that the lip slides over with **0.20 mm** of radial clearance all
+a **lip** -- the outer `lap_step` (1.50 mm) of its shell, carried `lap_d` (3.00 mm) back past the joint
+plane and **flush** with the case's own surface (`lap_proud` 0.00, amended the same day: see below) -- and
+the **base** carries the matching **recess**: the outer `lap_step + lap_gap` (1.70 mm) of its wall removed
+over the same 3.00 mm, leaving it a **1.70 mm rim** that the lip slides over with **0.20 mm** of radial
+clearance all
 the way round the contour. The joint plane stays at **y = 8.00**, where the M3 x 12 of ADR-019 already
 were: at 27.5 a screw through the front wall would have needed M3 x 30 and 17 mm of plastic to cross, and
 the screws themselves are unchanged, on the user's call. `fitcheck_pair` is the boolean that proves the
@@ -428,11 +429,12 @@ out of the test because the plane itself is a contact and not an interference --
 zero-thickness sheet there (0.000 mm³, 62.51 mm wide, 0.000 mm deep, measured on the STL).
 
 **Why a lap and not a tongue and groove:** a ring standing out of one face into a groove in the other
-needs the groove to have **two** walls -- 1.20 + 1.40 + 1.20 = 3.80 mm against a 3.00 mm wall -- and the
+needs the groove to have **two** walls -- 1.20 + 1.40 + 1.20 = 3.80 mm, against a 3.40 mm shell -- and the
 wall cannot be thickened inwards at the joint, because at y = 8 the Ø58 unit is 1.00 mm from the cavity
 (ADR-020) and there is no material to borrow. The half-lap **spends** the wall instead of adding to it and
-leaves both remaining walls above rule 3's 1.20 mm. It also costs nothing in outside size, which a flange
-would not.
+leaves both remaining walls above rule 3's 1.20 mm. It also costs **no local step**: the 0.40 mm a side the
+shell grew (3.00 to 3.40, amended below) is uniform over the whole case -- 66.80 x 96.80 everywhere --
+which is not what a flange would cost.
 
 **Why on the lid and not on the base:** the first proposal had the base's skirt lapping over the lid's
 rim, and it does not survive the crown. The lap's forward end at `lap_d` 3.00 lands at y = 5.00, which is
@@ -440,25 +442,44 @@ exactly where the crown's own surface reaches the case's full 33 mm radius; the 
 crown and the cut would thin to a **feather** there. Carrying the lip on the lid puts the whole lap behind
 the joint plane, in the case's straight-sided part, and the crown is never involved.
 
-**Why the lip stands proud:** the 0.40 mm is the lap's **drip shadow**. The lip's back edge overhangs the
-base by 0.40 mm, so water running down the case leaves the lid at that edge and lands on the base 1.90 mm
-**outboard** of the mouth of the joint's 0.20 mm gap, which is what stops the film running down the
-outside from feeding the gap. Water that does get in still has the whole 3.00 mm of lap to climb and then
-the shoulder at the joint plane, where the foam ring goes (ADR-017). The case measures 66.80 x 96.80
-across that 3.00 mm band and 66.00 x 96.00 everywhere else.
+**Amended the same day -- the lip is flush, not proud:** the first cut stood the lip `lap_proud` 0.40 mm
+clear of the case's surface, and that 0.40 mm *was* the design: a **drip shadow**, an overhang whose edge
+throws the film of water 1.90 mm outboard of the mouth of the joint's 0.20 mm gap. The user's call,
+2026-09-26, was that it reads as a **ridge** on the outside ("fica feio"), and the price is paid by the
+wall: **3.00 to 3.40**, so the case grew 0.8 mm across and the lip's own outer surface **is** the case's
+surface. Nothing protrudes and nothing steps; the parting line is the only thing to see there. What that
+gives up is the shadow -- water now runs straight across the parting line instead of falling off an
+overhang -- and what is left to stop it is the mouth itself (0.20 mm, which water enters by capillary
+action), the whole 3.00 mm of lap to climb, and the shoulder at the joint plane, where the foam ring goes
+(ADR-017). A 0.40 mm deep **rain groove** on the parting line would buy the break back without a ridge; it
+is not cut because it was not asked for.
+The shell grew rather than the lip shrinking for a second reason: the recess spends 1.70 mm of the base's
+wall, and against a 3.00 mm shell that left a **1.30 mm** rim -- legal, but the narrowest thing in the
+design and the part that locates the two halves. At 3.40 the rim is **1.70 mm**.
 
 **Why there is no gasket groove, yet:** the lap moves the sealing face off the dome's brim and onto the
-1.30 mm annulus at the joint plane, and 1.30 mm is too narrow to groove -- a 1.00 mm groove would leave
-0.15 mm of wall on each side. The foam ring therefore lies **flat** on that shoulder and the two screws
-squeeze it. Cutting a groove is deferred, not dropped; if it comes back it comes back with a wider
+1.70 mm annulus at the joint plane, and 1.70 mm is still too narrow to groove -- a 1.00 mm groove would
+leave 0.35 mm of wall on each side. The foam ring therefore lies **flat** on that shoulder and the two
+screws squeeze it. Cutting a groove is deferred, not dropped; if it comes back it comes back with a wider
 shoulder, which means a thinner lip.
 
-**Accepted:** the base's rim is a 1.30 mm ring standing proud of its own shoulder, the narrowest thing in
-this design; in use it is inside the lip, and it only has to locate the two parts, not to hold them. The
-lip adds a 0.40 mm step on the outside, which is the point of it, and it is the only sideways step in
-either part's print -- 0.40 mm is nothing to a printer cutting 0.45 mm lines. Neither part pays for the
-lap with support or a bridge: through the band the base's wall goes from 3.00 to 1.30 mm and the lid's
-from 3.00 to 1.90, so both cross sections only lose material as the print rises.
+**Accepted:** the base's rim is a **1.70 mm** ring inside the lap, and it only has to locate the two parts,
+not to hold them. The lip adds **no** step on the outside any more (it did, 0.40 mm, until the amendment
+above): with both parts at 3.40 mm through the band, neither part's print gains a sideways step at all.
+Neither part pays for the lap with support or a bridge either: through the band the base's wall goes from
+3.40 to 1.70 mm and the lid's from 3.40 to 1.50, so both cross sections only lose material as the print
+rises. The front wall is a separate thickness (`wall_front`, 3.00) and did not grow -- see the lesson
+below.
+
+**Lesson for this file -- a thicker wall can bury a seat, and only the boolean says so:** the shell's
+growth to 3.40 was written first as a single `wall` number, and that took the **front** wall with it. The
+crown's inner surface then receded from y = 6.16 to 6.50 at the unit's rim (26), which is **behind** the
+unit's own seat plane at 6.25 -- so the seat's flat face, the surface the unit's disc rests on, ended up
+buried inside the wall, and `fitcheck` (the unit against the printed parts) is the only thing that said
+so: 1.30 mm³ of interference, 0.05 mm deep, in a ring at the seat's rim. The fix is `wall_front`, a second
+thickness that holds the front at 3.00 and leaves the whole front's geometry -- the grille field's depth,
+the button's lands, the seat -- where it was designed. A wall thickness is not one number in a case that is
+a shell **and** a face.
 
 **Lesson for this file (it cost a full boolean round trip to find):** `prism_xz()` is a module that takes
 its 2D profile as a **child**. Called with no child inside an `intersection()`, it contributes **nothing**

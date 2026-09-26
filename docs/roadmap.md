@@ -43,15 +43,16 @@ Acceptance:
 - Renders (assembled and exploded) are committed under `cad/media/`.
 
 Status: **steps 1 to 3 done, and the joint.** `cad/case.scad` revision 2 has the capsule profile, the
-crown on the front face, the cavity, the speaker chamber with a flat seat and four retaining claws, the
+crown on the front face, the cavity, the flat seat and retaining lip the unit's grille face lands on, the
 recessed grille field (49 tilted holes behind a drip lip), the button's two spot-faced lands with the O22
 cutout, the two microphone slots (1.20 x 8.00 mm) through the bottom behind the unit, and the joint at
-y = 8 as a half-lap -- the lid's lip into the base's recess, 0.20 mm apart, with the lid standing 0.40 mm
-proud as a drip shadow (ADR-024) -- closed by two M3 x 12 into inserts on pillars off the back plate.
+y = 8 as a half-lap -- the lid's lip into the base's recess, 0.20 mm apart, the lip flush with the case's
+own surface (the 0.40 mm drip shadow was dropped the same day: ADR-024) -- closed by two M3 x 12 into
+inserts on pillars off the back plate.
 `make fit` proves the board, the speaker and the buck clear every wall and each other, that the two
 printed parts clear each other across the lap, and -- with `probe_grille`, `probe_button` and `probe_mic`
 -- that the openings are open through the wall, by boolean instead of by eye; `make section` and
-`make inside_render` are the review views. Left: the gasket ring itself (it lies flat on the 1.30 mm
+`make inside_render` are the review views. Left: the gasket ring itself (it lies flat on the 1.70 mm
 shoulder the lap leaves; no groove fits at that width), the microphone membranes' seats, the membrane vent
 and the cable gland (base, bottom or side), then the mounting ears and the M4 pockets in the back plate.
 
@@ -102,8 +103,8 @@ Not decided yet, needed before F2 starts:
    board lies flat (its Ø58 then sets the depth as well as the width), or about **52 mm** if the board
    stands parallel to the front face (the tallest part on the component side is 5.0 mm, on the solder side
    4.5 mm, and the button's body gets the free upper half). The concept render — convex
-   front, flat back, slim D profile — only matches the second. Height still about 96 mm: 30 mm of straight
-   side plus the two Ø66 semicircles, which holds a Ø46 grille field and the 22 mm button.
+   front, flat back, slim D profile — only matches the second. Height still about 96.8 mm: 30 mm of straight
+   side plus the two Ø66.8 semicircles, which holds a Ø46 grille field and the 22 mm button.
 5. **DECIDED (2026-09-24): the unit goes in ASSEMBLED.** The Waveshare goes in as it arrives — one
    cylinder, Ø58, the black body with the speaker inside, the acrylic band and the cover, all screwed
    together, and its own acoustic chamber and microphone ducting come with it. The case is built

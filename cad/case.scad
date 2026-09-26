@@ -6,8 +6,8 @@
 // base's recess), the closed grille field over the unit, the button's lands and its cutout, the two
 // microphone slots through the bottom, the two M3 x 12 that close the case, and the unit, speaker and
 // buck as ghosts to prove they fit. Still to come, in this order, each one reviewed before the next:
-//   1. the gasket itself: the foam ring lies flat on the 1.30 mm shoulder the lap leaves. No groove --
-//      at that width a groove would leave 0.15 mm of wall -- and the two screws squeeze the ring (ADR-024)
+//   1. the gasket itself: the foam ring lies flat on the 1.70 mm shoulder the lap leaves. No groove --
+//      at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the ring (ADR-024)
 //   2. the microphone membranes' seats, the breathable vent and the cable gland (bottom or side)
 //   3. mounting ears and the M4 pockets in the back plate
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
@@ -18,10 +18,10 @@
 // PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
 // The base prints on its back plate (cavity opening up, pillars vertical, microphone slots and gland
 // vertical) and the lid prints on its face (cavity opening up, the speaker bore vertical instead of a
-// 43 mm ceiling to bridge). The flat lands that step 2 spot-faces into the front face are what gives
-// the lid its bed contact. The lap costs neither part a support: through its last 3 mm the base's wall
-// goes from 3.00 to 1.30 mm and the lid's from 3.00 to 1.90, so both shapes only lose material as the
-// print rises. The lip's 0.40 mm stand-off is the one step that grows sideways, and 0.40 mm is nothing.
+// the flat lands that step 2 spot-faces into the front face are what gives
+// the lid its bed contact. The lap costs neither part a support, and with the lip flush there is no
+// sideways step in either part: through its last 3 mm the base's wall goes from 3.40 to 1.70 mm and the
+// lid's from 3.40 to 1.50, so both shapes only lose material as the print rises.
 //
 // Usage:
 //   openscad -D 'part="base"'         -o build/case_base.stl  cad/case.scad
@@ -114,44 +114,60 @@ unit_dia  = 58.00;
 unit_h    = 47.00;      // 49.70 measured, minus the feet; the unit's own grille is its front face
 unit_face_y = 6.20;     // its grille face: clears the inner crown at the unit's rim by 1.00 mm
 unit_cy   = unit_face_y + unit_h / 2;   // 29.70: unit centre on the depth axis
-unit_cz   = 33.00;      // the LOWEST it can sit and still clear the rounded bottom, and low is what
-                        // frees the upper half for the panel button (ADR-018)
+unit_cz   = 33.40;      // = z_btm, the centre of the bottom end (33.4): the LOWEST it can sit and still
+                        // clear the rounded bottom, and low is what frees the upper half for the panel
+                        // button (ADR-018). Was 33.00 at a 3.0 mm wall: the skin grew 0.4 and the whole
+                        // interior came with it, so the 1.00 mm gap around the unit is untouched
 
-case_w  = 66.0;         // board 57.63 + 1 mm clearance a side + 2 x 3 mm wall
-case_h  = 96.0;         // 30 mm of straight side + the two O66 ends (ADR-015: capsule)
-case_d  = 58.0;         // DECIDED: the assembled unit goes in whole, so this is the unit's depth
-                        // 47.00 (feet peeled off) + the front gap at its rim + the back gap, plus
-                        // the two walls. Was 49 when the plan was a bare board and our own chamber
-wall    = 3.0;
-r_end   = case_w / 2;   // 33: radius of both ends
-z_btm   = r_end;                       // 33: centre of the bottom semicircle
-z_top   = case_h - r_end;              // 63: centre of the top semicircle
+case_w  = 66.8;         // the cavity's O60 plus 2 x 3.4 of wall. Was 66.0 at a 3.0 wall: the case grew
+                        // 0.8 across so the joint's lip could sit flush with its surface (ADR-024),
+                        // which leaves the board 1.19 mm of clearance a side instead of 1.00
+case_h  = 30.0 + case_w;   // 96.8: 30 mm of straight side + the two ends (ADR-015: capsule)
+case_d  = 58.4;         // was 58.0: the back plate is 3.4 thick now, and this holds its inner face at
+                        // 55.00, so every depth behind the unit is unchanged. DECIDED: the assembled
+                        // unit goes in whole, so this is the unit's depth 47.00 (feet peeled off) + the
+                        // front gap at its rim + the back gap, plus the two walls. Was 49 when the plan
+                        // was a bare board and our own chamber
+wall    = 3.4;          // was 3.0. The extra 0.4 a side is what lets the lap's lip sit FLUSH with the
+                        // case's own surface instead of standing 0.40 proud as a ridge on the outside
+                        // (the user's call: "fica feio"). It also takes the base's rim at the lap from
+                        // 1.30 to 1.70 mm. The cavity does not move: still O60, 1.00 mm around the
+                        // O58 unit (ADR-020)
+wall_front = 3.0;       // the FRONT wall stays 3.0, so the crown's inner surface, the grille field's
+                        // depth and the unit's seat keep the geometry they were designed with. At 3.4
+                        // the inner crown would recede to 6.50 at the unit's rim and the seat's own
+                        // plane (6.25) would end up inside the wall -- which is exactly how the
+                        // fitcheck caught this: 1.30 mm3 of the unit's ghost buried in the lid
+r_end   = case_w / 2;   // 33.4: radius of both ends
+z_btm   = r_end;                       // 33.4: centre of the bottom semicircle
+z_top   = case_h - r_end;              // 63.4: centre of the top semicircle
 crown_s = 5.0;                         // sagitta of the front crown (convex front, ADR-015)
-crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 111.4
+crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 114.06
 
 // The joint is `joint_y` (8.0), defined with the lap further down, because that is where its three
 // numbers come from. It used to be 27.5 here, as `split_y`: a flat contact, and neither the lip nor
 // the screws of review 3 would work there.
 inner_d = case_d - wall;               // 55: inner face of the back plate
 cav_x   = r_end - wall;                // 30: inner radius; the ends share the outside centres
-cav_y0  = 3.0;                         // 3: inner apex of the crown
+cav_y0  = wall_front;                  // 3.0: inner apex of the crown, at the front wall's thickness
+crown_in = crown_r - wall_front;       // 111.06: its radius, so the front wall is 3.0 and not the shell's
 
 // The three board standoffs (r = 23.75 at -36.1, +36.1, 180 degrees) leave exactly three gaps
 // against the wall: around 0 degrees (+X side), 108 degrees (upper left) and 252 degrees (lower
 // left). Every joint boss and every mounting ear has to live in one of those three gaps, because
 // the board's 57.63 fills the rest of the back plate. Nothing else fits behind it.
 //
-// With the bottom end round, the cavity narrows fast below z = 33 (at z = 8 it is only +-16.6),
+// With the bottom end round, the cavity narrows fast below z = 33.4 (at z = 8 it is only +-16.0),
 // so the board also has to sit high enough that its 57.63 clears the curve: at its centre height
-// of 37 mm the clearance is 1 mm a side, and it is the sides, not the floor, that decide.
+// of 37.4 mm the clearance is 1 mm a side, and it is the sides, not the floor, that decide.
 
 // The inner face of the front is the crown, so it recedes as it goes out: at the speaker's
-// radius (21.65) it sits at y = 5.18 instead of 3.00. A flat speaker face has to clear that,
-// which is why it starts at 5.5 and why step 1 spot-faces a flat seat into the crown.
-spk_cy   = 15.75;       // speaker front face at 5.50, then half its depth (bare-parts ghost)
+// radius (21.65) it sits at y = 5.54 instead of 3.40. A flat speaker face has to clear that,
+// which is why it starts at 5.65 and why step 1 spot-faces a flat seat into the crown.
+spk_cy   = 15.90;       // speaker front face at 5.65, then half its depth (bare-parts ghost)
 board_cy = 30.60;       // board front face at 30.00: 4 mm behind the speaker (bare-parts ghost)
-board_cz = 37.0;        // board centre height (bare-parts ghost)
-spk_cz   = 26.0;        // speaker centre height (bare-parts ghost)
+board_cz = 37.40;       // board centre height (bare-parts ghost)
+spk_cz   = 26.40;       // speaker centre height (bare-parts ghost)
 
 eps = 0.01;
 $fa = 2;
@@ -188,12 +204,12 @@ btn_land_in = 30.0;     // 76 the inner land tops out at 91 and the cavity's cei
                         // wall above the hole keeps 2 mm of material instead of reaching zero
 btn_land_y  = 1.20;     // outer land plane: 1.2 mm into the crown at its apex
 btn_land_in_y = 4.50;   // inner land plane: uniform 3.3 mm of wall between the two
-btn_cz      = 76.0;     // button centre. Constraints, all three: below the cavity's ceiling (93) with
-                        // the land; above the unit's top edge at 62 and clear of the seat's rim at
-                        // 59.5 by 1.5 mm; and the switch's body (O22, 30 deep) has to live between
-                        // them -- it ends up at 61.5, so it clears the unit by 0.5 mm and the ceiling
+btn_cz      = 76.4;     // button centre. Constraints, all three: below the cavity's ceiling (93.4) with
+                        // the land; above the unit's top edge at 62.4 and clear of the seat's rim at
+                        // 59.9 by 1.5 mm; and the switch's body (O22, 30 deep) has to live between
+                        // them -- it ends up at 61.9, so it clears the unit by 0.5 mm and the ceiling
                         // by a lot. If the unit measures 48.80 instead of 47.00, this is where the
-                        // margin goes first: the unit's top edge moves to 63.
+                        // margin goes first: the unit's top edge moves to 63.4.
 
 // ------------------------------------------------------------------- helpers
 
@@ -228,7 +244,7 @@ module outline_offset(d) {
 }
 
 module crown_outer() { translate([0, crown_r, -1]) cylinder(r = crown_r, h = case_h + 2); }
-module crown_inner() { translate([0, crown_r, -1]) cylinder(r = crown_r - wall, h = case_h + 2); }
+module crown_inner() { translate([0, crown_r, -1]) cylinder(r = crown_in, h = case_h + 2); }
 
 module body() {
     intersection() {
@@ -330,30 +346,39 @@ module button_lands_cut() {
 // sided part of the case, and the crown is never involved.
 //
 // A true tongue and groove -- a ring standing out of one face into a groove in the other -- does not
-// fit this case. The groove needs two walls, 1.2 + 1.4 + 1.2 = 3.8 mm, against a 3.0 mm wall, and the
+// fit this case. The groove needs two walls, 1.2 + 1.4 + 1.2 = 3.8 mm, against the 3.4 mm shell (and the
+// 0.4 that the shell did grow went OUTWARD, on the user's call, to make the lip flush -- see ADR-024), and the
 // wall cannot be thickened inwards at the joint because the Ø58 unit is 1.0 mm from the cavity at that
-// height (ADR-020). The half-lap SPENDS the wall instead of adding to it: 1.5 mm of lip and 1.3 mm of
+// height (ADR-020). The half-lap SPENDS the wall instead of adding to it: 1.5 mm of lip and 1.7 mm of
 // rim, 0.2 mm of radial clearance between them (rule 6's tight fit), both above rule 3's 1.2 mm.
 //
-// The lip stands lap_proud clear of the case's own surface, so the lid overhangs the base by 0.40 mm
-// along the lap's back edge: a drip shadow. Water running down the lid falls off that edge and lands
-// on the base 1.9 mm outboard of the mouth of the joint's gap, which is what stops the film running
-// down the outside from feeding the gap. Past the mouth, water still has the whole 3.00 mm lap to
-// climb and then the shoulder at the joint plane, where the foam ring goes (ADR-017). The shoulder is
-// too narrow to groove -- 1.30 mm would leave 0.15 mm walls -- so the ring lies flat on it and the two
-// screws squeeze it, which is also why the gasket is not cut yet.
+// The lip sits FLUSH: lap_proud is 0.0, and it was 0.40, which stood the lip 0.40 mm proud of the case
+// as a ridge on the outside. The user's call, 2026-09-26 ("fica feio"), and the price is paid by the
+// wall: 3.0 to 3.4, so the case grew 0.8 mm across (66.8 x 96.8) and the lip's own outer surface IS the
+// case's surface. Nothing protrudes and nothing steps -- the parting line is the only thing to see.
+//
+// What that gives up is the drip shadow the 0.40 was doing: water now runs straight across the parting
+// line instead of falling off an overhang 1.90 mm outboard of the mouth of the gap. What is left to stop
+// it is the mouth itself -- 0.20 mm, which water enters by capillary action -- and then the whole
+// 3.00 mm of lap to climb and the shoulder at the joint plane, where the foam ring goes (ADR-017). If
+// the film at the mouth ever shows up as a problem in use, a 0.40 mm deep rain groove on the parting
+// line buys the break back without a ridge; it is not cut because it was not asked for.
+//
+// The shoulder is 1.70 mm now -- the wall is 3.4 and the recess spends 1.70 -- and still too narrow to
+// groove: a 1.00 mm groove would leave 0.35 mm of wall on each side. So the ring lies flat on it and
+// the two screws squeeze it, which is also why the gasket is not cut yet.
 joint_y   = 8.0;        // CUT 2026-09-26: was 27.5, and the M3 x 12 screws already cut assume it
 lap_d     = 3.0;        // how far the lip reaches back past the joint plane
-lap_step  = 1.5;        // the lip's own thickness: the outer 1.5 mm of the lid's 3.0 mm wall
-lap_gap   = 0.2;        // radial clearance: the base's rim keeps the inner 1.3 mm and the lip slides on
-lap_proud = 0.4;        // how far the lip hangs over the case's own surface: the drip shadow
+lap_step  = 1.5;        // the lip's own thickness: the outer 1.5 mm of the lid's 3.4 mm wall
+lap_gap   = 0.2;        // radial clearance: the base's rim keeps the inner 1.7 mm and the lip slides on
+lap_proud = 0.0;        // FLUSH: the lip does not stand off the case's surface. Was 0.4 -- see above
 gasket_y  = joint_y;    // the foam ring's shoulder, now the face at the joint plane itself: the lap
-                        // moved the sealing face off the dome's brim and onto this 1.30 mm annulus
+                        // moved the sealing face off the dome's brim and onto this 1.70 mm annulus
 
 // The screws, and why they are NOT spread evenly around the loop:
-//  - the ring is 3 mm thick (wall) and the case is 66 wide, so a screw head needs 6.3 mm: there is
+//  - the ring is 3.4 mm thick (wall) and the case is 66.8 wide, so a screw head needs 6.3 mm: there is
 //    nowhere in the ring for a countersink, at any angle;
-//  - so a screw has to go through the lid's shell (3.1 mm thick, a 1.65 mm countersink leaves 1.45)
+//  - so a screw has to go through the lid's shell (3.4 mm thick, a 1.65 mm countersink leaves 1.75)
 //    into material BEHIND it, and that material can only be a boss standing inward from the wall;
 //  - a boss standing inward collides with the unit (O58 in a O60 cavity: a 1 mm annulus) everywhere
 //    the unit is widest, which is the whole lower half. The unit's circle is what sets it: a boss
@@ -419,7 +444,7 @@ m3b_ins_h  = 10.0;      // hole depth: 5.0 of insert plus 5.0 of relief for the 
 // The three numbers the counterbore is built from, all read off the crown at the screw's own x. The
 // front face is a cylinder, so its surface is a function of x alone and is the same at any z:
 m3b_face_y   = crown_r - sqrt(pow(crown_r, 2) - pow(m3b[0], 2));          // 1.46, the crown itself
-m3b_wallin_y = crown_r - sqrt(pow(crown_r - wall, 2) - pow(m3b[0], 2));   // 4.50, its inner face
+m3b_wallin_y = crown_r - sqrt(pow(crown_in, 2) - pow(m3b[0], 2));        // 4.47, its inner face
 m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.66, the head's seat
 // Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
 // 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
@@ -437,7 +462,7 @@ lip_od    = lip_bore + 2 * lip_wall;   // 60.4
 lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind the unit, 3.20 is skirt
                         // over the unit's own body, and the skirt is the point: with 0.4 mm of total
                         // clearance the unit can cock by atan(0.4/3.2) = 7.1 degrees where 1.75 mm of
-                        // collar let it cock by 12.9. It stays clear of the base/lid joint at 27.5.
+                        // collar let it cock by 12.9. It stays clear of the base/lid joint (now at 8.0).
 m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inner face
 
 // --------------------------------------------- features: microphone ports (base, step 3 of the list)
@@ -457,7 +482,7 @@ m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inne
 // 8.00 mm for the slot here and over 40 for one laid across, which rule 4 forbids. Facing down and
 // 1.20 wide, the slot also sheds rain and refuses insects, but the seal is the MEMBRANE, not the
 // geometry: capillary pressure holds a film in a 1.20 mm slot against only 12 mm of water head, and the
-// material is 4.7 mm thick. NO SEAT: the membrane is an adhesive-backed patch and the bottom is a Ø66
+// material is 4.7 mm thick. NO SEAT: the membrane is an adhesive-backed patch and the bottom is a Ø66.8
 // cylinder, so a 9 mm patch follows that curve to within 0.31 mm and needs no flat land cut for it. A
 // Ø9 x 1 mm spot face was here and is out (2026-09-26, on review); see the note under the parameters.
 //
@@ -480,7 +505,7 @@ mic_slot_cy  = 50.0;    // the slot's centre along the depth. The collar spans 5
                         // mm clearance reaches the same gap) and its back end lands at 54.00, 0.80 mm
                         // inside the gap behind the unit
 // DROPPED (2026-09-26, on review): the Ø9 x 1 mm spot face that ADR-022 had as the membrane's land.
-// Two reasons. It bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66
+// Two reasons. It bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66.8
 // cylinder, so a 9 mm patch conforms to that curve (0.31 mm of sag) with nothing to peel its edge --
 // nothing slides past the bottom of a case on a post. And it went in WRONG on one side: the seat was a
 // cylinder along the surface's own normal and mic_points() mirrors the slot on X without mirroring that
@@ -667,11 +692,11 @@ module mic_probe() {
 // ------------------------------------------------------------ the lap, CUT (2026-09-26)
 
 module joint_lip() {
-    // The LID's lip: the lap band as an added ring, from lap_step inside the case's own surface out to
-    // lap_proud beyond it, so the ring is 1.90 mm thick and leaves the case's outline as a 3.00 mm
-    // ridge standing 0.40 mm proud. Clipped by crown_outer() only as a guard: the crown reaches the
-    // case's full radius at y = 5.0 and the whole band is behind that, so the clip never bites unless
-    // joint_y is ever moved forward of 5.0.
+    // The LID's lip: the lap band as an added ring, its outer surface the case's own (lap_proud is 0.0,
+    // so nothing stands proud and nothing steps), its inner surface lap_step in, which makes the ring
+    // 1.50 mm thick. Clipped by crown_outer() only as a guard: the crown reaches the case's full radius
+    // at y = 5.0 and the whole band is behind that, so the clip never bites unless joint_y is ever moved
+    // forward of 5.0.
     intersection() {
         prism_xz(lap_d + eps, joint_y - eps)
             difference() { outline_offset(-lap_proud); outline_offset(lap_step); }
@@ -681,7 +706,7 @@ module joint_lip() {
 
 module joint_recess_cut() {
     // The BASE's side of the lap: the outer lap_step + lap_gap of its wall over the same band. What is
-    // left is a 1.30 mm rim that the lip slides over with 0.20 mm of clearance all the way round. A 2D
+    // left is a 1.70 mm rim that the lip slides over with 0.20 mm of clearance all the way round. A 2D
     // difference extruded in the band, cut from the base: the recess is exactly the material that has
     // to go, and nothing else in the band is touched (the pillars are 11 mm inboard of it, the collar
     // is 39 mm further back).
@@ -719,7 +744,7 @@ module base() {
 module lid() {
     // Front shell: the closed grille field over the unit's own grille, the button, the two
     // counterbored holes whose screws pull it down onto the base's pillars, and the lip -- the outer
-    // lap_step of its wall carried lap_d back past the joint plane, 0.40 mm proud of the case's own
+    // lap_step of its shell carried lap_d back past the joint plane, flush with the case's own
     // surface. The unit's seat and the grille are both at 6.25 or in front of it, so an 8.0 joint
     // leaves every feature of the front on the lid.
     difference() {
