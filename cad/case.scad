@@ -9,8 +9,8 @@
 //   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
 //      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
 //      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
-//   2. the microphone membranes' seats, the breathable vent and the cable gland (bottom or side)
-//   3. mounting ears
+//   2. the microphone membranes' seats, and the mounting ears. The vent is cut as of 2026-09-26, high on
+//      the -X side (ADR-026); the cable gland's top went in with ADR-025
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -46,6 +46,7 @@
 //   openscad -D 'part="probe_mic"'    ...                                     # must be EMPTY
 //   openscad -D 'part="probe_gland"'  ...                                     # must be EMPTY
 //   openscad -D 'part="probe_m4"'     ...                                     # must be EMPTY
+//   openscad -D 'part="probe_vent"'   ...                                     # must be EMPTY
 //   openscad -D 'part="fitcheck_gasket"' ...                                   # must be EMPTY
 //   openscad -D 'part="gasket"'       -o build/gasket.stl ...                 # the foam ring on its own
 //
@@ -75,7 +76,8 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
                         // gasket | section | exploded | screwplan | fitcheck | fitcheck_parts |
                         // fitcheck_internal | fitcheck_joint | fitcheck_pair | fitcheck_gasket |
-                        // probe_grille | probe_button | probe_mic | probe_gland | probe_m4
+                        // probe_grille | probe_button | probe_mic | probe_gland | probe_m4 |
+                        // probe_vent
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -107,6 +109,8 @@ show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with i
                         //                hole and the boss are cut into the base, the gland is not)
 show_gasket   = true;   // [true,false]  the joint's foam ring, on the shoulder the lap leaves (it is a
                         //                separate part: neither half carries it)
+show_vent     = true;   // [true,false]  the breathable membrane over the vent hole (a marker: the hole
+                        //                through the side wall is cut, the membrane is stuck on)
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
@@ -616,6 +620,31 @@ gland_nut_cut = 1.25;                   // how deep, and it is the ceiling's own
                                         // 6 mm of thread wants
 gland_nut_z   = z_top + cav_x - gland_nut_cut;   // 92.15: the seat's plane
 
+// ------------------------------------------------------------- features: vent (base, a side)
+// The breathable membrane that equalises pressure, and the reason it exists is ADR-017: the failure mode
+// outdoors is not the rain, it is thermal pumping -- the box heats, expels air, cools, and pulls damp air
+// back in once a day, forever. The vent removes the differential that drives that cycle.
+// WHERE (2026-09-26): high up on the case's -X side, on the unit's own axis in depth. Three reasons, and
+// none of them is looks. (1) A side and not the back: the back plate beds flat on the post (ADR-021). (2)
+// High up: it breathes the case's warmest, driest air, and it is as far as the design gets from the two
+// microphone ports, which are on the bottom behind their own membranes -- the microphones used to share
+// the speaker's field and that was direct coupling, so nothing gets added near them if it can be avoided.
+// (3) On the -X side specifically: the only other thing on either side is the gland, which is on the TOP
+// and centred, so the two openings are as far apart as the case allows and neither shadows the other.
+// The hole is also the best-behaved cut in the whole case: its axis runs along the case's X, which in the
+// print is IN the bed plane, so it comes out as a horizontal tunnel whose ceiling is a 4 mm bridge --
+// half of what rule 4 allows -- and, since it is horizontal through a vertical wall, water cannot run
+// into it: it would have to climb.
+vent_side   = -1;       // -1: the case's -X wall. 1 would mirror it, for nothing
+vent_z      = 78.0;     // high: above the unit's top edge (62.15) and clear of the gland's boss (94)
+vent_y      = unit_cy;  // 29.85: on the unit's axis in depth, so the hole meets the wall square on
+vent_d      = 4.00;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it
+vent_face_x = sqrt(pow(r_end, 2) - pow(vent_z - z_top, 2));   // 30.04: where the case's own surface
+                        // is at this z -- the capsule's top end circle, so the wall is 3.84 thick here
+vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A flat disc: the surface's
+                        // sag over +-5 mm is 0.37, and a membrane is made to conform (ADR-023)
+vent_mem_t  = 0.30;     // membrane plus its adhesive
+
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
     // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
@@ -809,6 +838,34 @@ module mic_probe() {
         cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
 
+// ----------------------------------------------------------------- the vent (base, a side), CUT
+
+module vent_cut() {
+    // The hole through the case's -X wall, cut from outside in. Its axis runs along the case's X, which
+    // is IN the bed plane when the base prints: the tunnel is horizontal, its ceiling is the 4 mm
+    // bridge, and it needs no teardrop -- the 4.00 diameter is the whole of it, and rule 4 allows 10.
+    // It starts 4 mm outside the surface and ends 6 mm inside it, so the 3.84 of wall is crossed with
+    // room to spare at both ends whatever the wall's own thickness turns out to be.
+    translate([vent_side * (vent_face_x + 4), vent_y, vent_z]) rotate([0, -90 * vent_side, 0])
+        cylinder(d = vent_d, h = 10);
+}
+
+module vent_probe() {
+    // A rod 1 mm narrower than the hole, spanning it from inside the cavity to outside: empty against
+    // the base means the opening is a hole through the wall and not a pocket in it.
+    translate([vent_side * (vent_face_x - 3), vent_y, vent_z]) rotate([0, 90 * vent_side, 0])
+        cylinder(d = vent_d - 1, h = 6);
+}
+
+module vent_marker() {
+    // The stick-on membrane, as a marker (nothing is cut for it: it is stuck over the hole, exactly as
+    // the two microphone membranes are stuck over their slots -- ADR-023). Drawn flat, which is a
+    // simplification worth naming: the surface's sag over the patch's +-5 mm is 0.37 mm, and a
+    // breathable membrane is made to conform.
+    translate([vent_side * (vent_face_x + vent_mem_t), vent_y, vent_z])
+        rotate([0, 90 * vent_side, 0]) cylinder(d = vent_mem_d, h = vent_mem_t);
+}
+
 // --------------------------------------------------------------- the gland (base, top), CUT
 // The shapes here are the print's, not the drawing's. A teardrop is a circle with the side that would
 // hang replaced by two lines tangent at `tip` degrees; `tip` is 45 because that is rule 4's own limit,
@@ -963,6 +1020,7 @@ module base() {
         mic_slot_cut();
         gland_hole_cut();
         m4_pockets();
+        vent_cut();
         joint_recess_cut();
     }
     unit_pads();
@@ -1090,6 +1148,7 @@ module review_view() {
     if (show_collar) color("green", 0.85) unit_collar();
     if (show_m4)     wall_markers();
     if (show_gland)  gland_marker();
+    if (show_vent)   color("deepskyblue", 0.85) vent_marker();
     if (show_gasket) color("magenta", 0.85) gasket();
 }
 
@@ -1201,6 +1260,10 @@ if (part == "base") {
     // The rod is 1 mm narrower than the hole and spans the pocket's floor as well, so a pocket cut
     // without its hole -- or a hole without its pocket -- cannot pass this.
     intersection() { base(); m4_probe(); }
+} else if (part == "probe_vent") {
+    // Against the BASE. Empty means the vent is a hole through the side wall and not a pocket in it:
+    // the rod is 1 mm narrower than the O4.00 and spans the wall from inside the cavity to outside.
+    intersection() { base(); vent_probe(); }
 } else if (part == "fitcheck_gasket") {
     // The ring against both halves AT THE JOINT'S CLOSED GAP: the lid lifted the 0.70 the ring is
     // squeezed to, because in the dry, printed position that space is simply the lid's own material.

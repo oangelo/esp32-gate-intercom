@@ -226,7 +226,9 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
 
 Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the panel button (ADR-018) with a
 flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
-now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent, and M4
+now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent — a **Ø4.00
+hole in the -X side wall**, high up (z = 78, on the unit's axis in depth), with its membrane stuck over it
+(ADR-026) — and M4
 wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
 (z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
 hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. The button's head
@@ -240,7 +242,10 @@ the case. It sits on a raised boss, so that its gasket and its locknut both land
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
 a 50 degree tail, a **Ø12.50 mm** hole whose first 1.20 mm stay round for the gasket's washer and which then
 becomes a teardrop into the cavity, and a pad under the locknut that leaves **7.65 mm** of material to
-thread into (ADR-025). The vent stays on the bottom or on a side.
+thread into (ADR-025). The **vent** is decided too, and cut: high on the **-X side**, a Ø4.00 hole with its
+membrane stuck over it — the side is the one face with nothing else on it, and high up is both the case's
+driest air and as far from the microphone ports as the design gets (ADR-026). The hole needs no teardrop:
+its axis lies in the bed plane, so it prints as a horizontal tunnel with a 4 mm bridge for a ceiling.
 
 Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
 upper part, above the unit's top edge at 62.15, which is where the button's body and the cable route to the

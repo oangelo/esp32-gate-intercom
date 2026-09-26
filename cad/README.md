@@ -32,7 +32,7 @@ to 58.70 — 58 when the unit went in, 58.4 when the shell grew to 3.4 mm, and t
 caliper's height — and the unit sits low (centre at 33.4) to free the upper half for the button at 76.4.
 `make fit` proves the unit clears both printed parts, that the two parts clear each other across the lap
 (`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`, `probe_gland`,
-`probe_m4`) — that the openings are open through the walls, by boolean instead of by eye.
+`probe_m4`, `probe_vent`) — that the openings are open through the walls, by boolean instead of by eye.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
 into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
@@ -72,12 +72,13 @@ background object. All of them default to on, so an untouched file opens exactly
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
-Still to come: the membrane vent and the mounting ears (bottom or side, never the back). The joint's gasket
-is drawn as of 2026-09-26 -- its own part, `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of
-closed-cell silicone foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by
-`fitcheck_gasket` (ADR-024's "The ring itself"). The gland's top is cut (ADR-025): a Ø22 x 3.00 boss with a
-50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the
-gasket's washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
+Still to come: the mounting ears. Everything else on that list is cut as of 2026-09-26. The joint's gasket
+is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of closed-cell silicone
+foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
+itself"). The vent is a Ø4.00 hole high on the -X side, a horizontal tunnel with a 4 mm bridge for a ceiling,
+proved by `probe_vent`, with a breathable membrane stuck over it (ADR-026). The gland's top is cut (ADR-025):
+a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the gasket's
+washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
 leaves the gland and drops straight into the unit's USB-C, which points up at the unit's top edge.
 `probe_gland` is what proves that opening is one hole. The two wall screws are cut as well, since ADR-021
 had them decided: a Ø8.00 x 1.50 pocket in the plate's inner face for the head and a Ø4.50 hole on through

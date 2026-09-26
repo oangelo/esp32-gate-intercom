@@ -55,9 +55,11 @@ printed parts clear each other across the lap, and -- with `probe_grille`, `prob
 `make section` and `make inside_render` are the review views. The caliper's pass is in as well (the unit is
 Ø57.5 x 47.30 and the case is 66.80 x 96.80 x **58.70**), and so are the gland's top -- its boss, its hole
 and its locknut's pad -- and the two wall screws' pockets and holes through the back plate (ADR-025,
-ADR-021's amendment, `docs/dimensions.md`). Left: the microphone membranes' seats and the membrane vent
-(bottom or side), then the mounting ears. The gasket ring is drawn as of 2026-09-26 — 1.70 mm wide, 1.00
-mm of foam squeezed to 0.70, proved by `fitcheck_gasket` and exported by `make gasket` (ADR-024).
+ADR-021's amendment, `docs/dimensions.md`). Left: the microphone membranes' seats (which ADR-023 may have
+already answered -- the membranes stick to the bottom's curve, no spot-face) and the mounting ears. Done
+and drawn as of 2026-09-26: the gasket ring -- 1.70 mm wide, 1.00 mm of foam squeezed to 0.70, proved by
+`fitcheck_gasket` and exported by `make gasket` (ADR-024) -- and the vent, a Ø4.00 hole high on the -X side
+with its membrane stuck over it, proved by `probe_vent` (ADR-026).
 
 ## F3 - Firmware and Home Assistant side in the repository
 
@@ -143,7 +145,8 @@ Not decided yet, needed before F2 starts:
    alternative. Neither the gland nor the vent can live on the back plate any more: that face beds flat on
    the post. **The gland goes to the TOP** (2026-09-26, the user), straight above the unit's USB-C, which
    points up: the shortest route, and the only one that needs no bend inside the case (ADR-025). Its boss,
-   its hole and the locknut's pad are cut in the base. The vent goes to the bottom or to a side.
+   its hole and the locknut's pad are cut in the base. The vent goes high on the -X side (ADR-026), the one
+   face with nothing else on it, and as far from the microphone ports as the case allows.
    `make fit` proves the unit clears both printed parts and that the front grille and the button cutout
    are both open.
    The height readings, for the record: the product page drawing says 43.70 + 5.10 = 48.80, the DXF says
