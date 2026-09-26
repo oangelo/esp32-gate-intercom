@@ -55,9 +55,9 @@ printed parts clear each other across the lap, and -- with `probe_grille`, `prob
 `make section` and `make inside_render` are the review views. The caliper's pass is in as well (the unit is
 Ø57.5 x 47.30 and the case is 66.80 x 96.80 x **58.70**), and so are the gland's top -- its boss, its hole
 and its locknut's pad -- and the two wall screws' pockets and holes through the back plate (ADR-025,
-ADR-021's amendment, `docs/dimensions.md`). Left: nothing -- the mounting ears, the last item, went in on
-2026-09-26: a lug each side, low (z = 14.00), with a Ø5.00 eye along the depth so that it prints as a plain
-vertical hole (ADR-027). Done and drawn as of
+ADR-021's amendment, `docs/dimensions.md`). Left: nothing. The mounting question closed on 2026-09-26 with
+ADR-027: **no ears — the two M4 through the back plate are the fixing**, which was already cut. Done and
+drawn as of
 2026-09-26: the gasket ring -- 1.70 mm wide, 1.00 mm of foam squeezed to 0.70, proved by `fitcheck_gasket`
 and exported by `make gasket` (ADR-024) -- the vent, a Ø4.00 hole in the middle of the -X side with its
 membrane stuck over it, proved by `probe_vent` (ADR-026) -- and the two microphone membranes, drawn as
