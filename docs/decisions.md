@@ -290,13 +290,12 @@ clearances, all from the model: 1.4 mm to the switch's Ø30 flange (the reason t
 8.9 mm to the cavity's side wall. `fitcheck_joint` proves the whole arrangement by boolean, and
 `-D 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
 
-## ADR-020: the collar is 1 mm of wall, 5 mm tall, with windows for the two M4 heads
+## ADR-020: the collar is 1 mm of wall and 5 mm tall
 
 **Decision:** the ring on the floor that locates the unit's Ø58 body is **cut material as of review 3**,
 not a drawing. The bore stays at Ø58.4 (0.2 mm a side, rule 6's tight fit), the wall is **1.00 mm** and it
 stands **5.00 mm** off the floor, so its outer Ø60.4 overlaps the cavity's wall by 0.2 mm and fuses with
-it. On each M4 axis it carries a **Ø9 window**: those heads are at r = 26 mm from the unit's axis, an Ø8
-head reaches r = 30, and the collar's bore is at 29.2, so a plain ring would have stood on the screw heads.
+it.
 
 **Why:** none of those numbers are free. The cavity's inner radius is `cav_x = 30.0` and the unit is Ø58,
 so the gap between them is **exactly 1.0 mm** all the way round — and the previous Ø63 collar (2.3 mm of
@@ -304,8 +303,35 @@ wall) had nowhere to go: it would have cut into the wall. The collar spends the 
 outer 0.2 mm landing inside the wall is deliberate: it is what backs a 1.0 mm ring, which standing free
 would be the thinnest unsupported thing in the case (rule 3 asks for 1.2). The height is what makes the fit
 "hold": of the 5.00 mm, 1.80 is the gap behind the unit and 3.20 is skirt over the unit's own body, which
-drops the unit's free cocking from atan(0.4/1.75) = 12.9° to atan(0.4/3.2) = 7.1°. The windows are the
-cheaper of two fixes — the alternative was moving the wall screws inwards, which would have moved the whole
-fixture. `fitcheck_joint` covers it as `-D 'fc="collar"'`: the collar against the unit and against the two
-heads, empty. It bites `unit_collar()`, not `base()`, because `base()` still has its back plate whole —
-the M4 pockets are markers, not cuts — and an M4 head always meets that.
+drops the unit's free cocking from atan(0.4/1.75) = 12.9° to atan(0.4/3.2) = 7.1°. `fitcheck_joint` covers
+it as `-D 'fc="collar"'`: the collar against the unit, empty. It bites `unit_collar()`, not `base()`,
+because `base()` still has its back plate whole — the M4 pockets are markers, not cuts — and an M4 head
+always meets that; that is also why `m4_heads()` rides along in that check.
+
+**Superseded in part** by ADR-021: this ADR first carried a **Ø9 window** on each M4 axis, cut into the
+ring, because the wall screws sat on the 26 mm radius around the unit's axis and an Ø8 head reaches r = 30,
+past the bore's 29.2 — a plain ring would have stood on the screw heads. ADR-021 moved the screws to 24 and
+72, and 24 is 9 mm off that axis, far inside the bore, so the windows were retired and the ring is plain
+again. Everything else above stands.
+
+## ADR-021: the two wall screws sit a quarter up and a quarter down the case
+
+**Decision:** the two M4 that hold the base to the masonry go on the **centre line**, at **a quarter of the
+case's height above the floor and a quarter of it below the top** — z = 24 and z = 72 of 96 — instead of on
+the 26 mm radius around the unit's axis at 90° and 270° (z = 7 and z = 59).
+
+**Why:** the user asked for the quarter points, and the geometry agrees with him. In X nothing moved: the
+old 26 mm radius at 90°/270° already landed on x = 0, so only Z changed. What the change buys is symmetry —
+the pair is now centred on the case's own centre (48), so the hanging weight arrives at the screws as shear
+instead of loading one of them with a moment. The earlier note had already made that argument for 7 and 59,
+and 7 and 59 only half kept it: their midpoint sat at 33, below the mass. It also cleans up two joints. At
+24 the screw is 9 mm off the unit's axis, well inside the collar's bore at 29.2, so the collar's Ø9 windows
+could go (ADR-020). At 72 it is above the unit (whose top edge is at 62) and below the switch's body (which
+ends at y = 31.2), so that screw can be driven with the unit already installed. The one thing that gets
+worse is the spacing: 48 mm between the screws instead of 52, so slightly less leverage against the case
+tipping off its own top edge. That is the price of the symmetry and it is small; the flat contact with the
+wall and the mortar take the rest.
+
+Both still sit in a 1.5 mm pocket in the plate's inner face — the gap behind the unit is 1.80 mm, which is
+why the pocket has to stay shallow — and both still clear the unit's three standoffs. The pockets
+themselves are still markers: cutting them is part of "the rest of the joint" in `cad/README.md`.

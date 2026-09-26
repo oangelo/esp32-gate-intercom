@@ -36,9 +36,12 @@ head with nothing to pull against. `fitcheck_joint` answers the whole thing by b
 
 The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
 Ø60 inside and the unit is Ø58, so the ring has exactly **1.0 mm** to spend. It spends it — 1 mm of wall
-on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall — and it carries a Ø9
-window on each M4 axis so the wall screws' heads still land in their pockets (ADR-020).
+on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall (ADR-020).
 `-D 'fc="collar"'` isolates that check.
+
+The two wall screws sit on the centre line at the quarter points of the height, z = 24 and z = 72
+(ADR-021), so the pair is symmetric about the case's own centre and the hanging weight arrives at them as
+shear. In X they were already on x = 0; only Z moved, from 7/59.
 
 Everything that view draws is switchable, without editing the file: OpenSCAD's **Customizer** panel
 (the `show_*` block at the top of `case.scad`) gives a tick box each for the lid, the base, the unit,

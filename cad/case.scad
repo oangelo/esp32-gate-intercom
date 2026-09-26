@@ -330,12 +330,20 @@ screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DI
 
 // The base to the wall. These go through the back plate from inside, so their heads must stay out
 // of the unit's way: the gap behind the unit is 1.80 mm, so each head sits in a 1.5 mm pocket in
-// the plate's inner face. Two of them (2026-09-25), on the 26 mm radius around the unit's axis and on the
-// vertical axis, 90 and 270 degrees: the case hangs, so its weight arrives at the screws as shear and not
-// as a moment, and the flat contact with the wall plus the mortar takes the rest. Both stay clear of the
-// unit's own three standoffs at 0/120/240 and behind the unit's O58 footprint.
-screw_m4_r = 26.0;
-screw_m4_a = [90, 270];
+// the plate's inner face.
+// WHERE (user's call, 2026-09-26): a quarter of the case's height up from the floor and a quarter
+// down from the top, on the centre line. In X they were already there -- the old 26 mm radius at 90
+// and 270 degrees lands on x = 0 too -- so only Z moved, from 7/59 to 24/72. Two things improve and
+// one gets slightly worse. Better: the pair is now symmetric about the case's own centre (48), so
+// the hanging weight reaches the screws as shear instead of loading one of them with a moment -- at
+// 7 and 59 their centre sat at 33, below the mass. Better again: at 24 the screw is 9 mm off the
+// unit's axis, so its head is nowhere near the collar's O60.4 (which is what retired the collar's
+// M4 windows, ADR-020) while still landing in the 1.8 mm gap behind the unit, and at 72 it is clear
+// ABOVE the unit (top edge 62) and below the switch's body (y = 31.2), so it is reachable with the
+// unit already installed. Worse: 48 mm between them instead of 52, a little less leverage against
+// tipping -- the price of the symmetry, and a small one.
+m4_z = [case_h / 4, case_h - case_h / 4];   // 24 and 72: the quarter points
+m4_x = 0.0;                                 // the centre line
 screw_m4_d = 4.5;       // clearance for M4 (nylon plug in the masonry)
 pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says: 1.5 mm left
 
@@ -394,8 +402,7 @@ lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind th
                         // over the unit's own body, and the skirt is the point: with 0.4 mm of total
                         // clearance the unit can cock by atan(0.4/3.2) = 7.1 degrees where 1.75 mm of
                         // collar let it cock by 12.9. It stays clear of the base/lid joint at 27.5.
-m4_head_d = 8.0;        // the M4 head seated in its pocket (below); the collar needs to clear it
-m4_window_d = 9.0;      // the collar's window on each M4 axis: that head plus 0.5 a side
+m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inner face
 
 module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
@@ -418,8 +425,8 @@ module fitcheck_joint() {
     //  2. "neighbours": the pillar and the boss against the unit, the collar, and the switch's body
     //     behind the panel (its O30 flange is the same obstruction, being what button_lands_cut
     //     spot-faces away);
-    //  3. "collar": the collar is cut material now, so its own two clearances are a real question --
-    //     0.2 mm all round the unit, and the M4 heads landing in its windows.
+    //  3. "collar": the collar is cut material now, so its own clearance is a real question -- 0.2 mm
+    //     all round the unit -- with the M4 heads along for the ride to keep them off it.
     if (fc == "all" || fc == "screw")
         intersection() {
             m3b_points() m3_screw();
@@ -432,10 +439,12 @@ module fitcheck_joint() {
         }
     if (fc == "all" || fc == "collar")
         intersection() {
-            // The collar is no longer a drawing, so its own two clearances are a real question: 0.2 mm
-            // around the unit (that is what lip_bore is for) and the M4 heads in its windows rather
-            // than under the ring. It bites the collar itself, not base(): base() still has the whole
-            // back plate solid -- the M4 pockets are markers, not cuts -- so a head always meets it.
+            // The collar is no longer a drawing, so its clearance is a real question: 0.2 mm round the
+            // unit, which is what lip_bore is for. The M4 heads ride along: they are at 24 and 72 now
+            // (ADR-021), far from a ring that lives at r = 29.2-30.2, and including them is what keeps
+            // them clear if either one moves. It bites the collar itself, not base(): base() still has
+            // the whole back plate solid -- the M4 pockets are markers, not cuts -- so a head would
+            // always meet it.
             unit_collar();
             union() { ghost_unit(); m4_heads(); }
         }
@@ -448,8 +457,8 @@ module screw_markers() {
     for (s = [m3b, [-m3b[0], m3b[1]]])
         color("red", 0.9) translate([s[0], -3, s[1]]) rotate([-90, 0, 0])
             cylinder(d = screw_m3_d, h = case_d + 6);
-    for (a = screw_m4_a)
-        color("blue", 0.9) translate([screw_m4_r * cos(a), -3, unit_cz + screw_m4_r * sin(a)])
+    for (z = m4_z)
+        color("blue", 0.9) translate([m4_x, -3, z])
             rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = case_d + 6);
 }
 
@@ -531,20 +540,15 @@ module unit_collar() {
     // raised floor: outline_inner() would have made it a slab with a hole in it (60 x 60, minus the
     // bore), a 5 mm step across the whole floor. Just the annulus -- the unit drops into lip_bore and
     // the pads carry it forward onto the seat.
-    // The windows are for the two M4 heads. They sit at r = 26 from the unit's axis (that is why they
-    // are behind the unit), and each O8 head reaches r = 30, which is past lip_bore's 29.2: as a plain
-    // ring the collar would stand on the screw heads and neither the screw nor the collar would sit
-    // right. A O9 window on each axis gives the head its pocket back with 0.5 a side to spare.
-    difference() {
-        translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
-            difference() {
-                cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
-                translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
-            }
-        for (a = screw_m4_a)
-            translate([screw_m4_r * cos(a), inner_d - lip_h - 1, unit_cz + screw_m4_r * sin(a)])
-                rotate([-90, 0, 0]) cylinder(d = m4_window_d, h = lip_h + 2);
-    }
+    // A plain ring now, with no windows in it. It had two (a O9 on each M4 axis) while the wall screws
+    // sat on the 26 mm radius around the unit's axis: an O8 head reaches r = 30, past lip_bore's 29.2,
+    // so the ring would have stood on the screw heads. The screws are at 24 and 72 as of ADR-021, and
+    // 24 is 9 mm off that axis -- far inside the bore -- so there is nothing left to clear.
+    translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
+        difference() {
+            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
+            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
+        }
 }
 
 // ------------------------------------------------------------------- the two parts
@@ -635,24 +639,30 @@ module ghosts_pairwise() {
     intersection() { ghost_board(); ghost_speaker(); }
 }
 
+module m4_points() {
+    // Where the two wall screws are, and every feature of them: a quarter of the height up, a quarter
+    // down, on the centre line. Children land in that frame (y = 0 at the plate's inner face).
+    for (z = m4_z) translate([m4_x, 0, z]) children();
+}
+
 module m4_heads() {
-    // Just the two M4 heads, seated in their pockets on the plate's inner face: the only part of those
-    // screws the collar can meet, and therefore what the collar's fit check bites into.
-    for (a = screw_m4_a)
-        color("darkorange", 0.95)
-            translate([screw_m4_r * cos(a), inner_d - pocket_m4, unit_cz + screw_m4_r * sin(a)])
-                rotate([-90, 0, 0]) cylinder(d = m4_head_d, h = pocket_m4);
+    // Just the two M4 heads, seated in their pockets on the plate's inner face. The collar's fit check
+    // bites these: at 24 the screw is 9 mm off the unit's axis and the collar lives at 29.2, so they do
+    // not meet -- and that check is what keeps it that way if either one moves.
+    color("darkorange", 0.95)
+        m4_points() translate([0, inner_d - pocket_m4, 0])
+            rotate([-90, 0, 0]) cylinder(d = m4_head_d, h = pocket_m4);
 }
 
 module wall_markers() {
-    // The three M4 into the masonry, as screws: a head seated in the 1.5 mm pocket on the plate's inner
-    // face and a shank that carries on through the plate and into the wall behind it. The radius is 26
-    // from the unit's axis, which is inside the unit's O58 footprint -- that is why they sit behind it.
+    // The two M4 into the masonry, as screws: a head seated in the 1.5 mm pocket on the plate's inner
+    // face and a shank that carries on through the plate and into the wall behind it. The upper one is
+    // above the unit, in free air; the lower one sits behind the unit (inside its O58 footprint, which
+    // is why the pocket has to be shallow: the gap there is 1.80 mm and the head is 1.50).
     m4_heads();
-    for (a = screw_m4_a)
-        color("darkorange", 0.95)
-            translate([screw_m4_r * cos(a), inner_d, unit_cz + screw_m4_r * sin(a)])
-                rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = 22);
+    color("darkorange", 0.95)
+        m4_points() translate([0, inner_d, 0])
+            rotate([-90, 0, 0]) cylinder(d = screw_m4_d, h = 22);
 }
 
 module review_view() {

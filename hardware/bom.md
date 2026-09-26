@@ -51,7 +51,7 @@ close enough that 5 V does not sag over the run.
 | Blind plug | Same thread as the gland | For the antenna opening if it is not used yet |
 | Heat-set inserts | M3, 5 mm long | One per screw pillar (review 3: two of them) |
 | Screws | M3 x 12, stainless, socket head | Lid to base, two of them, into the inserts |
-| Mounting screws | M4 x 40, stainless, with wall plugs | Wall or pole mount |
+| Mounting screws | M4 x 40, stainless, with wall plugs | Wall or pole mount, two of them, on the case's centre line a quarter up and a quarter down (ADR-021) |
 | Desiccant | Silica gel sachet | Inside the sealed cavity, replaced at each service |
 
 ## Tools and consumables
