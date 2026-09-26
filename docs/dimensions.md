@@ -173,6 +173,14 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   an adhesive-backed patch and the bottom is a Ø66 cylinder, so a 9 mm patch follows that curve to
   within 0.31 mm with nothing to peel its edge. The Ø9 × 1 mm seat that ADR-022 carried as its land is
   out (ADR-023). The back plate carries nothing at all: it is the face that beds on the wall.
+- The two halves meet at **y = 8.00**, 3 mm behind the crown's edge, as a **half-lap** (ADR-024): the lid
+  carries a **lip** 1.90 mm thick -- the outer 1.50 mm of its 3.00 mm wall, 0.40 mm of it standing proud
+  of the case's own surface -- reaching 3.00 mm back into the base, and the base carries the **recess**
+  over the same 3.00 mm, which leaves it a **1.30 mm rim**. Lip and rim are 0.20 mm apart all round the
+  contour, and `fitcheck_pair` proves it by boolean. The 3.00 mm of lap and the 0.40 mm drip shadow are
+  what a film of water running down the outside has to beat before it reaches the gasket's shoulder, and
+  an 8.00 joint leaves the unit's seat (6.25), the grille field (3.00 to 6.25) and the button's lands
+  (1.20, 4.50) all on the lid. The case is 66.80 x 96.80 across the band and 66.00 x 96.00 elsewhere.
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share

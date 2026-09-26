@@ -42,14 +42,18 @@ Acceptance:
 - No wall covers a connector that must stay reachable, checked geometrically, not by eye.
 - Renders (assembled and exploded) are committed under `cad/media/`.
 
-Status: **steps 1 and 2 done.** `cad/case.scad` revision 2 has the capsule profile, the crown on the
-front face, the cavity, the base/lid split, the speaker chamber with a flat seat and four retaining
-claws, the recessed grille field (49 tilted holes behind a drip lip) and the button's two spot-faced
-lands with the O22 cutout. `make fit` proves the board, the speaker and the buck clear every wall and
-each other; `probe_grille` and `probe_button` prove the holes are open through the wall, by boolean
-instead of by eye; `make section` and `make inside_render` are the review views. Left: microphone
-acoustic ports, membrane vent and cable gland (base), then the joint (lid lip, gasket groove, M3 bosses)
-and the mounting ears with the buck standoffs.
+Status: **steps 1 to 3 done, and the joint.** `cad/case.scad` revision 2 has the capsule profile, the
+crown on the front face, the cavity, the speaker chamber with a flat seat and four retaining claws, the
+recessed grille field (49 tilted holes behind a drip lip), the button's two spot-faced lands with the O22
+cutout, the two microphone slots (1.20 x 8.00 mm) through the bottom behind the unit, and the joint at
+y = 8 as a half-lap -- the lid's lip into the base's recess, 0.20 mm apart, with the lid standing 0.40 mm
+proud as a drip shadow (ADR-024) -- closed by two M3 x 12 into inserts on pillars off the back plate.
+`make fit` proves the board, the speaker and the buck clear every wall and each other, that the two
+printed parts clear each other across the lap, and -- with `probe_grille`, `probe_button` and `probe_mic`
+-- that the openings are open through the wall, by boolean instead of by eye; `make section` and
+`make inside_render` are the review views. Left: the gasket ring itself (it lies flat on the 1.30 mm
+shoulder the lap leaves; no groove fits at that width), the microphone membranes' seats, the membrane vent
+and the cable gland (base, bottom or side), then the mounting ears and the M4 pockets in the back plate.
 
 ## F3 - Firmware and Home Assistant side in the repository
 

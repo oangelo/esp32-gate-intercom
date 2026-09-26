@@ -29,8 +29,9 @@ face that was meant as the membrane's land). Keeping the two apart is the point 
 to share the speaker's field, which is direct coupling.
 The base keeps three pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49
 to 58 and the unit sits low (centre at 33) to free the upper half for the button at 76.
-`make fit` proves the unit clears both printed parts, and the probes (`probe_grille`, `probe_button`,
-`probe_mic`) prove the openings are open through the walls, by boolean instead of by eye.
+`make fit` proves the unit clears both printed parts, that the two parts clear each other across the lap
+(`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`) — that the
+openings are open through the walls, by boolean instead of by eye.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
 into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
@@ -39,6 +40,19 @@ own surface at the screw's x, and the lid's boss under it (`m3_lid_boss`) is wha
 the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its own would leave the
 head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and `-D
 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
+
+The joint itself is a **half-lap** as of this review (ADR-024): the lid carries a lip and the base the
+recess it drops into, all the way round the contour, so the two halves can no longer be shifted sideways
+against each other and no longer meet on a bare flat plane. The lip is the outer 1.50 mm of the lid's
+3.00 mm wall, reached 3.00 mm back past the plane and standing **0.40 mm proud** of the case's surface; the
+recess takes the outer 1.70 mm of the base's wall over the same 3.00 mm and leaves a 1.30 mm rim, so the
+two are **0.20 mm apart** all round. The stand-off is the lap's **drip shadow**: water running down the
+case leaves the lid at that edge and lands on the base 1.90 mm outboard of the mouth of the joint's
+0.20 mm gap, and anything that gets past it still has the 3.00 mm of lap to climb before the shoulder
+where the foam ring sits. `fitcheck_pair` proves the lap by boolean -- the two parts against each other,
+minus one `eps` either side of the joint plane, which is a contact and not an interference.
+Neither part pays for the lap with support: through its last 3 mm the base's wall goes 3.00 to 1.30 mm and
+the lid's 3.00 to 1.90, so both shapes only lose material as the print rises.
 
 The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
 Ø60 inside and the unit is Ø58, so the ring has exactly **1.0 mm** to spend. It spends it — 1 mm of wall
@@ -57,7 +71,8 @@ Note that the shells are background (`%`) objects and `--render` does not draw t
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
 Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
-the cable route to the unit's USB-C, and the rest of the joint (the gasket groove and the M4 pockets).
+the cable route to the unit's USB-C, the gasket ring itself (flat on the lap's shoulder -- a groove does
+not fit at 1.30 mm) and the M4 pockets in the back plate.
 
 ## Rules for this design
 

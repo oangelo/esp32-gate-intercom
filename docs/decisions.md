@@ -412,3 +412,56 @@ surface's own normal, and `mic_points` mirrors the slot on X without mirroring t
 left seat was cut 67 degrees off its normal and left almost no mark, and the right one was the only one
 that read. The lesson for this file: anything whose cut is a **rotation** needs the mirror inside the
 loop, and the slot's prism needs nothing.
+
+## ADR-024: the joint is a half-lap - the lid's lip into the base's recess
+
+**Decision (user's call, 2026-09-26):** the two halves no longer meet on a flat plane. The **lid** carries
+a **lip** -- the outer `lap_step` (1.50 mm) of its 3.00 mm wall, carried `lap_d` (3.00 mm) back past the
+joint plane and standing `lap_proud` (0.40 mm) clear of the case's own surface -- and the **base** carries
+the matching **recess**: the outer `lap_step + lap_gap` (1.70 mm) of its wall removed over the same
+3.00 mm, leaving it a **1.30 mm rim** that the lip slides over with **0.20 mm** of radial clearance all
+the way round the contour. The joint plane stays at **y = 8.00**, where the M3 x 12 of ADR-019 already
+were: at 27.5 a screw through the front wall would have needed M3 x 30 and 17 mm of plastic to cross, and
+the screws themselves are unchanged, on the user's call. `fitcheck_pair` is the boolean that proves the
+lap: the two parts against each other must be empty, with one `eps` either side of the joint plane taken
+out of the test because the plane itself is a contact and not an interference -- CGAL returns a
+zero-thickness sheet there (0.000 mm³, 62.51 mm wide, 0.000 mm deep, measured on the STL).
+
+**Why a lap and not a tongue and groove:** a ring standing out of one face into a groove in the other
+needs the groove to have **two** walls -- 1.20 + 1.40 + 1.20 = 3.80 mm against a 3.00 mm wall -- and the
+wall cannot be thickened inwards at the joint, because at y = 8 the Ø58 unit is 1.00 mm from the cavity
+(ADR-020) and there is no material to borrow. The half-lap **spends** the wall instead of adding to it and
+leaves both remaining walls above rule 3's 1.20 mm. It also costs nothing in outside size, which a flange
+would not.
+
+**Why on the lid and not on the base:** the first proposal had the base's skirt lapping over the lid's
+rim, and it does not survive the crown. The lap's forward end at `lap_d` 3.00 lands at y = 5.00, which is
+exactly where the crown's own surface reaches the case's full 33 mm radius; the lid's shell between the
+crown and the cut would thin to a **feather** there. Carrying the lip on the lid puts the whole lap behind
+the joint plane, in the case's straight-sided part, and the crown is never involved.
+
+**Why the lip stands proud:** the 0.40 mm is the lap's **drip shadow**. The lip's back edge overhangs the
+base by 0.40 mm, so water running down the case leaves the lid at that edge and lands on the base 1.90 mm
+**outboard** of the mouth of the joint's 0.20 mm gap, which is what stops the film running down the
+outside from feeding the gap. Water that does get in still has the whole 3.00 mm of lap to climb and then
+the shoulder at the joint plane, where the foam ring goes (ADR-017). The case measures 66.80 x 96.80
+across that 3.00 mm band and 66.00 x 96.00 everywhere else.
+
+**Why there is no gasket groove, yet:** the lap moves the sealing face off the dome's brim and onto the
+1.30 mm annulus at the joint plane, and 1.30 mm is too narrow to groove -- a 1.00 mm groove would leave
+0.15 mm of wall on each side. The foam ring therefore lies **flat** on that shoulder and the two screws
+squeeze it. Cutting a groove is deferred, not dropped; if it comes back it comes back with a wider
+shoulder, which means a thinner lip.
+
+**Accepted:** the base's rim is a 1.30 mm ring standing proud of its own shoulder, the narrowest thing in
+this design; in use it is inside the lip, and it only has to locate the two parts, not to hold them. The
+lip adds a 0.40 mm step on the outside, which is the point of it, and it is the only sideways step in
+either part's print -- 0.40 mm is nothing to a printer cutting 0.45 mm lines. Neither part pays for the
+lap with support or a bridge: through the band the base's wall goes from 3.00 to 1.30 mm and the lid's
+from 3.00 to 1.90, so both cross sections only lose material as the print rises.
+
+**Lesson for this file (it cost a full boolean round trip to find):** `prism_xz()` is a module that takes
+its 2D profile as a **child**. Called with no child inside an `intersection()`, it contributes **nothing**
+and silently swallows the whole intersection. The first `joint_recess_cut()` did exactly that, the recess
+came out uncut, and `fitcheck_pair` reported 1181 mm³ of interference in the band. **An empty cut is not
+an error in OpenSCAD**: it is geometry that quietly does not happen. Check every prism for its profile.

@@ -1,25 +1,27 @@
 // ESP32 Gate Intercom - enclosure, revision 2
 // Parametric case for a Waveshare ESP32-S3-AUDIO-Board. Printed in ASA (ADR-009).
 //
-// STATUS: revision 2, step 1 - the FORM and the fit, not the features yet.
-// This file has: the capsule profile, the crown on the front face, the cavity, the base/lid
-// split, and the board, speaker and buck as ghosts to prove they fit. Still to come, in this
-// order, each one reviewed before the next:
-//   1. speaker pocket, grille field and drip lip (lid, lower half)
-//   2. button flat land and the O22 cutout (lid, upper half)
-//   3. microphone acoustic ports in the back wall, membrane vent, cable gland (base)
-//   4. joint: lid lip, gasket groove, four M3 heat-set bosses
-//   5. mounting ears and the buck standoffs
+// STATUS: revision 2 - the form, the fit and the openings are cut. This file has the capsule profile,
+// the crown on the front face, the cavity, the joint at y = 8 with its half-lap (the lid's lip in the
+// base's recess), the closed grille field over the unit, the button's lands and its cutout, the two
+// microphone slots through the bottom, the two M3 x 12 that close the case, and the unit, speaker and
+// buck as ghosts to prove they fit. Still to come, in this order, each one reviewed before the next:
+//   1. the gasket itself: the foam ring lies flat on the 1.30 mm shoulder the lap leaves. No groove --
+//      at that width a groove would leave 0.15 mm of wall -- and the two screws squeeze the ring (ADR-024)
+//   2. the microphone membranes' seats, the breathable vent and the cable gland (bottom or side)
+//   3. mounting ears and the M4 pockets in the back plate
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
 // Z = height (0 at the floor). The case stands upright in use.
 //
 // PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
-// The base prints on its back plate (cavity opening up, standoffs vertical, gland and vent
-// holes vertical) and the lid prints on its face (cavity opening up, the speaker bore vertical
-// instead of a 43 mm ceiling to bridge). The flat lands that step 2 spot-faces into the front
-// face are what gives the lid its bed contact.
+// The base prints on its back plate (cavity opening up, pillars vertical, microphone slots and gland
+// vertical) and the lid prints on its face (cavity opening up, the speaker bore vertical instead of a
+// 43 mm ceiling to bridge). The flat lands that step 2 spot-faces into the front face are what gives
+// the lid its bed contact. The lap costs neither part a support: through its last 3 mm the base's wall
+// goes from 3.00 to 1.30 mm and the lid's from 3.00 to 1.90, so both shapes only lose material as the
+// print rises. The lip's 0.40 mm stand-off is the one step that grows sideways, and 0.40 mm is nothing.
 //
 // Usage:
 //   openscad -D 'part="base"'         -o build/case_base.stl  cad/case.scad
@@ -30,6 +32,7 @@
 //   openscad -D 'part="section"'      ...                                     # cutaway, review
 //   openscad -D 'part="exploded"'     ...                                     # the two parts apart
 //   openscad -D 'part="fitcheck"'     ...                                     # must be EMPTY
+//   openscad -D 'part="fitcheck_pair"' ...                                    # must be EMPTY
 //   openscad -D 'part="probe_grille"' ...                                     # must be EMPTY
 //   openscad -D 'part="probe_button"' ...                                     # must be EMPTY
 //   openscad -D 'part="probe_mic"'    ...                                     # must be EMPTY
@@ -57,7 +60,8 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 // --------------------------------------------------------- case parameters
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
                         // section | exploded | screwplan | fitcheck | fitcheck_parts |
-                        // fitcheck_internal | fitcheck_joint | probe_grille | probe_button | probe_mic
+                        // fitcheck_internal | fitcheck_joint | fitcheck_pair | probe_grille |
+                        // probe_button | probe_mic
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -125,8 +129,9 @@ z_top   = case_h - r_end;              // 63: centre of the top semicircle
 crown_s = 5.0;                         // sagitta of the front crown (convex front, ADR-015)
 crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 111.4
 
-split_y = 27.5;         // base/lid joint: behind the speaker, in front of the board. The lid
-                        // keeps 1.5 mm behind the speaker to retain it (step 1 of the features)
+// The joint is `joint_y` (8.0), defined with the lap further down, because that is where its three
+// numbers come from. It used to be 27.5 here, as `split_y`: a flat contact, and neither the lip nor
+// the screws of review 3 would work there.
 inner_d = case_d - wall;               // 55: inner face of the back plate
 cav_x   = r_end - wall;                // 30: inner radius; the ends share the outside centres
 cav_y0  = 3.0;                         // 3: inner apex of the crown
@@ -207,11 +212,18 @@ module outline_outer() {
 }
 
 module outline_inner() {
-    // Same shape, offset inwards by the wall: radius r_end - wall, same end centres.
+    // Same shape, offset inwards by the wall: radius r_end - wall = cav_x (30), same end centres.
+    outline_offset(wall);
+}
+
+module outline_offset(d) {
+    // The capsule offset INWARDS by d -- d negative grows it OUTWARDS -- the ends' radius reduced by
+    // d with the same end centres. outline_inner() is this at d = wall. The lap uses it twice: at
+    // lap_step, for the lip's inner edge, and at -lap_proud, for the lip's outer surface.
     union() {
-        translate([-cav_x, z_btm]) square([2 * cav_x, z_top - z_btm]);
-        translate([0, z_btm]) circle(r = cav_x);
-        translate([0, z_top]) circle(r = cav_x);
+        translate([d - r_end, z_btm]) square([2 * (r_end - d), z_top - z_btm]);
+        translate([0, z_btm]) circle(r = r_end - d);
+        translate([0, z_top]) circle(r = r_end - d);
     }
 }
 
@@ -301,22 +313,42 @@ module button_lands_cut() {
 // A countersunk M4 (2.35 mm) would leave 0.65 mm of plate: it does not work in 3 mm. The numbers come
 // from working the case's own clearances backwards, and one of them decides the whole layout.
 //
-// The joint moves to y = 8. Today it is at 27.5, which is 27.5 mm behind the front face: a screw
+// The joint moves to y = 8 (CUT 2026-09-26). At 27.5 it is 27.5 mm behind the front face: a screw
 // through the front wall would need M3 x 30 and 17 mm of plastic to cross. At 8 the front part is a
-// shallow cap, the screws are M3 x 14, and the unit is carried by the deep back part. Everything
-// already modelled survives the move: the seat is at 6.25, the grille field spans 3.0 to 6.25, the
-// button's lands sit at 1.2 and 4.5 -- all inside 8 -- and the switch's 30 mm body passes through
-// into the back part's cavity, which is open air at (0, 76).
+// shallow cap, the screws are M3 x 12 -- the length the BOM already lists and the one the holes below
+// are cut for -- and the unit is carried by the deep back part. Everything already modelled survives
+// the move: the seat is at 6.25, the grille field spans 3.0 to 6.25, the button's lands sit at 1.2 and
+// 4.5 -- all inside 8 -- and the switch's 30 mm body passes through into the back part's cavity, which
+// is open air at (0, 76).
 //
-// The "lábio" is a half-lap: the base's skirt, at full radius, laps over the lid's stepped rim.
-// lap_step 1.6 leaves 1.4 mm of skirt and 1.4 mm of rim, both still above the 1.2 mm rule, and the
-// outer surfaces stay flush so the seam is a corner the water has to turn.
-joint_y  = 8.0;         // PROPOSED: was 27.5
-lap_d    = 3.0;         // lap length
-lap_step = 1.6;         // radial step
-lap_gap  = 0.2;         // clearance on the lap; the gasket is a 1 mm closed-cell ring on the shoulder
-gasket_y = 4.5;         // PROPOSED: the shoulder where the foam ring sits (at the dome's brim)
-lap_proud = 0.4;        // the base's skirt stands proud of the lid's surface: a drip lip
+// The "lábio": a half-lap, in the form the user asked for, with the LID carrying the lip and the BASE
+// the recess it drops into, all the way round the joint's contour. The first proposal here had it the
+// other way round -- the base's skirt lapping over the lid's rim -- and that does not work at lap_d
+// 3.0: the lap's forward end then lands exactly where the crown's own surface reaches the case's full
+// 33 mm radius (x = 33 at y = 5.0), so the lid's shell there thins to a feather between the crown and
+// the cut. Carrying the lip on the LID puts the whole lap BEHIND the joint plane, in the straight
+// sided part of the case, and the crown is never involved.
+//
+// A true tongue and groove -- a ring standing out of one face into a groove in the other -- does not
+// fit this case. The groove needs two walls, 1.2 + 1.4 + 1.2 = 3.8 mm, against a 3.0 mm wall, and the
+// wall cannot be thickened inwards at the joint because the Ø58 unit is 1.0 mm from the cavity at that
+// height (ADR-020). The half-lap SPENDS the wall instead of adding to it: 1.5 mm of lip and 1.3 mm of
+// rim, 0.2 mm of radial clearance between them (rule 6's tight fit), both above rule 3's 1.2 mm.
+//
+// The lip stands lap_proud clear of the case's own surface, so the lid overhangs the base by 0.40 mm
+// along the lap's back edge: a drip shadow. Water running down the lid falls off that edge and lands
+// on the base 1.9 mm outboard of the mouth of the joint's gap, which is what stops the film running
+// down the outside from feeding the gap. Past the mouth, water still has the whole 3.00 mm lap to
+// climb and then the shoulder at the joint plane, where the foam ring goes (ADR-017). The shoulder is
+// too narrow to groove -- 1.30 mm would leave 0.15 mm walls -- so the ring lies flat on it and the two
+// screws squeeze it, which is also why the gasket is not cut yet.
+joint_y   = 8.0;        // CUT 2026-09-26: was 27.5, and the M3 x 12 screws already cut assume it
+lap_d     = 3.0;        // how far the lip reaches back past the joint plane
+lap_step  = 1.5;        // the lip's own thickness: the outer 1.5 mm of the lid's 3.0 mm wall
+lap_gap   = 0.2;        // radial clearance: the base's rim keeps the inner 1.3 mm and the lip slides on
+lap_proud = 0.4;        // how far the lip hangs over the case's own surface: the drip shadow
+gasket_y  = joint_y;    // the foam ring's shoulder, now the face at the joint plane itself: the lap
+                        // moved the sealing face off the dome's brim and onto this 1.30 mm annulus
 
 // The screws, and why they are NOT spread evenly around the loop:
 //  - the ring is 3 mm thick (wall) and the case is 66 wide, so a screw head needs 6.3 mm: there is
@@ -632,19 +664,46 @@ module mic_probe() {
         cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
 
+// ------------------------------------------------------------ the lap, CUT (2026-09-26)
+
+module joint_lip() {
+    // The LID's lip: the lap band as an added ring, from lap_step inside the case's own surface out to
+    // lap_proud beyond it, so the ring is 1.90 mm thick and leaves the case's outline as a 3.00 mm
+    // ridge standing 0.40 mm proud. Clipped by crown_outer() only as a guard: the crown reaches the
+    // case's full radius at y = 5.0 and the whole band is behind that, so the clip never bites unless
+    // joint_y is ever moved forward of 5.0.
+    intersection() {
+        prism_xz(lap_d + eps, joint_y - eps)
+            difference() { outline_offset(-lap_proud); outline_offset(lap_step); }
+        crown_outer();
+    }
+}
+
+module joint_recess_cut() {
+    // The BASE's side of the lap: the outer lap_step + lap_gap of its wall over the same band. What is
+    // left is a 1.30 mm rim that the lip slides over with 0.20 mm of clearance all the way round. A 2D
+    // difference extruded in the band, cut from the base: the recess is exactly the material that has
+    // to go, and nothing else in the band is touched (the pillars are 11 mm inboard of it, the collar
+    // is 39 mm further back).
+    difference() {
+        intersection() { body(); prism_xz(lap_d + 2 * eps, joint_y - eps) outline_outer(); }
+        prism_xz(case_d, 0) outline_offset(lap_step + lap_gap);
+    }
+}
+
 // ------------------------------------------------------------------- the two parts
 
 module base() {
     // Back tray: closed on the wall face -- the one face that cannot carry anything, because the case
     // is bedded flat on the post -- and opened instead through its BOTTOM, where the two microphone
     // slots pierce the wall just behind the unit (step 3 of the feature list). What it carries is the
-    // three pads that push the unit forward onto the seat, and (review 3) the two pillars the lid
-    // screws into and the collar that locates the unit. The gland and the vent still live here in name
-    // only: they move to a side or to the bottom.
+    // three pads that push the unit forward onto the seat, the two pillars the lid screws into, the
+    // collar that locates the unit, and the recess the lid's lip drops into (the lap). The gland and
+    // the vent still live here in name only: they move to a side or to the bottom.
     difference() {
         union() {
             difference() {
-                intersection() { body(); keep_above(split_y); }
+                intersection() { body(); keep_above(joint_y); }
                 cavity();
             }
             m3_pillars();
@@ -652,20 +711,25 @@ module base() {
         }
         m3_pillar_holes();
         mic_slot_cut();
+        joint_recess_cut();
     }
     unit_pads();
 }
 
 module lid() {
-    // Front shell: the closed grille field over the unit's own grille, the button, and the two
-    // counterbored holes whose screws pull it down onto the base's pillars.
+    // Front shell: the closed grille field over the unit's own grille, the button, the two
+    // counterbored holes whose screws pull it down onto the base's pillars, and the lip -- the outer
+    // lap_step of its wall carried lap_d back past the joint plane, 0.40 mm proud of the case's own
+    // surface. The unit's seat and the grille are both at 6.25 or in front of it, so an 8.0 joint
+    // leaves every feature of the front on the lid.
     difference() {
         union() {
             difference() {
-                intersection() { body(); keep_below(split_y); }
+                intersection() { body(); keep_below(joint_y); }
                 cavity();
             }
             m3_lid_boss();
+            joint_lip();
         }
         unit_seat_cut();
         grille_cut();
@@ -845,6 +909,17 @@ if (part == "base") {
     // REVIEW 3: the screw against both printed parts, and the pillar and the boss against their
     // neighbours. Must be empty.
     fitcheck_joint();
+} else if (part == "fitcheck_pair") {
+    // The two parts against each other, minus the joint plane they legitimately share: must be empty.
+    // The plane itself is a contact and not an interference -- the base's shell and the lid's are both
+    // cut at joint_y, so CGAL hands back a zero-thickness sheet there (0.000 mm3, 62 mm wide, no depth)
+    // -- so one eps either side of it is taken out of the test. What is left is every real overlap:
+    // above all the lap, where the lip sits inside the base's recess with 0.20 mm to spare.
+    intersection() {
+        base();
+        lid();
+        union() { keep_above(joint_y + eps); keep_below(joint_y - eps); }
+    }
 } else if (part == "probe_grille") {
     // Against the LID (not against `wall`, which is the un-cut shell): empty means every hole of the
     // field is open through the front wall. The probe is 1.0 mm smaller than the cut, so it does not
