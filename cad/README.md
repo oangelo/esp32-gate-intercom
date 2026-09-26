@@ -72,9 +72,11 @@ background object. All of them default to on, so an untouched file opens exactly
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
-Still to come: the membrane vent and the mounting ears (bottom or side, never the back), and the gasket
-ring itself (flat on the lap's shoulder -- a groove does not fit at 1.70 mm). The gland's top is cut
-(ADR-025): a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the
+Still to come: the membrane vent and the mounting ears (bottom or side, never the back). The joint's gasket
+is drawn as of 2026-09-26 -- its own part, `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of
+closed-cell silicone foam squeezed to 0.70, flat on the shoulder the lap leaves, proved by
+`fitcheck_gasket` (ADR-024's "The ring itself"). The gland's top is cut (ADR-025): a Ø22 x 3.00 boss with a
+50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the
 gasket's washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
 leaves the gland and drops straight into the unit's USB-C, which points up at the unit's top edge.
 `probe_gland` is what proves that opening is one hole. The two wall screws are cut as well, since ADR-021

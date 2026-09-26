@@ -6,8 +6,9 @@
 // base's recess), the closed grille field over the unit, the button's lands and its cutout, the two
 // microphone slots through the bottom, the two M3 x 12 that close the case, and the unit, speaker and
 // buck as ghosts to prove they fit. Still to come, in this order, each one reviewed before the next:
-//   1. the gasket itself: the foam ring lies flat on the 1.70 mm shoulder the lap leaves. No groove --
-//      at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the ring (ADR-024)
+//   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
+//      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
+//      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
 //   2. the microphone membranes' seats, the breathable vent and the cable gland (bottom or side)
 //   3. mounting ears
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
@@ -45,6 +46,8 @@
 //   openscad -D 'part="probe_mic"'    ...                                     # must be EMPTY
 //   openscad -D 'part="probe_gland"'  ...                                     # must be EMPTY
 //   openscad -D 'part="probe_m4"'     ...                                     # must be EMPTY
+//   openscad -D 'part="fitcheck_gasket"' ...                                   # must be EMPTY
+//   openscad -D 'part="gasket"'       -o build/gasket.stl ...                 # the foam ring on its own
 //
 // Everything is selected through `part`, one selector for every view. The translucent views need
 // --render: without it the PNG export draws the shell as opaque and the internals disappear, which
@@ -70,9 +73,9 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 
 // --------------------------------------------------------- case parameters
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
-                        // section | exploded | screwplan | fitcheck | fitcheck_parts |
-                        // fitcheck_internal | fitcheck_joint | fitcheck_pair | probe_grille |
-                        // probe_button | probe_mic | probe_gland | probe_m4
+                        // gasket | section | exploded | screwplan | fitcheck | fitcheck_parts |
+                        // fitcheck_internal | fitcheck_joint | fitcheck_pair | fitcheck_gasket |
+                        // probe_grille | probe_button | probe_mic | probe_gland | probe_m4
                         // Default is `review`: the shell and the unit as ghosts, the planned screws whole.
                         // `assembly` is the same thing opaque, for the outer form.
 
@@ -102,6 +105,8 @@ show_m4       = true;   // [true,false]  the two M4 into the wall, as markers: t
                         //                sit in are cut in the base (m4_pockets())
 show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with its cable (a marker: the
                         //                hole and the boss are cut into the base, the gland is not)
+show_gasket   = true;   // [true,false]  the joint's foam ring, on the shoulder the lap leaves (it is a
+                        //                separate part: neither half carries it)
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
@@ -390,7 +395,9 @@ module button_lands_cut() {
 //
 // The shoulder is 1.70 mm now -- the wall is 3.4 and the recess spends 1.70 -- and still too narrow to
 // groove: a 1.00 mm groove would leave 0.35 mm of wall on each side. So the ring lies flat on it and
-// the two screws squeeze it, which is also why the gasket is not cut yet.
+// the two screws squeeze it. Drawn as of 2026-09-26 (gasket()): 1.70 mm wide, 1.00 mm of closed-cell
+// silicone foam, squeezed 30 percent (ADR-017) -- so the joint's closed gap is 0.70, the lid ends up
+// that far forward of the printed plane, and the lip reaches 2.30 into the recess instead of 3.00.
 joint_y   = 8.0;        // CUT 2026-09-26: was 27.5, and the M3 x 12 screws already cut assume it
 lap_d     = 3.0;        // how far the lip reaches back past the joint plane
 lap_step  = 1.5;        // the lip's own thickness: the outer 1.5 mm of the lid's 3.4 mm wall
@@ -398,6 +405,16 @@ lap_gap   = 0.2;        // radial clearance: the base's rim keeps the inner 1.7 
 lap_proud = 0.0;        // FLUSH: the lip does not stand off the case's surface. Was 0.4 -- see above
 gasket_y  = joint_y;    // the foam ring's shoulder, now the face at the joint plane itself: the lap
                         // moved the sealing face off the dome's brim and onto this 1.70 mm annulus
+gasket_od = lap_step + lap_gap;   // 1.70: the ring's outer edge IS the rim's outer edge, so what
+                                  // separates it from the lip is the lap's own 0.20 mm
+gasket_id = wall;       // 3.40: and its inner edge is the case's inner surface
+gasket_t  = 1.00;       // free thickness. Closed-cell silicone foam (ADR-017), cut to a ring or bought
+gasket_squash = 30;     // percent of it the two screws take out (ADR-017: about 30 percent)
+gasket_gap = gasket_t * (1 - gasket_squash / 100);   // 0.70: the joint's CLOSED gap, i.e. how far the
+                        // lid ends up forward of the printed joint plane, with the ring squeezed in
+                        // between. Nothing bottoms out for it: the 3.00 mm lip reaches 2.30 into the
+                        // base's 3.00 mm recess once closed. That is the price of a flat ring -- and
+                        // the reason there is no groove, which ADR-024 answers at 1.70 mm.
 
 // The screws, and why they are NOT spread evenly around the loop:
 //  - the ring is 3.4 mm thick (wall) and the case is 66.8 wide, so a screw head needs 6.3 mm: there is
@@ -905,6 +922,22 @@ module joint_recess_cut() {
     }
 }
 
+module gasket(t = gasket_t, inset = 0) {
+    // The foam ring itself (ADR-017), drawn where it seals: flat on the shoulder the lap leaves -- the
+    // base's 1.70 mm rim at the joint plane -- with the two screws squeezing it from 1.00 to the 0.70
+    // the joint closes by. It is a SEPARATE part and belongs to neither half: it is cut from a sheet or
+    // bought as a ring, which is why nothing here is unioned into base() or lid(), and why its own
+    // printability is not a question. Its outer edge is the rim's own outer edge and its inner edge the
+    // case's inner surface, so it is 1.70 mm wide and clears the lip by exactly the lap's 0.20 mm.
+    //   t     -- thickness, from the rim's face forward (the default is the free one; the fit check
+    //            asks for the squeezed 0.70, because that is the gap it has to fit in);
+    //   inset -- a hair smaller in both directions, for checks whose surfaces would otherwise be
+    //            coplanar with the metal they sit on. CGAL returns a zero-thickness sheet for those,
+    //            and a sheet is not nothing.
+    prism_xz(t, gasket_y - t)
+        difference() { outline_offset(gasket_od + inset); outline_offset(gasket_id + inset); }
+}
+
 // ------------------------------------------------------------------- the two parts
 
 module base() {
@@ -1057,6 +1090,7 @@ module review_view() {
     if (show_collar) color("green", 0.85) unit_collar();
     if (show_m4)     wall_markers();
     if (show_gland)  gland_marker();
+    if (show_gasket) color("magenta", 0.85) gasket();
 }
 
 module translucent(which) {
@@ -1079,6 +1113,10 @@ if (part == "base") {
     base();
 } else if (part == "lid") {
     lid();
+} else if (part == "gasket") {
+    // The foam ring on its own, for cutting or buying: 1.70 mm wide, 1.00 mm thick, and its shape is
+    // the case's own contour between the rim's edges.
+    gasket();
 } else if (part == "assembly") {
     // Opaque, for the outer form.
     base();
@@ -1163,6 +1201,18 @@ if (part == "base") {
     // The rod is 1 mm narrower than the hole and spans the pocket's floor as well, so a pocket cut
     // without its hole -- or a hole without its pocket -- cannot pass this.
     intersection() { base(); m4_probe(); }
+} else if (part == "fitcheck_gasket") {
+    // The ring against both halves AT THE JOINT'S CLOSED GAP: the lid lifted the 0.70 the ring is
+    // squeezed to, because in the dry, printed position that space is simply the lid's own material.
+    // Empty then means the seat is real -- the ring lands on the base's rim, clears the lip by the
+    // lap's 0.20 mm, and the lip still reaches 2.30 into the recess -- and that the ring is squashed
+    // and not crushed. Its own 0.01/0.02 inset is what keeps its surfaces off the ones it sits on:
+    // a contact between coplanar faces is a zero-thickness sheet to CGAL, not nothing, which is why
+    // fitcheck_pair takes an eps either side of joint_y as well.
+    intersection() {
+        translate([0, -eps, 0]) gasket(gasket_gap - 2 * eps, eps);
+        union() { base(); translate([0, -gasket_gap, 0]) lid(); }
+    }
 } else {
     // Default, so opening this file shows where the planned screws go. In one piece: a cutaway was not
     // readable.

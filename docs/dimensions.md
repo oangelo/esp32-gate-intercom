@@ -211,7 +211,13 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   outside has the mouth of the 0.20 mm gap, the whole 3.00 mm of lap and the press of the two screws to
   beat before it reaches the gasket's shoulder. An 8.00 joint leaves the unit's seat (6.25), the grille
   field (3.00 to 6.25) and the button's lands (1.20, 4.47) all on the lid. The shell is 3.40 -- which is
-  why the case is **66.80 x 96.80 x 58.40**, uniformly -- and the **front** wall is still 3.00.
+  why the case is **66.80 x 96.80 x 58.70**, uniformly -- and the **front** wall is still 3.00.
+  The gasket itself is a **1.70 mm wide** ring of closed-cell silicone foam, **1.00 mm** free and squeezed
+  to **0.70** by the two screws -- the 30 percent ADR-017 asks for -- lying flat on the rim's shoulder. It
+  is its own part (`make gasket`, 63.40 x 93.40 outside, 60.00 x 90.00 inside) and `fitcheck_gasket` proves
+  it lands there, clearing the lip by the lap's 0.20 mm. The 0.70 is also the joint's **closed** gap: with
+  the ring squeezed, the lid ends up 0.70 mm forward of the printed plane and the lip reaches 2.30 mm into
+  the recess instead of 3.00 (ADR-024).
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share

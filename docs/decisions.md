@@ -210,6 +210,11 @@ first two are defeated. Layer lines are capillary paths, so wall thickness, peri
 land matter as much as the gasket itself. Acetone smoothing works on ASA but is less predictable than a 2K
 clear coat or a silicone spray, so the sealing step is specified as a coating.
 
+**Amendment (2026-09-26):** the joint's gasket is drawn now, as its own part — a **1.70 mm wide** ring of
+closed-cell silicone foam, **1.00 mm** free and squeezed to **0.70** (the 30 percent above), lying flat on
+the lap's shoulder. Its dimensions, its seat and the boolean that proves them are in ADR-024's "The ring
+itself".
+
 ## ADR-018: button above, speaker grille below (reverses the front face of ADR-015)
 
 **Decision:** on the front face of the capsule the illuminated button sits in the upper half and the
@@ -475,6 +480,19 @@ design and the part that locates the two halves. At 3.40 the rim is **1.70 mm**.
 leave 0.35 mm of wall on each side. The foam ring therefore lies **flat** on that shoulder and the two
 screws squeeze it. Cutting a groove is deferred, not dropped; if it comes back it comes back with a wider
 shoulder, which means a thinner lip.
+
+**The ring itself (2026-09-26):** it is drawn now, as its own part (`gasket()` in `cad/case.scad`,
+`part="gasket"` for the STL, `make gasket`): **1.70 mm wide** — its outer edge is the rim's own outer
+edge, its inner edge the case's inner surface, so the lap's 0.20 mm is all that separates it from the lip
+— and **1.00 mm** of closed-cell silicone foam, squeezed **30 percent** as ADR-017 asks. That squeeze is
+what sets the joint's **closed gap**: **0.70 mm**, i.e. how far the lid ends up forward of the printed
+joint plane once the two screws are home, with the 3.00 mm lip reaching **2.30 mm** into the recess and
+nothing bottoming out. It is a separate part and belongs to neither half — cut from a sheet or bought as a
+ring — so it is unioned into nothing, and its own printability is not a question. Proved by
+`fitcheck_gasket`: the ring against both halves **at that closed gap** (the lid lifted 0.70, because in
+the dry position the ring's space is the lid's own material) must be empty, and it is. Measured on the
+STL: 63.40 × 93.40 outside, 60.00 × 90.00 inside, 1.00 thick, 431.45 mm³ — the contour's 1.70 mm band to
+the last hundredth of a cubic millimetre.
 
 **Accepted:** the base's rim is a **1.70 mm** ring inside the lap, and it only has to locate the two parts,
 not to hold them. The lip adds **no** step on the outside any more (it did, 0.40 mm, until the amendment

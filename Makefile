@@ -16,7 +16,7 @@ check:
 	@grep -iE 'warning|error' $(BUILD)/openscad.log || echo "clean compile"
 
 ## Export both printed parts
-stl: base lid
+stl: base lid gasket
 
 base:
 	@mkdir -p $(BUILD)
@@ -29,6 +29,13 @@ lid:
 	@openscad -D 'part="lid"' -o $(BUILD)/case_lid.stl $(SCAD) > $(BUILD)/lid.log 2>&1 \
 		|| { cat $(BUILD)/lid.log; exit 1; }
 	@grep -iE 'warning|error' $(BUILD)/lid.log || echo "build/case_lid.stl clean"
+
+## The joint's foam ring: not printed, but its outline is what gets cut or bought.
+gasket:
+	@mkdir -p $(BUILD)
+	@openscad -D 'part="gasket"' -o $(BUILD)/case_gasket.stl $(SCAD) > $(BUILD)/gasket.log 2>&1 \
+		|| { cat $(BUILD)/gasket.log; exit 1; }
+	@grep -iE 'warning|error' $(BUILD)/gasket.log || echo "build/case_gasket.stl clean"
 
 ## Xvfb display for headless PNG rendering (do not use xvfb-run, it hangs OpenSCAD)
 display:
@@ -55,7 +62,7 @@ section: display
 ## Prove the ghosts touch neither a wall nor each other, and that the openings are open.
 ## Everything except nothing: all of these must print "empty".
 fit:
-	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair probe_grille probe_button probe_mic probe_gland probe_m4; do \
+	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair fitcheck_gasket probe_grille probe_button probe_mic probe_gland probe_m4; do \
 		printf '%-22s ' $$p; \
 		openscad -D "part=\"$$p\"" -o $(BUILD)/$$p.stl $(SCAD) 2>&1 \
 			| grep -q 'top level object is empty' && echo 'empty: no interference' || echo 'GEOMETRY: interference, look at it'; \
