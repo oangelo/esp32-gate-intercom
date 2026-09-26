@@ -163,9 +163,15 @@ semicircle on the bottom. The speaker grille occupies the upper semicircle and t
 button sits in the middle of the straight section.
 
 **Why:** it keeps the round language of the reference product while standing vertically at the gate, and
-a round bottom sheds water better than a square corner. Open items, to be fixed with the caliper
-numbers and a photograph of the board: the radius (driven by the board's 58 mm plus clearance) and the
-height of the straight section.
+a round bottom sheds water better than a square corner.
+
+**Amendment (2026-09-26) — the two open items above are closed, and neither needed the caliper.** The
+straight section is **30.00 mm** (`case_h = 30.0 + case_w`), and the crown's radius is **114.06**, derived
+rather than measured: `crown_r = (r_end² + crown_s²) / (2 × crown_s)`, with `r_end = case_w / 2 = 33.40`
+and a sagitta `crown_s = 5.00`. So the case's width and its crown follow from the board's body diameter
+alone, and that diameter came in at **57.50 by caliper** — against the DXF's 58.00 and the STEP's
+57.63 × 56.54, both of which run high (`dimensions.md` keeps the comparison). The photograph is no longer
+needed: the STEP carries the package and the vendor DXF carries the outline.
 
 ## ADR-016: mains conversion stays outside the printed enclosure
 
