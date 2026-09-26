@@ -28,7 +28,8 @@ which moved them off the back plate — that face beds flat against the post —
 face that was meant as the membrane's land). Keeping the two apart is the point — the microphones used
 to share the speaker's field, which is direct coupling.
 The base keeps three pads that push the unit onto a spot-faced seat in the lid. Case depth went from 49
-to 58 and the unit sits low (centre at 33) to free the upper half for the button at 76.
+to 58.70 — 58 when the unit went in, 58.4 when the shell grew to 3.4 mm, and the last 0.30 from the
+caliper's height — and the unit sits low (centre at 33.4) to free the upper half for the button at 76.4.
 `make fit` proves the unit clears both printed parts, that the two parts clear each other across the lap
 (`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`) — that the
 openings are open through the walls, by boolean instead of by eye.
@@ -56,11 +57,11 @@ Neither part pays for the lap with support: through its last 3 mm the base's wal
 the lid's 3.40 to 1.50, so both shapes only lose material as the print rises.
 
 The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
-Ø60 inside and the unit is Ø58, so the ring has exactly **1.0 mm** to spend. It spends it — 1 mm of wall
-on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall (ADR-020).
+Ø60 inside and the unit calipers at Ø57.5, so the ring has **1.25 mm** to spend. It spends it — 1.25 mm of
+wall on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall (ADR-020).
 `-D 'fc="collar"'` isolates that check.
 
-The two wall screws sit on the centre line at the quarter points of the height, z = 24 and z = 72
+The two wall screws sit on the centre line at the quarter points of the height, z = 24.2 and z = 72.6
 (ADR-021), so the pair is symmetric about the case's own centre and the hanging weight arrives at them as
 shear. In X they were already on x = 0; only Z moved, from 7/59.
 
@@ -71,9 +72,11 @@ background object. All of them default to on, so an untouched file opens exactly
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 
-Still to come: the gland and the membrane vent and the mounting ears (bottom or side, never the back),
-the cable route to the unit's USB-C, the gasket ring itself (flat on the lap's shoulder -- a groove does
-not fit at 1.70 mm) and the M4 pockets in the back plate.
+Still to come: the membrane vent and the mounting ears (bottom or side, never the back), the gasket ring
+itself (flat on the lap's shoulder -- a groove does not fit at 1.70 mm) and the M4 pockets in the back
+plate. The gland and the cable route are decided but not cut yet: the gland goes through the TOP, on a
+raised boss on the unit's own axis, so the pigtail leaves it and drops straight into the unit's USB-C,
+which points up at the unit's top edge (ADR-025).
 
 ## Rules for this design
 

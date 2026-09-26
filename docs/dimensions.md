@@ -108,7 +108,34 @@ The DXF's four assembly heights land exactly on the STEP's part positions:
 | 37.60 | from the **top of the PCB** (z -7.60) to the bottom of the body |
 
 Two independently produced files describing the same revision. Where they disagree (the board outline,
-above), the caliper decides.
+above), the caliper decides — and on 2026-09-26 it did, on both the unit's diameter and its height: see
+the section below.
+
+## Calipered on the real unit (2026-09-26)
+
+The assembled Waveshare, measured with a caliper. These are the numbers the CAD uses, because the rule
+holds: the vendor file describes a reference board, the caliper describes this one.
+
+| Feature | Caliper | Vendor says | Effect |
+|---|---|---|---|
+| Body diameter | **57.50** | 58.00 (the DXF circle), 57.63 x 56.54 (the STEP board's bounding box) | both vendor numbers are high, by 0.50 and 0.13. The cavity stays Ø60, so the gap around the unit grows from 1.00 to **1.25 mm**; the collar on the floor is bored **57.90** (the unit plus 0.2 a side) and is 1.25 mm thick, still Ø60.40 outside, so its outer 0.20 mm keeps fusing with the cavity's wall |
+| Height, whole unit with its three rubber feet | **50.00** | 49.70 (the STEP, assembled) | 0.30 more than the STEP, which is the number the earlier rounds treated as the truth |
+| Height, feet off | **47.30** | 47.00 (the DXF, to the Ø52 disc), 43.70 + 5.10 = 48.80 (the product page) | the model uses **47.30**: the feet are peeled because they stick out of the grille face. The case's outer depth follows it to **58.70** |
+
+Those two caliper numbers are what `cad/case.scad` takes at the top of the file (`unit_dia`, `unit_h`), and
+the whole depth chain follows from them: `case_d` 58.70 = the unit's face 6.20 behind the crown + 47.30 +
+the 1.80 mm gap the microphones breathe + the 3.40 mm plate. The plate's inner face therefore sits at
+**55.30**, and everything keyed to it (the collar, the M4 pockets, the standoff pads, the M3 pillars) moves
+with it; only `mic_slot_cy` needed a hand, to 50.30, which keeps the slot's back end 0.80 mm inside the gap.
+
+Two things this does not settle, and both are worth a second pass with the caliper:
+
+- **Whether 57.50 is the body's widest point.** It is *less* than both vendor numbers for the outline, and
+  the housing has to contain the board, so one of the three is off. If a reading at the widest point comes
+  back as 58.00, the collar's bore goes back to 58.40 and the gap to 1.00 mm: two variables, `lip_bore`
+  and `lip_wall`.
+- **The Ø52 grille disc.** Not measured. The seat is Ø53.0 and the retaining lip grips 2 mm of the disc,
+  so a disc that comes back over Ø53.0 has its seat re-cut.
 
 ## Verified on the board (independent of the drawing)
 
@@ -152,24 +179,26 @@ clearance and that no wall interferes with a connector.
 
 Fixed by the measurements, with the unit going in **assembled** (roadmap item 5):
 
-- The unit's envelope is Ø58 x **47.00**: the assembled height, 49.70 in the STEP minus the 2.70 rubber
-  feet, which are peeled off because they stick out of the grille face. It governs the case's depth:
-  **58.4 mm** outer, against the 49 the bare-board layout needed. Width stays 66.8 (Ø58 plus 1 mm a side
-  plus the 3.4 mm shell) and height 96.8 (30 mm of straight side plus the two Ø66.8 ends).
-- Its grille disc is Ø52 and its face sits 2.90 mm proud of the Ø58 body (STEP), so the seat in the lid
+- The unit's envelope is Ø57.5 x **47.30**, both by caliper (see above): the assembled height 50.00 with
+  the three rubber feet, minus their 2.70, because the feet stick out of the grille face and are peeled
+  off. It governs the case's depth: **58.70 mm** outer, against the 49 the bare-board layout needed.
+  Width stays 66.8 (the Ø60 cavity plus 1.25 a side plus the 3.4 mm shell) and height 96.8 (30 mm of
+  straight side plus the two Ø66.8 ends).
+- Its grille disc is Ø52 and its face sits 2.90 mm proud of the Ø57.5 body (STEP), so the seat in the lid
   is spot-faced flat and the retaining lip grips 2 mm of that disc.
-- The unit sits with its centre 33 mm from the bottom end's centre: the lowest position that still
+- The unit sits with its centre 33.4 mm from the bottom end's centre: the lowest position that still
   clears the rounded bottom, which is what frees the upper half of the front face. Its top edge lands at
-  62, so the Ø22 button's centre goes at **76** — above the unit's top edge and clear of the seat's rim
-  at 59.5, while its land keeps 2 mm of material below the cavity's ceiling (ADR-018).
+  62.15, so the Ø22 button's centre goes at **76.4** — above the unit's top edge and clear of the seat's
+  rim at 59.9, while its land keeps 2 mm of material below the cavity's ceiling (ADR-018). The 0.25 mm
+  between the switch's body, which ends at 61.9, and the unit's top edge is the tightest margin in the case.
 - The microphones listen through the unit's own cover: eight Ø1 holes at r = 5.5 to 8.9 around its axis
   (STEP). Their air volume is the 1.80 mm gap behind the unit, and the case opens that gap to the
   outside through its **bottom**, close behind the unit: **two slots of 1.20 × 8.00 mm** (ADR-023), one
   each side at the microphones' own x of ±18.23 mm (`r = 26.83`, `47.2° / 132.8°` in the board's frame,
-  which is z = 17.3 in the case), running from y = 46.00 to 54.00 along the depth. Each slot passes
+  which is z = 17.3 in the case), running from y = 46.30 to 54.30 along the depth. Each slot passes
   through the shell **and** the collar — 4.70 mm of material at that x, because the collar's bore is at
-  10.19 and `mic_slot_top` is 13.00 — and its back end (54.00) reaches 0.80 mm into the gap the unit
-  breathes: the unit's own back face is at 53.20. No spot face: the hydrophobic membrane (ADR-017) is
+  10.44 and `mic_slot_top` is 13.00 — and its back end (54.30) reaches 0.80 mm into the gap the unit
+  breathes: the unit's own back face is at 53.50. No spot face: the hydrophobic membrane (ADR-017) is
   an adhesive-backed patch and the bottom is a Ø66.8 cylinder, so a 9 mm patch follows that curve to
   within 0.31 mm with nothing to peel its edge. The Ø9 × 1 mm seat that ADR-022 carried as its land is
   out (ADR-023). The back plate carries nothing at all: it is the face that beds on the wall.
@@ -193,13 +222,17 @@ Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the pane
 flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
 now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent, and M4
 wall/pole mounting holes. The button's head diameter and the depth of its body behind the panel are
-measured on arrival and become parameters in the same file. The gland and the vent go through the
-**bottom or a side**, never the back plate: that face is what beds against the wall, so it carries
-nothing at all — the microphone ports are on the bottom with them now (ADR-023).
+measured on arrival and become parameters in the same file. Neither the gland nor the vent touches the back
+plate: that face is what beds against the wall, so it carries nothing at all — the microphone ports are on
+the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user), on the unit's own axis
+29.70 mm back from the crown: the unit's USB-C points **up** at its top edge, so a gland directly above it
+is the shortest cable route and the only one that needs no bend inside the case. It sits on a raised
+cylindrical boss, so that its gasket and its locknut both land on flat faces instead of on the case's
+curved top (ADR-025). The vent stays on the bottom or on a side.
 
 Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
-upper part, above the unit's top edge at 62, which is where the button's body and — still to design —
-the cable route to the unit's USB-C live. That route has to come down through the cavity, because the
-unit's USB-C is at its top edge pointing up; the cable enters through the gland in the bottom or the
-side and climbs to it. The buck that used to sit on the back plate is out of the case, next to the
+upper part, above the unit's top edge at 62.15, which is where the button's body and the cable route to the
+unit's USB-C live. That route is now short and straight: the unit's USB-C is at its top edge pointing up,
+and the gland is directly above it at the top of the case, on the same axis, so the pigtail leaves the
+gland and drops into the port without a bend (ADR-025). The buck that used to sit on the back plate is out of the case, next to the
 potted supply (ADR-016's single-stage option).

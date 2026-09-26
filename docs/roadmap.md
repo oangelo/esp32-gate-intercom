@@ -52,9 +52,11 @@ inserts on pillars off the back plate.
 `make fit` proves the board, the speaker and the buck clear every wall and each other, that the two
 printed parts clear each other across the lap, and -- with `probe_grille`, `probe_button` and `probe_mic`
 -- that the openings are open through the wall, by boolean instead of by eye; `make section` and
-`make inside_render` are the review views. Left: the gasket ring itself (it lies flat on the 1.70 mm
-shoulder the lap leaves; no groove fits at that width), the microphone membranes' seats, the membrane vent
-and the cable gland (base, bottom or side), then the mounting ears and the M4 pockets in the back plate.
+`make inside_render` are the review views. The caliper's pass is in as well: the unit is Ø57.5 x 47.30
+and the case is 66.80 x 96.80 x **58.70** (`docs/dimensions.md`). Left: the gasket ring itself (it lies
+flat on the 1.70 mm shoulder the lap leaves; no groove fits at that width), the microphone membranes'
+seats, the membrane vent and the cable gland (top, on a boss, straight above the unit's USB-C --
+ADR-025), then the mounting ears and the M4 pockets in the back plate.
 
 ## F3 - Firmware and Home Assistant side in the repository
 
@@ -93,25 +95,34 @@ Not decided yet, needed before F2 starts:
    external 22 mm switch wired to GPIO0.
 2. The board outline under a caliper: the STEP bounding box (57.63 x 56.54) is smaller than the DXF's
    Ø58.00 circle, so something is not a pure circle. Where they disagree, the caliper wins.
-3. Where the 220 V comes from at the gate, and whether a supply point already exists there. The supply
-   chain itself is settled (ADR-016, parts in `hardware/bom.md`): a potted IP67 220 V to 12 V driver
-   outside, a 12 V to 5 V 3 A buck inside the case, and 5 V to the board through a USB-C pigtail. The
-   button LED is settled too: always on, off the same 5 V rail, nothing switched.
+   **CALIPERED 2026-09-26**: 57.50 across the assembled unit's body. Both vendor numbers are high, and
+   57.50 sits *under* the STEP's board, which cannot be (the housing has to hold the board), so a second
+   reading, at the widest point, is still open — see `docs/dimensions.md`. The CAD uses the caliper's
+   number, and one variable puts it back.
+3. Where the 220 V comes from at the gate, and whether a supply point already exists there. **RESOLVED
+   2026-09-26 (the user): a supply point already exists at the gate**, so the cable entry is not a new
+   run. What it supplies is still to be noted, since the chain itself is settled (ADR-016, parts in
+   `hardware/bom.md`): a potted IP67 220 V to 12 V driver outside, a 12 V to 5 V 3 A buck, and 5 V to the
+   board through a USB-C pigtail — with the buck outside the printed part (ADR-016's single-stage
+   option). The button LED is settled too: always on, off the same 5 V rail, nothing switched.
 4. Capsule width and the height of the straight section. Width is no longer a free choice: the board is
    Ø58 and the walls are 3 mm, so 66 mm outer is the width that fits it with 1 mm of clearance a side,
-   and going under that means the board does not fit. Depth is the real decision: about **66 mm** if the
+   and going under that means the board does not fit. (Both numbers have moved since: the unit calipers at
+   Ø57.5 and the shell is 3.4 mm, so the case is 66.8 across, and the straight section is 30 mm.) Depth
+   is the real decision: about **66 mm** if the
    board lies flat (its Ø58 then sets the depth as well as the width), or about **52 mm** if the board
    stands parallel to the front face (the tallest part on the component side is 5.0 mm, on the solder side
    4.5 mm, and the button's body gets the free upper half). The concept render — convex
    front, flat back, slim D profile — only matches the second. Height still about 96.8 mm: 30 mm of straight
    side plus the two Ø66.8 semicircles, which holds a Ø46 grille field and the 22 mm button.
 5. **DECIDED (2026-09-24): the unit goes in ASSEMBLED.** The Waveshare goes in as it arrives — one
-   cylinder, Ø58, the black body with the speaker inside, the acrylic band and the cover, all screwed
-   together, and its own acoustic chamber and microphone ducting come with it. The case is built
-   around it: depth **58** (was 49), the unit's grille face 6.20 behind the crown at its rim sitting on
-   a spot-faced seat in the lid, held axially by three pads on the back plate, and the unit sits **low**
-   (centre at z = 33, the lowest the rounded bottom allows) because that is what frees the upper half
-   for the 22 mm button: the unit's top edge is at 62, the button's centre at 76.
+   cylinder, Ø57.5 by caliper (the vendor files say 58.00), the black body with the speaker inside, the
+   acrylic band and the cover, all screwed together, and its own acoustic chamber and microphone ducting
+   come with it. The case is built around it: depth **58.70** (58 when this decision was taken, 49 in the
+   bare-board plan), the unit's grille face 6.20 behind the crown at its rim sitting on a spot-faced seat
+   in the lid, held axially by three pads on the back plate, and the unit sits **low** (centre at
+   z = 33.4, the lowest the rounded bottom allows) because that is what frees the upper half for the
+   22 mm button: the unit's top edge is at 62.15, the button's centre at 76.4.
    This reverses the earlier "hollowed out" decision, which was taken to keep our own speaker chamber
    because the vendor's ducting could not be resolved from the STEP. It is resolved now: **the unit
    listens through its own cover** — the acrylic cover has eight Ø1 holes at r = 5.5 to 8.9 around its
@@ -126,15 +137,19 @@ Not decided yet, needed before F2 starts:
    The seat also turns into an acoustic part: the disc presses on it, and a 1 mm foam ring there is what
    stops the speaker's front radiation from leaking into the cavity the microphones breathe. That leak is
    the whole echo-coupling budget, so the ring is not optional in the build.
-   Costs accepted: +9 mm of depth (58 against 49) and the buck moves **outside** the case — the potted
-   supply feeds the unit's USB-C pigtail, which ADR-016 already had as its single-stage alternative.
-   The gland and the vent can no longer live on the back plate either: they move to the bottom or to a
-   side (step 3).
+   Costs accepted: +9.7 mm of depth (58.70 against 49) and the buck moves **outside** the case — the
+   potted supply feeds the unit's USB-C pigtail, which ADR-016 already had as its single-stage
+   alternative. Neither the gland nor the vent can live on the back plate any more: that face beds flat on
+   the post. **The gland goes to the TOP** (2026-09-26, the user), straight above the unit's USB-C, which
+   points up: the shortest route, and the only one that needs no bend inside the case (ADR-025). The vent
+   goes to the bottom or to a side.
    `make fit` proves the unit clears both printed parts and that the front grille and the button cutout
    are both open.
-   The height readings, for the record: the product page drawing says 43.70 + 5.10 = 48.80, the DXF
-   says 46.90 to the body's bottom and 47.00 to the Ø52 disc's bottom, and the assembled product in the
-   STEP is 49.70 including the rubber feet. The model uses **47.00** = 49.70 minus the 2.70 feet, which
-   are peeled off because they stick out of the grille face and would land on the seat. If the real part
-   is 48.80 rather than 47.00, the case has 1.80 mm less margin than it thinks: the caliper decides
-   (`docs/dimensions.md`).
+   The height readings, for the record: the product page drawing says 43.70 + 5.10 = 48.80, the DXF says
+   44.30 to the body's bottom and 47.00 to the Ø52 disc's bottom (this line used to read 46.90, which is
+   not a value the DXF carries), and the assembled product in the STEP is 49.70 including the rubber feet.
+   **The caliper decided (2026-09-26): 50.00 with the feet on, so 47.30 with them peeled off**, because
+   the feet stick out of the grille face and would land on the seat. That is 0.30 more than the STEP's
+   49.70, and the case's depth followed it to **58.70**. The margin the earlier rounds worried about (what
+   happens if the real part measures 48.80) is therefore spent; the tightest number left in the case is
+   the 0.25 mm between the switch's body and the unit's top edge (`docs/dimensions.md` has the table).

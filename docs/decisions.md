@@ -290,18 +290,20 @@ clearances, all from the model: 1.4 mm to the switch's Ø30 flange (the reason t
 8.9 mm to the cavity's side wall. `fitcheck_joint` proves the whole arrangement by boolean, and
 `-D 'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
 
-## ADR-020: the collar is 1 mm of wall and 5 mm tall
+## ADR-020: the collar is 1.25 mm of wall and 5 mm tall
 
-**Decision:** the ring on the floor that locates the unit's Ø58 body is **cut material as of review 3**,
-not a drawing. The bore stays at Ø58.4 (0.2 mm a side, rule 6's tight fit), the wall is **1.00 mm** and it
-stands **5.00 mm** off the floor, so its outer Ø60.4 overlaps the cavity's wall by 0.2 mm and fuses with
-it.
+**Decision:** the ring on the floor that locates the unit's body is **cut material as of review 3**,
+not a drawing. The bore is **Ø57.9** (the unit plus 0.2 mm a side, rule 6's tight fit), the wall is
+**1.25 mm** and it stands **5.00 mm** off the floor, so its outer Ø60.4 still overlaps the cavity's wall by
+0.2 mm and fuses with it. *Amended 2026-09-26: the bore was Ø58.4 and the wall 1.00 mm against a Ø58 unit.
+The caliper put the unit's body at **Ø57.5** (`docs/dimensions.md`), so the gap around it is 1.25 mm and
+the collar spends the whole of it. Ø60.4 outside is unchanged, so the fusion is too.*
 
-**Why:** none of those numbers are free. The cavity's inner radius is `cav_x = 30.0` and the unit is Ø58,
-so the gap between them is **exactly 1.0 mm** all the way round — and the previous Ø63 collar (2.3 mm of
-wall) had nowhere to go: it would have cut into the wall. The collar spends the millimetre instead. The
-outer 0.2 mm landing inside the wall is deliberate: it is what backs a 1.0 mm ring, which standing free
-would be the thinnest unsupported thing in the case (rule 3 asks for 1.2). The height is what makes the fit
+**Why:** none of those numbers are free. The cavity's inner radius is `cav_x = 30.0` and the unit is Ø57.5
+by caliper, so the gap between them is **1.25 mm** all the way round — and the previous Ø63 collar (2.3 mm
+of wall) had nowhere to go: it would have cut into the wall. The collar spends the gap instead. The outer
+0.2 mm landing inside the wall is deliberate: it is what backs the ring, which standing free would be the
+thinnest unsupported thing in the case (rule 3 asks for 1.2). The height is what makes the fit
 "hold": of the 5.00 mm, 1.80 is the gap behind the unit and 3.20 is skirt over the unit's own body, which
 drops the unit's free cocking from atan(0.4/1.75) = 12.9° to atan(0.4/3.2) = 7.1°. `fitcheck_joint` covers
 it as `-D 'fc="collar"'`: the collar against the unit, empty. It bites `unit_collar()`, not `base()`,
@@ -394,11 +396,13 @@ only 12 mm of water head, and the material there is 4.70 mm thick.
 
 **Accepted, and it is the price of cutting through the bottom:** the wall is 4.70 mm at that x, not 3.00,
 because the slot passes through the collar as well as the shell; the two slots cut a 1.20 mm notch on
-each side of the collar's ring, so the ring is no longer closed, though it still locates the Ø58 unit
+each side of the collar's ring, so the ring is no longer closed, though it still locates the Ø57.5 unit
 and each of its arcs still holds on the 0.20 mm of outer face that fuses into the cavity's wall. The
-slot's centre along the depth (`mic_slot_cy`, 50.00) also decides how deep into the unit's own volume it
+slot's centre along the depth (`mic_slot_cy`, 50.30) also decides how deep into the unit's own volume it
 reaches, and the answer is deliberate: 0.80 mm of it opens straight into the gap behind the unit, whose
-back face is at 53.20, so the microphones keep a path even if the unit ends up tight against the collar.
+back face is at 53.50, so the microphones keep a path even if the unit ends up tight against the collar.
+Those three numbers were 50.00, 53.20 and a Ø58 unit until the caliper of 2026-09-26 moved the depth chain
+by 0.30 mm (`docs/dimensions.md`).
 
 **Amended in the same review — the Ø9 × 1 mm spot face is out, on the user's call.** It was the
 membrane's flat land, carried over from ADR-022 without asking whether the bottom needed one, and it
@@ -430,7 +434,7 @@ zero-thickness sheet there (0.000 mm³, 62.51 mm wide, 0.000 mm deep, measured o
 
 **Why a lap and not a tongue and groove:** a ring standing out of one face into a groove in the other
 needs the groove to have **two** walls -- 1.20 + 1.40 + 1.20 = 3.80 mm, against a 3.40 mm shell -- and the
-wall cannot be thickened inwards at the joint, because at y = 8 the Ø58 unit is 1.00 mm from the cavity
+wall cannot be thickened inwards at the joint, because at y = 8 the Ø57.5 unit is 1.25 mm from the cavity
 (ADR-020) and there is no material to borrow. The half-lap **spends** the wall instead of adding to it and
 leaves both remaining walls above rule 3's 1.20 mm. It also costs **no local step**: the 0.40 mm a side the
 shell grew (3.00 to 3.40, amended below) is uniform over the whole case -- 66.80 x 96.80 everywhere --

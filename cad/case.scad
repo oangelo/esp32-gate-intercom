@@ -45,7 +45,9 @@
 // Convention: millimetres. Variable names are ASCII only (the parser breaks on accents).
 
 // --------------------------------------------------------- measured (docs/dimensions.md)
-board_dia    = 57.63;   // board is ROUND. The vendor DXF says 58.00; caliper TODO item 1
+board_dia    = 57.63;   // board is ROUND. The vendor DXF says 58.00, and the unit's own body calipers
+                        // at 57.50 (2026-09-26), so the board sits a shade under both. Unused by any
+                        // solid: the assembled unit is what goes in now
 board_t      = 1.20;    // PCB thickness, vendor STEP (it is not 1.6)
 board_hole_d = 4.00;    // three mounting holes, with a 4.80 ring (the vendor's M2.5 studs)
 board_hole_r = 23.75;   // radius of the hole pattern from the board centre
@@ -103,36 +105,38 @@ show_m4       = true;   // [true,false]  the two M4 into the wall (a marker: not
 // along ("on the back and low side, facing down where the geometry allows"). The two slots open into
 // the 1.80 mm gap behind the unit, which is the volume the microphones breathe.
 //
-// Height, and why the model uses 47.00: the assembled product measures 49.70 in the vendor STEP,
-// which includes the three rubber feet (2.70) stuck on the grille face. With the unit's grille face
-// forward, those feet would press against the front wall, so they come off and the unit is 47.00.
-// The other sources, for the record: the drawing on the product page says 43.70 + 5.10 = 48.80; the
-// DXF says 44.30 to the bottom of the body and 47.00 to the bottom of the O52 disc; and 37.60 is
-// PCB top to body bottom. docs/dimensions.md says the caliper wins where they disagree, and if the
-// real part is 48.80 rather than 47.00 the case has 1.80 mm less margin than it thinks.
-unit_dia  = 58.00;
-unit_h    = 47.00;      // 49.70 measured, minus the feet; the unit's own grille is its front face
+// Height, and why the model uses 47.30: CALIPER, 2026-09-26, on the real part, and the caliper is
+// what decides wherever the vendor files disagree (docs/dimensions.md): the whole unit with its
+// three rubber feet measures 50.00, the feet are 2.70 stuck on the grille face, and with the unit's
+// grille face forward those feet would press against the front wall -- so they come off and the unit
+// is 47.30. Diameter, same caliper: 57.50, half a millimetre under the O58 the vendor files claim.
+// The vendor sources, for the record: the STEP measures 49.70 assembled (so it reads 0.30 short),
+// the product page says 43.70 + 5.10 = 48.80, the DXF says 44.30 to the bottom of the body and
+// 47.00 to the bottom of the O52 disc, and 37.60 is PCB top to body bottom. Everything below
+// derives from the two calipered numbers, and the whole interior follows them.
+unit_dia  = 57.50;
+unit_h    = 47.30;      // 50.00 calipered with the feet on, minus their 2.70
 unit_face_y = 6.20;     // its grille face: clears the inner crown at the unit's rim by 1.00 mm
 unit_cy   = unit_face_y + unit_h / 2;   // 29.70: unit centre on the depth axis
 unit_cz   = 33.40;      // = z_btm, the centre of the bottom end (33.4): the LOWEST it can sit and still
                         // clear the rounded bottom, and low is what frees the upper half for the panel
                         // button (ADR-018). Was 33.00 at a 3.0 mm wall: the skin grew 0.4 and the whole
-                        // interior came with it, so the 1.00 mm gap around the unit is untouched
+                        // interior came with it, so the 1.25 mm gap around the unit is untouched
 
 case_w  = 66.8;         // the cavity's O60 plus 2 x 3.4 of wall. Was 66.0 at a 3.0 wall: the case grew
                         // 0.8 across so the joint's lip could sit flush with its surface (ADR-024),
                         // which leaves the board 1.19 mm of clearance a side instead of 1.00
 case_h  = 30.0 + case_w;   // 96.8: 30 mm of straight side + the two ends (ADR-015: capsule)
-case_d  = 58.4;         // was 58.0: the back plate is 3.4 thick now, and this holds its inner face at
-                        // 55.00, so every depth behind the unit is unchanged. DECIDED: the assembled
-                        // unit goes in whole, so this is the unit's depth 47.00 (feet peeled off) + the
-                        // front gap at its rim + the back gap, plus the two walls. Was 49 when the plan
-                        // was a bare board and our own chamber
+case_d  = 58.7;         // the unit's depth 47.30 (feet peeled off) + the front gap at its face (6.20)
+                        // + the back gap (1.80) + the plate (3.40) = 58.70, so it follows unit_h one
+                        // for one. Was 58.0, then 58.4 when the shell grew to 3.4. DECIDED: the
+                        // assembled unit goes in whole. Was 49 when the plan was a bare board and our
+                        // own chamber
 wall    = 3.4;          // was 3.0. The extra 0.4 a side is what lets the lap's lip sit FLUSH with the
                         // case's own surface instead of standing 0.40 proud as a ridge on the outside
                         // (the user's call: "fica feio"). It also takes the base's rim at the lap from
-                        // 1.30 to 1.70 mm. The cavity does not move: still O60, 1.00 mm around the
-                        // O58 unit (ADR-020)
+                        // 1.30 to 1.70 mm. The cavity does not move: still O60, 1.25 mm around the
+                        // O57.5 unit (ADR-020)
 wall_front = 3.0;       // the FRONT wall stays 3.0, so the crown's inner surface, the grille field's
                         // depth and the unit's seat keep the geometry they were designed with. At 3.4
                         // the inner crown would recede to 6.50 at the unit's rim and the seat's own
@@ -147,7 +151,7 @@ crown_r = (pow(r_end, 2) + pow(crown_s, 2)) / (2 * crown_s);   // 114.06
 // The joint is `joint_y` (8.0), defined with the lap further down, because that is where its three
 // numbers come from. It used to be 27.5 here, as `split_y`: a flat contact, and neither the lip nor
 // the screws of review 3 would work there.
-inner_d = case_d - wall;               // 55: inner face of the back plate
+inner_d = case_d - wall;               // 55.30: inner face of the back plate
 cav_x   = r_end - wall;                // 30: inner radius; the ends share the outside centres
 cav_y0  = wall_front;                  // 3.0: inner apex of the crown, at the front wall's thickness
 crown_in = crown_r - wall_front;       // 111.06: its radius, so the front wall is 3.0 and not the shell's
@@ -188,7 +192,7 @@ grille_tilt  = 15.0;    // holes tilted so their outer end is lower and water ru
 // come forward any more, so the seat's only job is to be flat and to stop the speaker leaking sideways.
 unit_seat_d   = 53.0;   // seat diameter: the disc's O52 plus a shoulder
 unit_pad_d    = 8.0;
-unit_pad_r    = 23.0;   // clear of the vendor's O1 holes (r <= 8.9) and of the O58 edge
+unit_pad_r    = 23.0;   // clear of the vendor's O1 holes (r <= 8.9) and of the O57.5 edge
 unit_pad_h    = 1.75;   // the gap behind the unit is 1.80: 0.05 mm of relief so the fit check still
                         // proves the unit clears. In the build a 1 mm foam pad goes here, which also
                         // seals the disc against the seat: that seal is what keeps the speaker out of
@@ -205,11 +209,12 @@ btn_land_in = 30.0;     // 76 the inner land tops out at 91 and the cavity's cei
 btn_land_y  = 1.20;     // outer land plane: 1.2 mm into the crown at its apex
 btn_land_in_y = 4.50;   // inner land plane: uniform 3.3 mm of wall between the two
 btn_cz      = 76.4;     // button centre. Constraints, all three: below the cavity's ceiling (93.4) with
-                        // the land; above the unit's top edge at 62.4 and clear of the seat's rim at
+                        // the land; above the unit's top edge at 62.15 and clear of the seat's rim at
                         // 59.9 by 1.5 mm; and the switch's body (O22, 30 deep) has to live between
-                        // them -- it ends up at 61.9, so it clears the unit by 0.5 mm and the ceiling
-                        // by a lot. If the unit measures 48.80 instead of 47.00, this is where the
-                        // margin goes first: the unit's top edge moves to 63.4.
+                        // them -- it ends up at 61.9, so it clears the unit by 0.25 mm and the ceiling
+                        // by a lot. That 0.25 is the tightest margin in the case: the caliper settled
+                        // the unit's height at 47.30 (2026-09-26), and it is this margin that moves
+                        // first if the real part ever measures longer.
 
 // ------------------------------------------------------------------- helpers
 
@@ -349,7 +354,7 @@ module button_lands_cut() {
 // A true tongue and groove -- a ring standing out of one face into a groove in the other -- does not
 // fit this case. The groove needs two walls, 1.2 + 1.4 + 1.2 = 3.8 mm, against the 3.4 mm shell (and the
 // 0.4 that the shell did grow went OUTWARD, on the user's call, to make the lip flush -- see ADR-024), and the
-// wall cannot be thickened inwards at the joint because the Ø58 unit is 1.0 mm from the cavity at that
+// wall cannot be thickened inwards at the joint because the Ø57.5 unit is 1.25 mm from the cavity at that
 // height (ADR-020). The half-lap SPENDS the wall instead of adding to it: 1.5 mm of lip and 1.7 mm of
 // rim, 0.2 mm of radial clearance between them (rule 6's tight fit), both above rule 3's 1.2 mm.
 //
@@ -381,9 +386,9 @@ gasket_y  = joint_y;    // the foam ring's shoulder, now the face at the joint p
 //    nowhere in the ring for a countersink, at any angle;
 //  - so a screw has to go through the lid's shell (3.4 mm thick, a 1.65 mm countersink leaves 1.75)
 //    into material BEHIND it, and that material can only be a boss standing inward from the wall;
-//  - a boss standing inward collides with the unit (O58 in a O60 cavity: a 1 mm annulus) everywhere
+//  - a boss standing inward collides with the unit (O57.5 in a O60 cavity: a 1.25 mm annulus) everywhere
 //    the unit is widest, which is the whole lower half. The unit's circle is what sets it: a boss
-//    needs ~5 mm of width and the room for it only appears at z >= 47 and, cleanly, above z = 62;
+//    needs ~5 mm of width and the room for it only appears at z >= 47 and, cleanly, above z = 62.2;
 //  - the back plate cannot take the joint's screws either: it is mortared against the wall.
 // So six M3 in the upper two thirds, and the bottom of the loop holds on the mortar and the lap.
 screw_m3 = [[27.5, 48], [-27.5, 48], [24, 66], [-24, 66], [13, 88], [-13, 88]];
@@ -418,7 +423,7 @@ pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says
 //   - the rib becomes a round PILLAR standing off the back plate, carrying the brass insert that the
 //     screw bites. No self-tapping into a rib.
 //
-// Where the pair goes: the unit's circle (O58, centre (0, 33)) and the switch's body (O22, centre
+// Where the pair goes: the unit's circle (O57.5, centre (0, 33.4)) and the switch's body (O22, centre
 // (0, 76)) leave a corridor on either side of the centre line. REVIEW 2 put the screw at (17, 68);
 // with a O8.2 boss around it on the lid's inner face the gap to the switch's O30 nut flange drops to
 // 0.09 mm, which is contact. The pair moves to (18, 67): 1.4 mm to that flange, 3.0 mm to the unit's
@@ -450,16 +455,16 @@ m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.
 // Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
 // 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
 //
-// The collar on the floor (the "lábio"): it locates the unit's O58 body -- and as of review 3 it is
+// The collar on the floor (the "lábio"): it locates the unit's O57.5 body -- and as of review 3 it is
 // CUT into the base, not a drawing. Both of its new numbers come from the cavity's own width: the
-// inner radius is cav_x = 30.0 and the unit is O58, so the gap all the way round is EXACTLY 1.0 mm.
-// A 2.3 mm wall (the old O63) had nowhere to go; the collar spends the millimetre instead: 1.0 mm of
-// collar on 0.2 mm of clearance. 58.4 + 2 x 1.0 = 60.4 outside, so its outer 0.2 mm sits INSIDE the
-// cavity's wall and fuses with it. Deliberate, not sloppy: that fusion is what backs a 1.0 mm ring,
-// which on its own would be the thinnest unsupported thing in the case (rule 3 asks for 1.2).
-lip_bore  = 58.4;       // the unit's own O58 plus 0.2 a side: rule 6's "tight fit"
-lip_wall  = 1.00;       // the collar's thickness: the whole of the gap, see above
-lip_od    = lip_bore + 2 * lip_wall;   // 60.4
+// inner radius is cav_x = 30.0 and the unit is O57.5 by the caliper, so the gap all the way round is
+// 1.25 mm. A 2.3 mm wall (the old O63) had nowhere to go; the collar spends the whole gap instead:
+// 1.25 mm of collar on 0.2 mm of clearance. 57.9 + 2 x 1.25 = 60.4 outside, so its outer 0.2 mm still
+// sits INSIDE the cavity's wall and fuses with it. Deliberate, not sloppy: that fusion is what backs
+// the ring, which on its own would be the thinnest unsupported thing in the case (rule 3: 1.2 mm).
+lip_bore  = 57.9;       // the unit's own O57.5 plus 0.2 a side: rule 6's "tight fit"
+lip_wall  = 1.25;       // the collar's thickness: the whole of the gap, see above
+lip_od    = lip_bore + 2 * lip_wall;   // 60.4: unchanged, so it keeps fusing with the cavity's wall
 lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind the unit, 3.20 is skirt
                         // over the unit's own body, and the skirt is the point: with 0.4 mm of total
                         // clearance the unit can cock by atan(0.4/3.2) = 7.1 degrees where 1.75 mm of
@@ -490,7 +495,7 @@ m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inne
 // WHERE: at the microphones' own x (r = 26.83 at 47.2 degrees in the board's frame -- ADR-018's
 // measured numbers), one each side, running along the depth across the collar's band and into the gap
 // behind the unit. Each slot's last 0.80 mm opens straight into that 1.80 mm gap (the slot ends at
-// 54.00, the unit's back face is at 53.20); the rest opens into the 1.00 mm annulus between the unit
+// 54.30, the unit's back face is at 53.50); the rest opens into the 1.25 mm annulus between the unit
 // and the cavity wall, which the collar's own 0.20 mm clearance connects to the same gap. The two slots
 // are 19.2 mm2 of open area against the 6.3 mm2 of the eight Ø1 holes they feed, so the slots are not
 // the restriction in the path (ADR-022's reasoning, unchanged), and both of them cut a 1.20 mm notch
@@ -499,12 +504,12 @@ mic_slot_x   = mic_port_r * cos(mic_port_a[0]);   // 18.23: the microphones' own
 mic_slot_w   = 1.20;    // across the width. 1.20 and not 0.80: below 0.90 the two lines that form the
                         // slot's walls (0.45 each at a 0.4 nozzle) meet in the middle and it prints shut
 mic_slot_l   = 8.00;    // along the depth -- the printer's Z, so it prints as a vertical slit
-mic_slot_top = 13.0;    // how far the cut reaches up: past the collar's bore (10.19 at this x), so the
+mic_slot_top = 13.0;    // how far the cut reaches up: past the collar's bore (10.44 at this x), so the
                         // slot is open through the wall AND the collar, not a pocket in either
-mic_slot_cy  = 50.0;    // the slot's centre along the depth. The collar spans 50 to 55 and the unit's
-                        // back face is at 53.20, so the slot crosses the collar's band (where its 0.20
-                        // mm clearance reaches the same gap) and its back end lands at 54.00, 0.80 mm
-                        // inside the gap behind the unit
+mic_slot_cy  = 50.30;   // the slot's centre along the depth. The collar spans 50.30 to 55.30 and the
+                        // unit's back face is at 53.50, so the slot crosses the collar's band (where
+                        // its 0.20 mm clearance reaches the same gap) and its back end lands at 54.30,
+                        // 0.80 mm inside the gap behind the unit
 // DROPPED (2026-09-26, on review): the Ø9 x 1 mm spot face that ADR-022 had as the membrane's land.
 // Two reasons. It bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66.8
 // cylinder, so a 9 mm patch conforms to that curve (0.31 mm of sag) with nothing to peel its edge --
@@ -675,7 +680,7 @@ module mic_slot_cut() {
     // One prism each, cut up through the wall and through the collar that sits on it. It runs from 1 mm
     // below the bottom surface (so the cut breaks out clean whatever the wall's own thickness is) up to
     // mic_slot_top, which is above the collar's bore at this x: the slot is a through opening, not a
-    // pocket. Along the depth it spans 46.00 to 54.00, 0.80 mm of that inside the gap behind the unit.
+    // pocket. Along the depth it spans 46.30 to 54.30, 0.80 mm of that inside the gap behind the unit.
     // A prism and nothing else: the Ø9 seat that used to sit on it is gone (see the note above the
     // parameters), so this cut mirrors on X by construction, which the seat's rotated cylinder did not.
     mic_points() translate([-mic_slot_w / 2, mic_slot_cy - mic_slot_l / 2, -1])
@@ -781,8 +786,8 @@ module ghost_speaker() {
 
 module ghost_unit() {
     // The assembled Waveshare, one cylinder in two steps: the grille disc (O52) sits 2.90 mm proud of
-    // the body's face, measured in the vendor STEP, and the body below it is the O58. Modelling it as
-    // a plain O58 cylinder overstated the front material by up to 2.9 mm and made the fit check lie.
+    // the body's face, measured in the vendor STEP, and the body below it is the O57.5. Modelling it as
+    // a plain O57.5 cylinder overstated the front material by up to 2.9 mm and made the fit check lie.
     translate([0, unit_face_y + 1.45, unit_cz]) rotate([-90, 0, 0])
         cylinder(d = 52.00, h = 2.90, center = true);
     translate([0, unit_face_y + 2.90 + (unit_h - 2.90) / 2, unit_cz]) rotate([-90, 0, 0])
@@ -830,7 +835,7 @@ module m4_heads() {
 module wall_markers() {
     // The two M4 into the masonry, as screws: a head seated in the 1.5 mm pocket on the plate's inner
     // face and a shank that carries on through the plate and into the wall behind it. The upper one is
-    // above the unit, in free air; the lower one sits behind the unit (inside its O58 footprint, which
+    // above the unit, in free air; the lower one sits behind the unit (inside its O57.5 footprint, which
     // is why the pocket has to be shallow: the gap there is 1.80 mm and the head is 1.50).
     m4_heads();
     color("darkorange", 0.95)
@@ -849,7 +854,7 @@ module review_view() {
     // (measured here the hard way). `show_solid` is the way out of that: the same shell drawn opaque, for
     // looking at the outer form and for checking the markers against a real surface.
     // The unit as the ordinary ghost, NOT a % one: --render only carries one background object, and with
-    // the unit also a % it vanished. Opaque, it still lets the collar's rim read -- O63 against its O58 --
+    // unit also a % it vanished. Opaque, it still lets the collar's rim read -- O60.4 against its O57.5 --
     // as a ring around it, which is what the lap looks like from the front.
     if (show_lid || show_base) {
         if (show_solid) {
