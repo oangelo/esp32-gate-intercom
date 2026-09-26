@@ -17,11 +17,11 @@
 //
 // PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
 // The base prints on its back plate (cavity opening up, pillars vertical, microphone slots and gland
-// vertical) and the lid prints on its face (cavity opening up, the speaker bore vertical instead of a
-// the flat lands that step 2 spot-faces into the front face are what gives
-// the lid its bed contact. The lap costs neither part a support, and with the lip flush there is no
-// sideways step in either part: through its last 3 mm the base's wall goes from 3.40 to 1.70 mm and the
-// lid's from 3.40 to 1.50, so both shapes only lose material as the print rises.
+// vertical) and the lid prints on its face (cavity opening up, so the grille's 49 holes come out as
+// vertical holes instead of a 44 mm ceiling to bridge, and the lands that step 2 spot-faces into the
+// crown give it its bed contact). The lap costs neither part a support, and with the lip flush there is
+// no sideways step in either part: through its last 3 mm the base's wall goes from 3.40 to 1.70 mm and
+// the lid's from 3.40 to 1.50, so both shapes only lose material as the print rises.
 //
 // Usage:
 //   openscad -D 'part="base"'         -o build/case_base.stl  cad/case.scad
