@@ -55,11 +55,11 @@ printed parts clear each other across the lap, and -- with `probe_grille`, `prob
 `make section` and `make inside_render` are the review views. The caliper's pass is in as well (the unit is
 Ø57.5 x 47.30 and the case is 66.80 x 96.80 x **58.70**), and so are the gland's top -- its boss, its hole
 and its locknut's pad -- and the two wall screws' pockets and holes through the back plate (ADR-025,
-ADR-021's amendment, `docs/dimensions.md`). Left: the microphone membranes' seats (which ADR-023 may have
-already answered -- the membranes stick to the bottom's curve, no spot-face) and the mounting ears. Done
-and drawn as of 2026-09-26: the gasket ring -- 1.70 mm wide, 1.00 mm of foam squeezed to 0.70, proved by
-`fitcheck_gasket` and exported by `make gasket` (ADR-024) -- and the vent, a Ø4.00 hole high on the -X side
-with its membrane stuck over it, proved by `probe_vent` (ADR-026).
+ADR-021's amendment, `docs/dimensions.md`). Left: the mounting ears -- the last item. Done and drawn as of
+2026-09-26: the gasket ring -- 1.70 mm wide, 1.00 mm of foam squeezed to 0.70, proved by `fitcheck_gasket`
+and exported by `make gasket` (ADR-024) -- the vent, a Ø4.00 hole high on the -X side with its membrane
+stuck over it, proved by `probe_vent` (ADR-026) -- and the two microphone membranes, drawn as patches on the
+bottom's curve because ADR-023 already answered that they need no seat cut for them.
 
 ## F3 - Firmware and Home Assistant side in the repository
 

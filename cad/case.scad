@@ -9,8 +9,9 @@
 //   1. the gasket itself: the foam ring is drawn now, flat on the 1.70 mm shoulder the lap leaves. No
 //      groove -- at that width a groove would leave 0.35 mm of wall -- and the two screws squeeze the
 //      ring from 1.00 to 0.70, which is what the joint closes by (ADR-024, ADR-017)
-//   2. the microphone membranes' seats, and the mounting ears. The vent is cut as of 2026-09-26, high on
-//      the -X side (ADR-026); the cable gland's top went in with ADR-025
+//   2. the mounting ears, the last item. The vent is cut as of 2026-09-26, high on the -X side (ADR-026);
+//      the cable gland's top went in with ADR-025; and the microphone membranes need NO seat -- they are
+//      drawn as patches on the bottom's curve (mic_membrane_marker()), which is ADR-023's answer
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -111,6 +112,8 @@ show_gasket   = true;   // [true,false]  the joint's foam ring, on the shoulder 
                         //                separate part: neither half carries it)
 show_vent     = true;   // [true,false]  the breathable membrane over the vent hole (a marker: the hole
                         //                through the side wall is cut, the membrane is stuck on)
+show_mic_mem  = true;   // [true,false]  the two hydrophobic membranes over the microphone slots (also
+                        //                markers: nothing is cut for them, ADR-023)
 
 // DECIDED (2026-09-24): the Waveshare goes in ASSEMBLED, as one cylinder -- board, black body with
 // the speaker inside, acrylic band and cover, all screwed together, and its own acoustic chamber and
@@ -530,6 +533,8 @@ m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inne
 // material is 4.7 mm thick. NO SEAT: the membrane is an adhesive-backed patch and the bottom is a Ø66.8
 // cylinder, so a 9 mm patch follows that curve to within 0.31 mm and needs no flat land cut for it. A
 // Ø9 x 1 mm spot face was here and is out (2026-09-26, on review); see the note under the parameters.
+// The patch itself is drawn now, as a marker on the curve rather than a flat tile (mic_membrane_marker(),
+// 5.00 x 12.00 across and along the slot, 0.30 thick): nothing is cut, which is the point of ADR-023.
 //
 // WHERE: at the microphones' own x (r = 26.83 at 47.2 degrees in the board's frame -- ADR-018's
 // measured numbers), one each side, running along the depth across the collar's band and into the gap
@@ -549,6 +554,9 @@ mic_slot_cy  = 50.30;   // the slot's centre along the depth. The collar spans 5
                         // unit's back face is at 53.50, so the slot crosses the collar's band (where
                         // its 0.20 mm clearance reaches the same gap) and its back end lands at 54.30,
                         // 0.80 mm inside the gap behind the unit
+mic_mem_w    = 5.00;    // the stick-on patch over each slot: 2 mm of border all round the 1.20 x 8.00,
+mic_mem_l    = 12.00;   // so its corners are the only part that has to follow the bottom's curve at all
+mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactly like the vent's
 // DROPPED (2026-09-26, on review): the Ø9 x 1 mm spot face that ADR-022 had as the membrane's land.
 // Two reasons. It bought nothing: the membrane is an adhesive-backed patch and the bottom is a Ø66.8
 // cylinder, so a 9 mm patch conforms to that curve (0.31 mm of sag) with nothing to peel its edge --
@@ -828,6 +836,26 @@ module mic_slot_cut() {
     // parameters), so this cut mirrors on X by construction, which the seat's rotated cylinder did not.
     mic_points() translate([-mic_slot_w / 2, mic_slot_cy - mic_slot_l / 2, -1])
         cube([mic_slot_w, mic_slot_l, mic_slot_top + 1]);
+}
+
+module mic_membrane_marker() {
+    // The two stick-on patches, as markers, and the shape of this marker is the whole argument of the
+    // block above: NOTHING is cut and nothing is seated (ADR-023 -- an adhesive-backed membrane follows
+    // the bottom's own curve, so the Ø9 x 1 spot face that used to be here is out). It is drawn as a
+    // 0.30 mm layer of the case's own surface, clipped to the patch's footprint, so what you see is
+    // what the membrane has to conform to and not a flat tile floating on a cylinder.
+    intersection() {
+        difference() {
+            prism_xz(mic_mem_l, mic_slot_cy - mic_mem_l / 2) outline_offset(-mic_mem_t);
+            prism_xz(mic_mem_l, mic_slot_cy - mic_mem_l / 2) outline_outer();
+        }
+        // The clip: the patch's own footprint in x, and in z only down at the bottom -- the capsule's
+        // outline passes BOTH below and above a given x, so without the second bound the marker would
+        // wrap over the case's top as well. 12 is above the bottom's surface there (3.60 to 7.51) and
+        // under anything else.
+        mic_points() translate([-mic_mem_w / 2, mic_slot_cy - mic_mem_l, -1])
+            cube([mic_mem_w, 2 * mic_mem_l, 12]);
+    }
 }
 
 module mic_probe() {
@@ -1149,6 +1177,7 @@ module review_view() {
     if (show_m4)     wall_markers();
     if (show_gland)  gland_marker();
     if (show_vent)   color("deepskyblue", 0.85) vent_marker();
+    if (show_mic_mem) color("dodgerblue", 0.85) mic_membrane_marker();
     if (show_gasket) color("magenta", 0.85) gasket();
 }
 

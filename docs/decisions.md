@@ -386,7 +386,7 @@ off the wall, and the ports moved to the bottom of the case as thin slots.
 
 **Decision:** the two microphone ports are cut through the **bottom** of the base, close behind the unit,
 as **slots of 1.20 × 8.00 mm** instead of holes — one each side at the microphones' own x (±18.23 mm),
-running along the case's depth from y = 46.00 to 54.00, with `mic_slot_top` (13.00) taking each cut past
+running along the case's depth from y = 46.30 to 54.30, with `mic_slot_top` (13.00) taking each cut past
 the collar's bore so it is a through opening in the shell **and** the collar. Nothing else is cut: the
 **Ø9 × 1 mm spot face** that ADR-022 carried as the membrane's land is **out** (see the amendment below),
 and the membrane is stuck straight on the bottom's curve. `probe_mic` proves the path rather than the
@@ -431,6 +431,14 @@ surface's own normal, and `mic_points` mirrors the slot on X without mirroring t
 left seat was cut 67 degrees off its normal and left almost no mark, and the right one was the only one
 that read. The lesson for this file: anything whose cut is a **rotation** needs the mirror inside the
 loop, and the slot's prism needs nothing.
+
+**The patch is drawn (2026-09-26), and nothing about it is cut:** `mic_membrane_marker()` puts the two
+membranes in the review view as a **5.00 × 12.00** patch, 0.30 thick, **0.30 mm layer of the case's own
+surface** rather than a flat tile — so what the drawing shows is the curve the membrane has to conform to
+and not a disc floating over a cylinder. That is the whole content of this item: "the membranes' seats"
+asked for a seat, and ADR-023's answer is that there is none to cut. Measured on the render: y = 44.30 to
+56.30 (its 12.00 along the depth), x from 15.73 to 20.73 each side, z following the bottom's arc from 3.60
+to 7.21, 21.5 mm³ each.
 
 ## ADR-024: the joint is a half-lap - the lid's lip into the base's recess
 
