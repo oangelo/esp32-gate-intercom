@@ -716,3 +716,52 @@ height the hand arithmetic was checked at — and the cure was to grow the added
 **Proved by boolean, not by eye:** `probe_m4` is empty against the base, and the fixing is measured on the
 STL at both heights: the pocket's mouth at the plate's inner face (y = 55.30) is a **Ø8.00** rim, its floor
 at 56.80 shows the **Ø4.50** arriving, and the plate's back face at 58.70 shows the Ø4.50 hole alone.
+
+---
+
+## ADR-028: the unit is cradled by two arcs near the mouth, not by a ring around it
+
+**Decision (2026-09-26, the user's call):** the base carries two arcs that hug the unit's cover, one on each
+side, on the **±X** directions. Each spans **35 degrees** either side of its own axis direction, runs from
+**y = 11.05** (the front quarter of the 50.70 deep base) to **y = 25.55**, and stands **0.25 mm** off the
+cover — the same order as the collar's 0.20 at the back end. With that collar the unit is now located at
+both ends instead of only at its back. They are arcs, not a full ring: the top and the bottom of the bore
+keep their own clearance.
+
+**Why:** the bore is the Ø60 of the inner capsule and the unit's cover is Ø57.50, so 1.25 mm of daylight
+rings it. That is fine while the case is upright with the lid on, and it is the reason the unit stays put
+nowhere: it can slide and rattle against the shell, with the speakers bolted to it, and with the lid off —
+on the bench, or during a service — nothing holds it in the base at all. The three pads on the back plate
+only push it forward, onto the seat in the lid. Two arcs take the daylight down to 0.25 mm where it
+matters, and they cost 1.10 cm³ of filament.
+
+**The print ramp, and why it is the keep-out and not extra geometry:** the base prints bedded on its back
+plate, so the printer's Z is the case's **−Y** and the cradle's *deep* end is printed first. A pad that
+started at full depth would begin life as a horizontal ledge. So the surface that faces the unit is not a
+cylinder but a cylinder plus a cone: the 0.25 mm of clearance over the first 5.00 mm, then a ramp that
+lifts it at **0.84 mm per mm of depth** — 40 degrees, inside the rules' 45. That ramp *is* the subtraction
+that gives the cradle its inner surface, so it costs no geometry of its own. The mouth end is a plain face,
+which is what a layer sitting above an empty volume wants.
+
+**Clearances, and the three traps this feature paid for:**
+- the arcs' inner surface sits at **r = 29.00** (the Ø57.50 cover plus 0.25), so `fitcheck` — the unit's
+  ghost against `base()` and `lid()` — stays empty, and the unit still drops in: the bevel at the mouth
+  opens it to 29.40 over its first 0.40 mm;
+- the cradle must not reach into the joint's band, which the base's recess occupies to y = 11.01
+  (`joint_y - eps + lap_d + 2 eps`). A first cut of this feature ran from y = 9.50, and the recess cut then
+  had coincident faces to work with: CGAL returned the ring **still in place** over the whole 35 degree
+  arc, and `fitcheck_pair` — the base against the lid — reported a sheet at r = 33.40. Moving the mouth
+  face 0.04 mm clear of that band fixed both. Two lessons: coincident faces break a boolean quietly, and a
+  check that returns a sheet is returning something;
+- the subtraction's own band is 0.05 mm proud of the cradle's at both ends, for the same reason, and the
+  arc's inner radius is 0.05 mm outside the keep-out so the surface facing the unit is the keep-out's own
+  cylinder and not the wedge's chord.
+
+**Alternatives rejected:** a **full semicircle** (the user's call: the top and bottom of the bore do not
+need it, and it would stiffen the shell exactly where the vent and the M4 pocket have to live); a ring at
+the mouth only (it would have to be interrupted for the recess and the lip, and interrupted rings locate
+nothing); **felt or foam tape** stuck to the bore (it holds nothing against a sliding unit and dies of
+compression set, the same reason the gasket stopped being foam); and a **third arc at the bottom** of the
+bore (nothing needs it: the unit's weight already rests there, and the two arcs hold it against the
+collar).
+

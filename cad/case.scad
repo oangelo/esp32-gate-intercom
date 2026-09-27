@@ -12,7 +12,9 @@
 //      (ADR-024 and its 2026-09-26 amendment, ADR-017)
 //   2. the list is complete as of 2026-09-26. The cable gland's top went in with ADR-025, the vent is cut
 //      in the middle of the -X side with ADR-026, and the microphone membranes need NO seat (they are drawn
-//      as patches on the bottom's curve -- ADR-023). There are NO mounting ears: what holds the case is the
+//      as patches on the bottom's curve -- ADR-023), and the unit's front end is cradled by two arcs on
+//      the +/-X sides (ADR-028) so it no longer hangs on the collar alone. There are NO mounting ears:
+//      what holds the case is the
 //      two M4 through its back plate, which was already cut with ADR-021 (ADR-027 records the reversal)
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
@@ -224,6 +226,30 @@ unit_pad_h    = 1.75;   // the gap behind the unit is 1.80: 0.05 mm of relief so
                         // seals the disc against the seat: that seal is what keeps the speaker out of
                         // the cavity the microphones breathe.
 
+// ------------------------------------------------------ the unit's cradles (base, near the mouth)
+// ADR-028. The pads above hold the unit axially and the collar locates its back end, but nothing
+// touches its sides: the cavity is a O60 bore and the unit is a O57.50 body, so 1.25 mm of daylight
+// rings it and it can slide, rattle and -- with the lid off -- drop out. Two arcs, one on each side,
+// take that daylight down to a quarter of a millimetre over the 4.6 mm band nearest the mouth. They
+// are arcs and not a full ring (the user's call): the top and bottom of the bore are left alone.
+cradle_a      = 35.0;   // half the arc, measured about the +/-X directions on the unit's axis
+cradle_y0     = 11.05;  // the mouth-side face. NOT nearer the mouth: the joint's band runs to
+                        // y = 11.01 (the base's recess, cut over joint_y +/- eps), and a cradle that
+                        // reached into it left the recess cut with coincident faces to work on and the
+                        // boolean came back with the ring still in place. 0.04 clear of it, and still
+                        // the front quarter of a 50.70 deep base.
+cradle_hug    = 5.00;   // the band that hugs at the design clearance, before the print ramp starts
+cradle_slope  = 0.84;   // rise per mm of depth: 40 degrees, inside the 45 the print rules allow
+cradle_clr    = 0.25;   // radial clearance to the unit's cover (the lap's 0.20, one step up)
+cradle_lead   = 0.40;   // the lead-in bevel at the mouth, so the unit's rim finds a mouth not a step
+cradle_r_in   = unit_dia / 2 + cradle_clr;                  // 29.00: the hugging surface
+cradle_r_out  = cradle_r_in + 15;                           // 44: a bound only, body() clips it
+cradle_y_full = cradle_y0 + cradle_hug;                     // 14.50: where the ramp takes over
+cradle_y_end  = cradle_y_full + 9.5;                        // 24.00: past this the cradle adds nothing
+cradle_ramp_r = cradle_r_in + (cradle_y_end - cradle_y_full) * cradle_slope;   // 36.98: wider than
+                        // the bore's own radius anywhere in the arc (30 / cos 35 = 36.62), which is
+                        // what makes the cradle fade to nothing instead of ending on a ledge
+
 // --------------------------------------------------------- features: button (lid, upper half)
 // A bought 22 mm panel switch (ADR-018) seals against a FLAT land, and the front face is convex:
 // so the cutout gets a spot-faced land outside (for the switch gasket) and another inside (for the
@@ -345,6 +371,63 @@ module unit_pads() {
     for (a = [0:120:240])
         translate([unit_pad_r * cos(a), inner_d - unit_pad_h, unit_cz + unit_pad_r * sin(a)])
             rotate([-90, 0, 0]) cylinder(d = unit_pad_d, h = unit_pad_h + eps);
+}
+
+module unit_cradle_y_slab() {
+    // The cradle's own depth band, and the only place any of it is allowed to live: without this the
+    // subtraction below would eat into the base's front wall on its way to the bore.
+    prism_xz(cradle_y_end - cradle_y0, cradle_y0) square([200, 200], center = true);
+}
+
+module unit_cradle_keepout_slab() {
+    // The keep-out's own band: 0.05 proud of the cradle's at both ends. The two bands must NOT be
+    // coplanar -- exactly coincident faces are how CGAL hands back a zero-thickness sheet instead of a
+    // clean subtraction, and here that showed up as the arc's own corners surviving at r = 28.5.
+    prism_xz(cradle_y_end - cradle_y0 + 0.1, cradle_y0 - 0.05) square([200, 200], center = true);
+}
+
+module unit_cradle_keepout() {
+    // What the cradle must NOT occupy: the unit's cover plus `cradle_clr`, and then the print ramp,
+    // which is the same surface lifting away as the depth grows. Subtracting it from the case's own
+    // solid means the cradle cannot poke out of the shell, and the ramp costs no extra geometry: the
+    // steepest face it leaves is `cradle_slope`, 40 degrees, under the 45 the rules allow.
+    intersection() {
+        union() {
+            // the lead-in: 0.40 wider over its own length, so the bevel is 45 degrees at the mouth
+            translate([0, cradle_y0 - 1, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r = cradle_r_in + cradle_lead, h = 1 + cradle_lead + eps, $fn = 128);
+            // the hug itself: the unit's cover plus the clearance, flat along the arc
+            translate([0, cradle_y0 + cradle_lead, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r = cradle_r_in, h = cradle_hug - cradle_lead + eps, $fn = 128);
+            // the ramp: same axis, from the clearance out to `cradle_ramp_r` at the deep end
+            translate([0, cradle_y_full, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r1 = cradle_r_in, r2 = cradle_ramp_r,
+                         h = cradle_y_end - cradle_y_full + 0.5, $fn = 128);
+        }
+        unit_cradle_keepout_slab();
+    }
+}
+
+module unit_cradle() {
+    // One side. Three clips in a row: the case's own solid (so nothing can stand proud of the shell),
+    // minus the unit's room and its ramp, then the arc, then the depth band. The arc's inner radius
+    // sits 0.05 clear of the keep-out, so the surface that actually faces the unit is the keep-out's
+    // own cylinder and not the wedge's chord.
+    intersection() {
+        difference() {
+            body();
+            unit_cradle_keepout();
+        }
+        sector_xz(cradle_r_in + 0.05, cradle_r_out, -cradle_a, cradle_a, unit_cz, -10, case_d + 20, 32);
+        unit_cradle_y_slab();
+    }
+}
+
+module unit_cradles() {
+    // Both sides. They are mirrors of each other about X, and they are the only thing that touches the
+    // unit sideways: `fitcheck` proves the 0.25 mm of clearance round the whole cover.
+    unit_cradle();
+    mirror([1, 0, 0]) unit_cradle();
 }
 
 // ---------------------------------------------------------- button land and cutout (lid)
@@ -1103,6 +1186,7 @@ module base() {
             }
             m3_pillars();
             unit_collar();
+            unit_cradles();
             gland_boss();
             gland_nut_pad();
         }

@@ -219,6 +219,11 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   it lands there, clearing the lip by the lap's 0.20 mm. The 0.70 is also the joint's **closed** gap: with
   the ring squeezed, the lid ends up 0.70 mm forward of the printed plane and the lip reaches 2.30 mm into
   the recess instead of 3.00 (ADR-024).
+- The unit is located at **both ends** now: the collar at the back (0.20 mm of clearance, y = 50.30 to
+  55.30) and **two arcs** at the front (ADR-028) — ±35° about the ±X directions, inner surface at
+  **r = 29.00** (the Ø57.50 cover plus 0.25), from **y = 11.05 to 25.55**, with the print ramp lifting the
+  clearance at 40° past y = 16.05 and a 0.40 mm lead-in bevel at the mouth. Before them the bore's 1.25 mm
+  of daylight let the unit slide and rattle, and let it drop out of the base with the lid off.
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share

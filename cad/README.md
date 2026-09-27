@@ -6,7 +6,8 @@ through their walls:
 - **base** - the back tray: **closed on the wall face**, which is the one face that carries nothing
   because it beds flat on the post, and opened through its **bottom**, where the two microphone slots
   are cut (ADR-023). It carries the three pads that push the unit forward onto the seat, the two M3
-  pillars, the collar, the gland's boss and the pad its locknut bears on, and — through its own back
+  pillars, the collar, the **two unit cradles** (ADR-028), the gland's boss and the pad its locknut bears
+  on, and — through its own back
   plate — the two M4 pockets and holes that ARE the fixing (ADR-021, ADR-027: no ears on the sides).
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
   unit's disc presses on, and the flat land and O22 cutout for the panel button.
@@ -61,6 +62,13 @@ The collar that locates the unit is cut too, and it is where the case's own widt
 Ø60 inside and the unit calipers at Ø57.5, so the ring has **1.25 mm** to spend. It spends it — 1.25 mm of
 wall on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall (ADR-020).
 `-D 'fc="collar"'` isolates that check.
+
+The unit's **front** end is located now as well (ADR-028): two arcs of ±35° about the ±X directions, inner
+surface at r = 29.00, from y = 11.05 to 25.55, with a 40° print ramp lifting the clearance past y = 16.05.
+They take the bore's 1.25 mm of daylight down to 0.25 mm over the band nearest the mouth, which is what
+stops the unit sliding, rattling, and dropping out of the base when the lid comes off. `fitcheck` proves
+the clearance, and the arcs are why it stays empty: the surface that faces the cover is the cradle's own
+keep-out cylinder, 0.05 mm inside the sector's chord.
 
 The two wall screws sit on the centre line at the quarter points of the height, z = 24.2 and z = 72.6
 (ADR-021), so the pair is symmetric about the case's own centre and the hanging weight arrives at them as
