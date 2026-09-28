@@ -105,7 +105,7 @@ clean:
 	rm -rf $(BUILD)
 
 ## The review view (which is also the file's own default): the two screws, their pillars, the brass
-## inserts and the unit's collar, whole, with the shell in as a background object. Three angles,
+## inserts and the unit's cradles, whole, with the shell in as a background object. Three angles,
 ## because one angle always hides one of the two screws.  --render: see inside_render.
 review: display
 	@mkdir -p cad/media

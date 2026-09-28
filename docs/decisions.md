@@ -304,6 +304,11 @@ clearances, all from the model: 1.4 mm to the switch's Ø30 flange (the reason t
 
 ## ADR-020: the collar is 1.25 mm of wall and 5 mm tall
 
+**SUPERSEDED by ADR-029 (2026-09-28): the collar is out.** On the first print of the base the ring's bore was
+too tight to take the unit at all — 0.20 mm a side, and a closed 360 degree hoop has nothing to give — and the
+back end of the unit is located by a second band of arcs now. What follows is the record of how the ring was
+dimensioned and why; none of it survives in the model.
+
 **Decision:** the ring on the floor that locates the unit's body is **cut material as of review 3**,
 not a drawing. The bore is **Ø57.9** (the unit plus 0.2 mm a side, rule 6's tight fit), the wall is
 **1.25 mm** and it stands **5.00 mm** off the floor, so its outer Ø60.4 still overlaps the cavity's wall by
@@ -426,6 +431,12 @@ reaches, and the answer is deliberate: 0.80 mm of it opens straight into the gap
 back face is at 53.50, so the microphones keep a path even if the unit ends up tight against the collar.
 Those three numbers were 50.00, 53.20 and a Ø58 unit until the caliper of 2026-09-26 moved the depth chain
 by 0.30 mm (`docs/dimensions.md`).
+
+*The collar is out as of 2026-09-28 (ADR-029), so the price named above is gone with it: the slot is a plain
+prism through the wall now, and the annulus around the unit reaches the gap behind it outright instead of
+through the collar's 0.20 mm clearance. `mic_slot_top` (13.0) and `mic_slot_cy` (50.30) are unchanged — the
+first still clears the cavity's own surface at that x, the second is what puts the slot's last 0.80 mm in the
+gap — and `probe_mic` still proves both open.*
 
 **Amended in the same review — the Ø9 × 1 mm spot face is out, on the user's call.** It was the
 membrane's flat land, carried over from ADR-022 without asking whether the bottom needed one, and it
@@ -764,4 +775,91 @@ nothing); **felt or foam tape** stuck to the bore (it holds nothing against a sl
 compression set, the same reason the gasket stopped being foam); and a **third arc at the bottom** of the
 bore (nothing needs it: the unit's weight already rests there, and the two arcs hold it against the
 collar).
+
+**Amended by ADR-029 (2026-09-28):** the collar this record leans on at the back end — *"with that collar the
+unit is now located at both ends instead of only at its back"* — is out, and a second band of the same arcs, the
+same numbers mirrored in the depth, took its place. The front band itself is untouched: the refactor that folded
+both bands into one module (`unit_cradle_band`) measured it back at **r = 29.000 from y = 11.46 to 16.05** on the
+exported mesh, which is this record's own number.
+
+## ADR-029: the collar is out — the unit's back end is cradled by arcs too
+
+**Decision (2026-09-28, on the first print of the base; the user's call):** the ring on the floor that located
+the unit's back end (ADR-020's collar: **Ø60.40** outside, bore **Ø57.90**, **5.00 mm** tall) is **removed**.
+What holds that end now is a **second band of arcs** — the front band's own geometry (ADR-028), **translated** to the
+other end of the unit: ±**35 degrees** about the ±X directions, inner surface at **r = 29.00** (0.25 mm off the unit's cover),
+hugging the unit's **last 5.00 mm** from **y = 48.30 to 53.30**, with its ramp on the **deep** side of that hug —
+climbing away from the mouth and **landing on the cavity's floor at y = 55.30**. The unit is located at both ends, by
+four arcs and nothing else.
+
+**Why:** the print decided it. The collar's bore was 0.20 mm a side (rule 6's "tight fit") **and a closed 360
+degree ring**: it has nowhere to flex, and 0.20 mm is inside what a printed bore holds in practice — the unit
+would not enter the printed base at all. The two front arcs of ADR-028 stand 0.25 mm off and are **arcs**, stiff
+wedges anchored to the wall at their ends rather than a hoop, and on that same print they took the unit and held
+it. So the feature that worked is repeated where the one that failed was, at the clearance the print proved.
+
+**The profile is the front band's, TRANSLATED along the depth — and the review caught the difference.** The first
+cut of this band was that profile **mirrored**: the ramp pointing back toward the mouth, the hug at the deep end. It
+was wrong, and the mistake is worth recording, because the geometry looks fine in a render and every boolean was
+happy with it. The base prints bedded on **its back plate**, so the case's deep end is the **first layer printed** —
+ADR-028 has that the right way round, *"the cradle's deep end is printed first"* — and a hug at the deep end
+therefore begins life as a **ledge hanging over the void**. At the ±X directions that ledge is the 1.00 mm between
+the hug's surface (r = 29.00) and the bore's wall (30.00); at the arc's edges it is over **6.00 mm**, because the
+cavity's wall is a **plane** at ±30.00 and the plane is further from the unit's axis the further the arc turns from
+±X (36.62 at 35 degrees). That is precisely the ledge ADR-028's ramp exists to avoid — put on the wrong end of the
+band.
+
+Translated, the band does what the front one does: the material **starts thin, or it lands on something**, and here
+it does both — the ramp rises from the hug as the depth grows, and the band's own slab ends on the **cavity's floor**
+(the plate's inner face, 55.30), so the first layer of the feature is material resting on the plate. The unit's back
+end still meets a **0.40 mm lead-in bevel** at y = 48.30, the same one the front band carries at its mouth.
+
+**What it deliberately does not touch:** the unit's **axial** location (the three pads still push it forward onto
+the seat in the lid, `unit_pad_h` and the 1.80 mm gap are unchanged); the **microphone slots** (same prisms —
+they used to cut a 1.20 mm notch in the collar, now they cross the wall alone); and the **vent**: the band begins at
+48.30, **17 mm clear** of the vent's mouth on the -X side (y = 27.35 to 31.35). The mirrored first cut made that
+clearance a live question rather than a formality, and `probe_vent` is what answers it — its rod reaches 1.60 mm
+into the cavity at the vent's own angle and depth, so a band that came that far would meet it and the check would
+not come back empty.
+
+**Alternatives rejected:** a **looser collar** (0.35 or 0.40 mm a side) — it keeps the hoop's failure mode, and
+it is a second print to find out, where the arcs cost the same filament and can be measured off the mesh;
+keeping the collar **short, behind the unit only** — the skirt is the whole reason the ring existed (0.20 mm of
+clearance over 3.20 mm of body holds the unit's cocking at 7.1 degrees where 1.75 mm lets it cock by 12.9), and
+a short ring locates nothing; and a **third and fourth band** at the top and bottom of the bore — not asked for,
+and every band costs the print a face.
+
+**Traps this one paid for, and one of them is ADR-028's ledger again:**
+- **the ramp goes on the deep side.** The mirrored band passed every boolean the file has — `fitcheck` and
+  `fitcheck_joint` were both empty with it — and only the print orientation says otherwise. Any band of this
+  feature has to be read with the bed at the **back plate**;
+- the keep-out must run **past** the material's own face at the band's ends. The mirrored version's hug stopped
+  exactly at 53.30, where the cradle's own slab ends, and the two faces came out coincident: `fitcheck` and
+  `fitcheck_joint` both returned a zero-thickness **sheet at y = 53.300** spanning the arc (x ±28.75, z 17.27 to
+  49.53) — CGAL's way of saying "these two touch". The translated band has no such face (its ramp is cut off by the
+  floor), and every one of its other ends keeps the 0.50 mm of overshoot the front band carries;
+- the subtraction's band stays **0.05 mm proud** of the cradle's at both ends, exactly as the front band has it.
+
+**Proved by boolean, not by eye:** `make fit` is **twelve empty booleans** again, `fitcheck` (the unit's ghost
+against both printed parts) among them — that one *is* the 0.25 mm — and `fitcheck_joint`'s third question is
+asked of the four arcs now (`fc = "cradles"`, where it was `fc = "collar"`): the arcs against the unit and the M4
+heads.
+
+**Measured on the mesh**, which needed a new export: the arcs alone are `part = "cradles"` (nothing else in the
+file is the arcs without the shell's own wall over the same bands), and with it a ray cast along +X at the unit's
+own height (z = 33.400), from the axis outward, settles both bands:
+- **front band, unchanged by the refactor:** r = **29.000 from y = 11.46 to 16.05**, then 29.359 at 16.50 and
+  29.758 at 17.00 — ADR-028's own numbers to the hundredth;
+- **back band:** **nothing before y = 48.30**; the lead-in bevel reads **29.400** at 48.50 (0.40 mm of it, the same
+  bevel the front band has at its mouth); **r = 29.000 from 48.75 to 53.25** — the unit's last 5 mm, and the surface
+  the unit will bear on; then the ramp: **29.160 at 53.50, 29.758 at 54.25, 30.556 at 55.25, and nothing at 55.50**;
+- the ramp rises **1.40 mm over those 1.75 mm — 0.798 per mm, 38.6 degrees**, the same slope the front band cuts: the
+  cone carries 0.50 mm of overshoot past its own band, so what it cuts is a hair under `cradle_slope`'s 40 degrees
+  (the parameter now says so and quotes this measurement). Inside the rules either way — and here it **lands on the
+  cavity's floor**, which is the point of the translation: the feature's own deepest material is on the plate.
+
+**What it costs:** the base goes **66207.93 to 66109.60 mm³**. The back band **adds 952.19 mm³** and the collar took
+**1050.52 mm³** away with it, so the net is **−98.33 mm³** — a tenth of a cubic centimetre *less* filament than
+before, for a band that locates the unit. Both numbers are measured, by rebuilding the base with the back band
+commented out (`65157.41 mm³`: no collar, front band only). The lid is not touched at all.
 

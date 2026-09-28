@@ -12,10 +12,11 @@
 //      (ADR-024 and its 2026-09-26 amendment, ADR-017)
 //   2. the list is complete as of 2026-09-26. The cable gland's top went in with ADR-025, the vent is cut
 //      in the middle of the -X side with ADR-026, and the microphone membranes need NO seat (they are drawn
-//      as patches on the bottom's curve -- ADR-023), and the unit's front end is cradled by two arcs on
-//      the +/-X sides (ADR-028) so it no longer hangs on the collar alone. There are NO mounting ears:
-//      what holds the case is the
-//      two M4 through its back plate, which was already cut with ADR-021 (ADR-027 records the reversal)
+//      as patches on the bottom's curve -- ADR-023). The unit is cradled by two bands of arcs on the
+//      +/-X sides, one at each end of it (ADR-028, ADR-029): the collar that used to hold its back end
+//      is GONE, because on the printed base it was too tight to take the unit at all. There are NO
+//      mounting ears: what holds the case is the two M4 through its back plate, which was already cut
+//      with ADR-021 (ADR-027 records the reversal)
 // Every number below is measured or derived; the source of each is docs/dimensions.md.
 //
 // Frame: X = width, Y = depth (0 at the apex of the front face, CASE_D at the back plate),
@@ -44,6 +45,7 @@
 //   openscad -D 'part="inside_parts"' ...                                     # rejected layout
 //   openscad -D 'part="section"'      ...                                     # cutaway, review
 //   openscad -D 'part="exploded"'     ...                                     # the two parts apart
+//   openscad -D 'part="cradles"'      -o build/cradles.stl cad/case.scad       # the four arcs alone, to measure
 //   openscad -D 'part="fitcheck"'     ...                                     # must be EMPTY
 //   openscad -D 'part="fitcheck_pair"' ...                                    # must be EMPTY
 //   openscad -D 'part="probe_grille"' ...                                     # must be EMPTY
@@ -79,7 +81,7 @@ spk_d        = 20.50;   // which document the hollowing-out option that was reje
 
 // --------------------------------------------------------- case parameters
 part    = "review";     // the one selector: review | inside | assembly | inside_parts | base | lid |
-                        // gasket | section | exploded | screwplan | fitcheck | fitcheck_parts |
+                        // gasket | section | exploded | cradles | screwplan | fitcheck | fitcheck_parts |
                         // fitcheck_internal | fitcheck_joint | fitcheck_pair | fitcheck_gasket |
                         // probe_grille | probe_button | probe_mic | probe_gland | probe_m4 |
                         // probe_vent
@@ -106,8 +108,8 @@ show_base     = true;   // [true,false]  the back tray, with the bosses and the 
 show_solid    = false;  // [true,false]  the shell solid and opaque, instead of a % (background) object
 show_unit     = true;   // [true,false]  the assembled Waveshare, as a ghost
 show_screws   = true;   // [true,false]  the two M3, their pillars and the brass inserts
-show_collar   = true;   // [true,false]  the unit's collar (now cut into the base; drawn green so it
-                        //                reads under the shell)
+show_cradles  = true;   // [true,false]  the arcs that cradle the unit, at both ends of it (cut material,
+                        //                drawn green so it reads under the shell)
 show_m4       = true;   // [true,false]  the two M4 into the wall, as markers: the pockets and holes they
                         //                sit in are cut in the base (m4_pockets())
 show_gland    = true;   // [true,false]  the PG7 gland on the top's boss, with its cable (a marker: the
@@ -226,29 +228,62 @@ unit_pad_h    = 1.75;   // the gap behind the unit is 1.80: 0.05 mm of relief so
                         // seals the disc against the seat: that seal is what keeps the speaker out of
                         // the cavity the microphones breathe.
 
-// ------------------------------------------------------ the unit's cradles (base, near the mouth)
-// ADR-028. The pads above hold the unit axially and the collar locates its back end, but nothing
-// touches its sides: the cavity is a O60 bore and the unit is a O57.50 body, so 1.25 mm of daylight
-// rings it and it can slide, rattle and -- with the lid off -- drop out. Two arcs, one on each side,
-// take that daylight down to a quarter of a millimetre over the 4.6 mm band nearest the mouth. They
-// are arcs and not a full ring (the user's call): the top and bottom of the bore are left alone.
+// --------------------------------------------------- the unit's cradles (base, at both ends of it)
+// ADR-028 / ADR-029. The pads above hold the unit axially, but nothing touches its sides: the cavity is
+// a O60 bore and the unit is a O57.50 body, so 1.25 mm of daylight rings it and it can slide, rattle
+// and -- with the lid off -- drop out. Two BANDS of arcs do the locating, one at each end of the unit:
+// 35 degrees either side of the +/-X directions, hugging at a quarter of a millimetre. The ring that
+// used to hold the back end (the collar, ADR-020) is OUT: its bore was O57.90 against the unit's
+// O57.50 -- 0.20 mm a side, a closed 360 degree ring with nothing to give -- and the printed part was
+// too tight to take the unit at all (2026-09-28, the user's call). They are arcs and not a full ring
+// either (also the user's call): the top and bottom of the bore are left alone.
 cradle_a      = 35.0;   // half the arc, measured about the +/-X directions on the unit's axis
+cradle_hug    = 5.00;   // the band that hugs at the design clearance, at each end of the unit
+cradle_slope  = 0.84;   // rise per mm of depth: 40 degrees, inside the 45 the print rules allow. The cone
+                        // that cuts it runs 0.50 mm past each band's end (that overshoot is what keeps
+                        // the subtraction off the material's own face), so the slope it ACTUALLY cuts
+                        // is 0.798 per mm -- 38.6 degrees. Measured on the mesh (part = "cradles"):
+                        // 29.359 at y = 16.50 and 29.758 at 17.00, 0.40 per half millimetre
+cradle_clr    = 0.25;   // radial clearance to the unit's cover (the collar's 0.20, one step up -- and
+                        // the clearance the print has now proved: the front band took the unit and holds
+                        // it, so the bands that came after it use the same number)
+cradle_lead   = 0.40;   // the lead-in bevel at each band's mouth -- the front band's faces the unit's
+                        // rim, the back band's faces its back end -- so what the unit finds is a mouth
+                        // and not a step
+cradle_r_in   = unit_dia / 2 + cradle_clr;                  // 29.00: the hugging surface
+cradle_r_out  = cradle_r_in + 15;                           // 44: a bound only, body() clips it
+cradle_ramp_r = cradle_r_in + 9.5 * cradle_slope;           // 36.98: wider than the bore's own radius
+                        // anywhere in the arc (30 / cos 35 = 36.62), which is what makes a ramp fade to
+                        // nothing instead of ending on the ledge a printer would have to bridge
+// The FRONT band (ADR-028), the one the print proved: its face at the mouth, its ramp leaning away from
+// the mouth as the depth grows, and a bevel at that face.
 cradle_y0     = 11.05;  // the mouth-side face. NOT nearer the mouth: the joint's band runs to
                         // y = 11.01 (the base's recess, cut over joint_y +/- eps), and a cradle that
                         // reached into it left the recess cut with coincident faces to work on and the
                         // boolean came back with the ring still in place. 0.04 clear of it, and still
                         // the front quarter of a 50.70 deep base.
-cradle_hug    = 5.00;   // the band that hugs at the design clearance, before the print ramp starts
-cradle_slope  = 0.84;   // rise per mm of depth: 40 degrees, inside the 45 the print rules allow
-cradle_clr    = 0.25;   // radial clearance to the unit's cover (the lap's 0.20, one step up)
-cradle_lead   = 0.40;   // the lead-in bevel at the mouth, so the unit's rim finds a mouth not a step
-cradle_r_in   = unit_dia / 2 + cradle_clr;                  // 29.00: the hugging surface
-cradle_r_out  = cradle_r_in + 15;                           // 44: a bound only, body() clips it
-cradle_y_full = cradle_y0 + cradle_hug;                     // 14.50: where the ramp takes over
-cradle_y_end  = cradle_y_full + 9.5;                        // 24.00: past this the cradle adds nothing
-cradle_ramp_r = cradle_r_in + (cradle_y_end - cradle_y_full) * cradle_slope;   // 36.98: wider than
-                        // the bore's own radius anywhere in the arc (30 / cos 35 = 36.62), which is
-                        // what makes the cradle fade to nothing instead of ending on a ledge
+cradle_y_full = cradle_y0 + cradle_hug;                     // 16.05: where the ramp takes over
+cradle_y_end  = cradle_y_full + 9.5;                        // 25.55: past this the front band adds
+                        // nothing
+// The BACK band (ADR-029), the collar's replacement: the front band's own profile, TRANSLATED to the
+// other end of the unit -- not mirrored, and the difference is the print's. The base prints bedded on
+// its back plate, so the deep end of the case is the FIRST layer printed (ADR-028 has this the right way
+// round: "the cradle's deep end is printed first"). A band whose hug sat at its deep end would begin life
+// as a ledge hanging over the void -- 1.00 mm of it at the +/-X directions, and over 6.00 mm at the arc's
+// edges, where the cavity's wall is further from the unit's axis -- which is exactly what ADR-028's ramp
+// exists to avoid. A first cut here was that mirror (2026-09-28) and the review caught it on sight.
+// Translated, the ramp climbs away from the mouth into the deep end and the band lands on the cavity's
+// floor, so its own deepest layer is the plate's surface: nothing hangs, and the unit's back end still
+// finds a lead-in bevel exactly like the front band's.
+rear_y0       = 48.30;  // its mouth-side face, and the first thing the unit's back end meets: 5.20 mm
+                        // short of the unit's own back face (53.50), so the 5.00 mm of hug behind it
+                        // sits on the unit's last 5 mm -- the skirt the collar gave (3.20) and more
+rear_y_full   = rear_y0 + cradle_hug;               // 53.30: where the hug ends and the ramp starts
+rear_y_end    = inner_d;                            // 55.30: the cavity's floor. The ramp runs into it
+                        // and is cut off there -- 2.00 mm of rise, r = 29.00 to 30.60 at the +/-X
+                        // directions, where it fades out entirely at 54.55 -- so the band's deepest
+                        // material is the plate's own face. It is also 17 mm clear of the vent's mouth
+                        // on the -X side (y = 29.35 +/- 2.00), which `probe_vent` keeps honest anyway
 
 // --------------------------------------------------------- features: button (lid, upper half)
 // A bought 22 mm panel switch (ADR-018) seals against a FLAT land, and the front face is convex:
@@ -373,24 +408,24 @@ module unit_pads() {
             rotate([-90, 0, 0]) cylinder(d = unit_pad_d, h = unit_pad_h + eps);
 }
 
-module unit_cradle_y_slab() {
-    // The cradle's own depth band, and the only place any of it is allowed to live: without this the
+module unit_cradle_y_slab(y0, y1) {
+    // A band's own depth band, and the only place any of it is allowed to live: without this the
     // subtraction below would eat into the base's front wall on its way to the bore.
-    prism_xz(cradle_y_end - cradle_y0, cradle_y0) square([200, 200], center = true);
+    prism_xz(y1 - y0, y0) square([200, 200], center = true);
 }
 
-module unit_cradle_keepout_slab() {
+module unit_cradle_keepout_slab(y0, y1) {
     // The keep-out's own band: 0.05 proud of the cradle's at both ends. The two bands must NOT be
     // coplanar -- exactly coincident faces are how CGAL hands back a zero-thickness sheet instead of a
     // clean subtraction, and here that showed up as the arc's own corners surviving at r = 28.5.
-    prism_xz(cradle_y_end - cradle_y0 + 0.1, cradle_y0 - 0.05) square([200, 200], center = true);
+    prism_xz(y1 - y0 + 0.1, y0 - 0.05) square([200, 200], center = true);
 }
 
-module unit_cradle_keepout() {
-    // What the cradle must NOT occupy: the unit's cover plus `cradle_clr`, and then the print ramp,
-    // which is the same surface lifting away as the depth grows. Subtracting it from the case's own
-    // solid means the cradle cannot poke out of the shell, and the ramp costs no extra geometry: the
-    // steepest face it leaves is `cradle_slope`, 40 degrees, under the 45 the rules allow.
+module unit_cradle_keepout_front() {
+    // What the front cradle must NOT occupy: the unit's cover plus `cradle_clr`, and then the print
+    // ramp, which is the same surface lifting away as the depth grows. Subtracting it from the case's
+    // own solid means the cradle cannot poke out of the shell, and the ramp costs no extra geometry:
+    // the steepest face it leaves is `cradle_slope`, 40 degrees, under the 45 the rules allow.
     intersection() {
         union() {
             // the lead-in: 0.40 wider over its own length, so the bevel is 45 degrees at the mouth
@@ -404,30 +439,60 @@ module unit_cradle_keepout() {
                 cylinder(r1 = cradle_r_in, r2 = cradle_ramp_r,
                          h = cradle_y_end - cradle_y_full + 0.5, $fn = 128);
         }
-        unit_cradle_keepout_slab();
+        unit_cradle_keepout_slab(cradle_y0, cradle_y_end);
     }
 }
 
-module unit_cradle() {
-    // One side. Three clips in a row: the case's own solid (so nothing can stand proud of the shell),
-    // minus the unit's room and its ramp, then the arc, then the depth band. The arc's inner radius
-    // sits 0.05 clear of the keep-out, so the surface that actually faces the unit is the keep-out's
-    // own cylinder and not the wedge's chord.
+module unit_cradle_keepout_rear() {
+    // The back band's keep-out: the front one's three pieces, translated to the other end of the unit.
+    // Everything that faces the unit is built the same way -- the lead-in bevel at the mouth, the hug at
+    // the clearance, the ramp behind them -- and only the depth band moves, which is what leaves the
+    // band's lowest layer sitting on the cavity's floor instead of hanging over the void.
+    intersection() {
+        union() {
+            // the lead-in: 0.40 wider over its own length, so the bevel is 45 degrees at the mouth
+            translate([0, rear_y0 - 1, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r = cradle_r_in + cradle_lead, h = 1 + cradle_lead + eps, $fn = 128);
+            // the hug itself: the unit's cover plus the clearance, flat along the arc. It runs 0.50 past
+            // `rear_y_full`, where the ramp takes over, so the two pieces never meet on a coplanar face
+            translate([0, rear_y0 + cradle_lead, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r = cradle_r_in, h = cradle_hug - cradle_lead + 0.5, $fn = 128);
+            // the ramp: same axis, from the clearance out to `cradle_ramp_r`, running past the floor.
+            // The band's own slab cuts it off at the floor, so what the print sees is 2.00 mm of rise
+            translate([0, rear_y_full, unit_cz]) rotate([-90, 0, 0])
+                cylinder(r1 = cradle_r_in, r2 = cradle_ramp_r,
+                         h = 9.5 + 0.5, $fn = 128);
+        }
+        unit_cradle_keepout_slab(rear_y0, rear_y_end + eps);
+    }
+}
+
+module unit_cradle_band(y0, y1) {
+    // One side of one band. Three clips in a row: the case's own solid (so nothing can stand proud of
+    // the shell), minus the unit's room and the band's own ramp -- that is `children(0)`, the band's
+    // keep-out -- then the arc, then the depth band. The arc's inner radius sits 0.05 clear of the
+    // keep-out, so the surface that actually faces the unit is the keep-out's own cylinder and not the
+    // wedge's chord.
     intersection() {
         difference() {
             body();
-            unit_cradle_keepout();
+            children(0);
         }
         sector_xz(cradle_r_in + 0.05, cradle_r_out, -cradle_a, cradle_a, unit_cz, -10, case_d + 20, 32);
-        unit_cradle_y_slab();
+        unit_cradle_y_slab(y0, y1);
     }
 }
 
 module unit_cradles() {
-    // Both sides. They are mirrors of each other about X, and they are the only thing that touches the
-    // unit sideways: `fitcheck` proves the 0.25 mm of clearance round the whole cover.
-    unit_cradle();
-    mirror([1, 0, 0]) unit_cradle();
+    // Four arcs: both sides, at both ends of the unit. The pair about X is a mirror, the back pair is the
+    // front pair TRANSLATED along the depth (not mirrored: see the band's parameters -- the print decides
+    // which way round it goes), and together they are the only thing that touches the unit sideways:
+    // `fitcheck` proves the 0.25 mm of clearance round the whole cover, and `fitcheck_joint` with
+    // `fc = "cradles"` bites the four arcs on their own.
+    unit_cradle_band(cradle_y0, cradle_y_end) unit_cradle_keepout_front();
+    mirror([1, 0, 0]) unit_cradle_band(cradle_y0, cradle_y_end) unit_cradle_keepout_front();
+    unit_cradle_band(rear_y0, rear_y_end + eps) unit_cradle_keepout_rear();
+    mirror([1, 0, 0]) unit_cradle_band(rear_y0, rear_y_end + eps) unit_cradle_keepout_rear();
 }
 
 // ---------------------------------------------------------- button land and cutout (lid)
@@ -540,8 +605,9 @@ screw_m3_sink = 1.65;   // countersunk head, flush with the dome (ISO 10642 / DI
 // one gets slightly worse. Better: the pair is now symmetric about the case's own centre (48.4), so
 // the hanging weight reaches the screws as shear instead of loading one of them with a moment -- at
 // 7 and 59 their centre sat at 33.4, below the mass. Better again: at 24.2 the screw is 9.2 mm off the
-// unit's axis, so its head is nowhere near the collar's O60.4 (which is what retired the collar's
-// M4 windows, ADR-020) while still landing in the 1.8 mm gap behind the unit, and at 72.6 it is clear
+// unit's axis, so its head (O8, reaching 13.2) is nowhere near the bore's wall at 30.0 -- which is what
+// retired the collar's O9 windows (ADR-020; the collar itself is out now, ADR-029) -- while still
+// landing in the 1.8 mm gap behind the unit, and at 72.6 it is clear
 // ABOVE the unit (top edge 62.15) and below the switch's body (y = 31.2), so it is reachable with the
 // unit already installed. Worse: 48.4 mm between them instead of 52, a little less leverage against
 // tipping -- the price of the symmetry, and a small one.
@@ -563,8 +629,8 @@ pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says
 // (0, 76)) leave a corridor on either side of the centre line. REVIEW 2 put the screw at (17, 68);
 // with a O8.2 boss around it on the lid's inner face the gap to the switch's O30 nut flange drops to
 // 0.09 mm, which is contact. The pair moves to (18, 67): 1.4 mm to that flange, 3.0 mm to the unit's
-// collar, 8.9 mm to the cavity's side wall, and the pillar's own O8 clears the switch's body by
-// 5.1 mm.
+// collar as it stood then (out now: ADR-029), 8.9 mm to the cavity's side wall, and the pillar's own
+// O8 clears the switch's body by 5.1 mm.
 m3b        = [18.0, 67.0];
 m3b_d      = 3.40;      // clearance hole for M3 through the lid's boss
 m3b_head_d = 5.70;      // counterbore: the DIN 912 M3 head is O5.5 x 3.0, plus 0.05 a side
@@ -591,20 +657,12 @@ m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.
 // Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
 // 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
 //
-// The collar on the floor (the "lábio"): it locates the unit's O57.5 body -- and as of review 3 it is
-// CUT into the base, not a drawing. Both of its new numbers come from the cavity's own width: the
-// inner radius is cav_x = 30.0 and the unit is O57.5 by the caliper, so the gap all the way round is
-// 1.25 mm. A 2.3 mm wall (the old O63) had nowhere to go; the collar spends the whole gap instead:
-// 1.25 mm of collar on 0.2 mm of clearance. 57.9 + 2 x 1.25 = 60.4 outside, so its outer 0.2 mm still
-// sits INSIDE the cavity's wall and fuses with it. Deliberate, not sloppy: that fusion is what backs
-// the ring, which on its own would be the thinnest unsupported thing in the case (rule 3: 1.2 mm).
-lip_bore  = 57.9;       // the unit's own O57.5 plus 0.2 a side: rule 6's "tight fit"
-lip_wall  = 1.25;       // the collar's thickness: the whole of the gap, see above
-lip_od    = lip_bore + 2 * lip_wall;   // 60.4: unchanged, so it keeps fusing with the cavity's wall
-lip_h     = 5.00;       // how far up it goes. 1.80 of that is the gap behind the unit, 3.20 is skirt
-                        // over the unit's own body, and the skirt is the point: with 0.4 mm of total
-                        // clearance the unit can cock by atan(0.4/3.2) = 7.1 degrees where 1.75 mm of
-                        // collar let it cock by 12.9. It stays clear of the base/lid joint (now at 8.0).
+// The collar on the floor (the "lábio") is GONE as of 2026-09-28 -- ADR-020 is superseded by ADR-029.
+// It was the ring of rim that located the unit's back end: bore O57.90 against the unit's O57.50 (0.20
+// mm a side), 1.25 mm of wall, 5.00 mm tall, its outer 0.20 mm fused into the cavity's wall. A closed
+// 360 degree ring has nothing to give, and 0.20 mm is inside what a printed bore can hold, so the unit
+// would not go into the printed base at all. The back band of cradles above does its job now: the front
+// band's own geometry, translated along the depth, at 0.25 mm.
 m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inner face
 
 // --------------------------------------------- features: microphone ports (base, step 3 of the list)
@@ -631,23 +689,25 @@ m4_head_d = 8.0;        // the M4 head, seated in its pocket on the plate's inne
 // 5.00 x 12.00 across and along the slot, 0.30 thick): nothing is cut, which is the point of ADR-023.
 //
 // WHERE: at the microphones' own x (r = 26.83 at 47.2 degrees in the board's frame -- ADR-018's
-// measured numbers), one each side, running along the depth across the collar's band and into the gap
-// behind the unit. Each slot's last 0.80 mm opens straight into that 1.80 mm gap (the slot ends at
-// 54.30, the unit's back face is at 53.50); the rest opens into the 1.25 mm annulus between the unit
-// and the cavity wall, which the collar's own 0.20 mm clearance connects to the same gap. The two slots
+// measured numbers), one each side, running along the depth and into the gap behind the unit. Each
+// slot's last 0.80 mm opens straight into that 1.80 mm gap (the slot ends at 54.30, the unit's back face
+// is at 53.50); the rest opens into the 1.25 mm annulus between the unit and the cavity wall, which now
+// reaches that same gap outright -- the collar that used to stand between them, and that each slot cut
+// a 1.20 mm notch into, is out (ADR-029), so the whole annulus breathes. The two slots
 // are 19.2 mm2 of open area against the 6.3 mm2 of the eight Ø1 holes they feed, so the slots are not
-// the restriction in the path (ADR-022's reasoning, unchanged), and both of them cut a 1.20 mm notch
-// in the collar's ring, one each side of the bottom.
+// the restriction in the path (ADR-022's reasoning, unchanged).
 mic_slot_x   = mic_port_r * cos(mic_port_a[0]);   // 18.23: the microphones' own x, mirrored below
 mic_slot_w   = 1.20;    // across the width. 1.20 and not 0.80: below 0.90 the two lines that form the
                         // slot's walls (0.45 each at a 0.4 nozzle) meet in the middle and it prints shut
 mic_slot_l   = 8.00;    // along the depth -- the printer's Z, so it prints as a vertical slit
-mic_slot_top = 13.0;    // how far the cut reaches up: past the collar's bore (10.44 at this x), so the
-                        // slot is open through the wall AND the collar, not a pocket in either
-mic_slot_cy  = 50.30;   // the slot's centre along the depth. The collar spans 50.30 to 55.30 and the
-                        // unit's back face is at 53.50, so the slot crosses the collar's band (where
-                        // its 0.20 mm clearance reaches the same gap) and its back end lands at 54.30,
-                        // 0.80 mm inside the gap behind the unit
+mic_slot_top = 13.0;    // how far the cut reaches up: the cavity's own inner surface at this x is at
+                        // 9.56 (radius 30 against the slot's 18.23), so the slot is a through opening in
+                        // the wall and not a pocket in it. It used to have to clear the collar's bore as
+                        // well and the number stands: 3.7 mm clear of the cradles' arc, whose lowest
+                        // point is z = 16.74
+mic_slot_cy  = 50.30;   // the slot's centre along the depth: the slot spans 46.30 to 54.30, so its back
+                        // end lands 0.80 mm inside the 1.80 mm gap behind the unit (its back face is at
+                        // 53.50). The collar this used to cross, spanning 50.30 to 55.30, is out (ADR-029)
 mic_mem_w    = 5.00;    // the stick-on patch over each slot: 2 mm of border all round the 1.20 x 8.00,
 mic_mem_l    = 12.00;   // so its corners are the only part that has to follow the bottom's curve at all
 mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactly like the vent's
@@ -768,13 +828,14 @@ module screw_markers2() {
     // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
     // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
     // tests cannot drift apart. The pillar goes translucent so the brass insert in its top reads
-    // through it. The collar is NOT here: it has its own switch, since it is a marker too.
+    // through it. The cradles are NOT here: they have their own switch (`show_cradles`), since they are
+    // cut material like the collar they replaced.
     color("blue", 0.35)  m3b_points() m3_pillar();
     color("gold", 0.95)  m3b_points() m3_insert();
     color("red", 0.95)   m3b_points() m3_screw();
 }
 
-fc = "all";             // narrows fitcheck_joint: all | screw | neighbours | collar
+fc = "all";             // narrows fitcheck_joint: all | screw | neighbours | cradles
 
 module fitcheck_joint() {
     // The review-3 joint, by boolean instead of by eye. Three questions, one volume, and `fc` narrows
@@ -782,11 +843,14 @@ module fitcheck_joint() {
     //  1. "screw": the screw's OWN solid against both printed parts: the counterbore, the shank hole
     //     and the pillar's blind hole all have to swallow it, with the lid's boss in the way and with
     //     the insert sharing the hole it is pressed into;
-    //  2. "neighbours": the pillar and the boss against the unit, the collar, and the switch's body
-    //     behind the panel (its O30 flange is the same obstruction, being what button_lands_cut
-    //     spot-faces away);
-    //  3. "collar": the collar is cut material now, so its own clearance is a real question -- 0.2 mm
-    //     all round the unit -- with the M4 heads along for the ride to keep them off it.
+    //  2. "neighbours": the pillar and the boss against the unit and the switch's body behind the panel
+    //     (its O30 flange is the same obstruction, being what button_lands_cut spot-faces away);
+    //  3. "cradles": the four arcs are cut material now (ADR-028, ADR-029), so their own clearance is a
+    //     real question -- 0.25 mm all round the unit, which is what `cradle_clr` is for. It bites the
+    //     arcs rather than base(), which they are part of: against base() this check would meet by
+    //     construction and say nothing. It is `fitcheck`'s question asked of one feature, and the M4
+    //     heads ride along: at 13.2 mm off the unit's axis they are 15.8 mm inside a band at 29.0, so
+    //     the check is what keeps them that way if either one moves.
     if (fc == "all" || fc == "screw")
         intersection() {
             m3b_points() m3_screw();
@@ -795,17 +859,11 @@ module fitcheck_joint() {
     if (fc == "all" || fc == "neighbours")
         intersection() {
             union() { m3_pillars(); m3b_points() m3_boss(); }
-            union() { ghost_unit(); unit_collar(); switch_body(); button_lands_cut(); }
+            union() { ghost_unit(); switch_body(); button_lands_cut(); }
         }
-    if (fc == "all" || fc == "collar")
+    if (fc == "all" || fc == "cradles")
         intersection() {
-            // The collar is no longer a drawing, so its clearance is a real question: 0.2 mm round the
-            // unit, which is what lip_bore is for. The M4 heads ride along: they are at 24 and 72 now
-            // (ADR-021), far from a ring that lives at r = 29.2-30.2, and including them is what keeps
-            // them clear if either one moves. It bites the collar itself rather than base(), which the
-            // collar is part of: against base() this check would meet by construction and say nothing.
-            // (The pockets are cut now, ADR-021's amendment, so a head does seat in one.)
-            unit_collar();
+            unit_cradles();
             union() { ghost_unit(); m4_heads(); }
         }
 }
@@ -912,24 +970,6 @@ module switch_body() {
     translate([0, btn_land_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_cut, h = 30);
 }
 
-module unit_collar() {
-    // The collar, now CUT into the base (review 3, second pass). A ring of rim on the floor, not a
-    // raised floor: outline_inner() would have made it a slab with a hole in it (60 x 60, minus the
-    // bore), a 5 mm step across the whole floor. Just the annulus -- the unit drops into lip_bore and
-    // the pads carry it forward onto the seat.
-    // A plain ring, with no windows in it. It had two (a O9 on each M4 axis) while the wall screws
-    // sat on the 26 mm radius around the unit's axis: an O8 head reaches r = 30, past lip_bore's 29.2,
-    // so the ring would have stood on the screw heads. The screws are at 24 and 72 as of ADR-021, and
-    // 24 is 9 mm off that axis -- far inside the bore -- so there is nothing left to clear. The two
-    // microphone slots do cut it now, a 1.20 mm notch each side of the bottom: they go through the wall
-    // and the collar to reach the gap behind the unit, which is why mic_slot_top is above the bore.
-    translate([0, inner_d - lip_h, unit_cz]) rotate([-90, 0, 0])
-        difference() {
-            cylinder(d = lip_od, h = lip_h + eps, $fn = 128);
-            translate([0, 0, -1]) cylinder(d = lip_bore, h = lip_h + 2, $fn = 128);
-        }
-}
-
 // ----------------------------------------------------- the microphone ports (base, step 3)
 
 module mic_points() {
@@ -939,10 +979,11 @@ module mic_points() {
 }
 
 module mic_slot_cut() {
-    // One prism each, cut up through the wall and through the collar that sits on it. It runs from 1 mm
-    // below the bottom surface (so the cut breaks out clean whatever the wall's own thickness is) up to
-    // mic_slot_top, which is above the collar's bore at this x: the slot is a through opening, not a
-    // pocket. Along the depth it spans 46.30 to 54.30, 0.80 mm of that inside the gap behind the unit.
+    // One prism each, cut up through the bottom's wall (and, until ADR-029, through the collar standing
+    // on it as well). It runs from 1 mm below the bottom surface (so the cut breaks out clean whatever
+    // the wall's own thickness is) up to mic_slot_top, which clears the cavity's inner surface at this
+    // x: the slot is a through opening, not a pocket. Along the depth it spans 46.30 to 54.30, 0.80 mm
+    // of that inside the gap behind the unit.
     // A prism and nothing else: the Ø9 seat that used to sit on it is gone (see the note above the
     // parameters), so this cut mirrors on X by construction, which the seat's rotated cylinder did not.
     mic_points() translate([-mic_slot_w / 2, mic_slot_cy - mic_slot_l / 2, -1])
@@ -972,7 +1013,7 @@ module mic_membrane_marker() {
 module mic_probe() {
     // A rod through the intended opening, narrower and shorter than the cut and long enough to emerge
     // inside the cavity: if its intersection with the base is empty, the slot is open end to end and
-    // not a pocket through either the wall or the collar.
+    // not a pocket in the wall.
     mic_points() translate([-(mic_slot_w - 0.6) / 2, mic_slot_cy - (mic_slot_l - 2) / 2, -1])
         cube([mic_slot_w - 0.6, mic_slot_l - 2, mic_slot_top - 2]);
 }
@@ -1143,8 +1184,10 @@ module joint_recess_cut() {
     // The BASE's side of the lap: the outer lap_step + lap_gap of its wall over the same band. What is
     // left is a 1.70 mm rim that the lip slides over with 0.20 mm of clearance all the way round. A 2D
     // difference extruded in the band, cut from the base: the recess is exactly the material that has
-    // to go, and nothing else in the band is touched (the pillars are 11 mm inboard of it, the collar
-    // is 39 mm further back).
+    // to go, and nothing else in the band is touched (the pillars are 11 mm inboard of it, and the
+    // cradles' own mouth face starts at 11.05, 0.04 mm behind this band -- which is the clearance
+    // ADR-028 had to buy after a first cut reached into it and the boolean came back with the ring in
+    // place).
     difference() {
         intersection() { body(); prism_xz(lap_d + 2 * eps, joint_y - eps) outline_outer(); }
         prism_xz(case_d, 0) outline_offset(lap_step + lap_gap);
@@ -1174,8 +1217,9 @@ module base() {
     // is bedded flat on the post -- and opened instead through its BOTTOM, where the two microphone
     // slots pierce the wall just behind the unit (step 3 of the feature list), and through its TOP,
     // where the cable gland does (ADR-025). What it carries is the three pads that push the unit forward
-    // onto the seat, the two pillars the lid screws into, the collar that locates the unit, the recess
-    // the lid's lip drops into (the lap), the boss the gland sits on and the pad its locknut bears on.
+    // onto the seat, the two pillars the lid screws into, the four arcs that cradle the unit at both
+    // ends (ADR-028, ADR-029: the collar that used to hold its back end is out), the recess the lid's
+    // lip drops into (the lap), the boss the gland sits on and the pad its locknut bears on.
     // The vent is cut through its side (ADR-026). Nothing is added to the sides: what holds the case is
     // the two M4 through this back plate, whose pockets and holes the cuts below carry (ADR-021, ADR-027).
     difference() {
@@ -1185,7 +1229,6 @@ module base() {
                 cavity();
             }
             m3_pillars();
-            unit_collar();
             unit_cradles();
             gland_boss();
             gland_nut_pad();
@@ -1277,9 +1320,11 @@ module m4_points() {
 }
 
 module m4_heads() {
-    // Just the two M4 heads, seated in their pockets on the plate's inner face. The collar's fit check
-    // bites these: at 24.2 the screw is 9.2 mm off the unit's axis and the collar lives at 29.2, so they
-    // do not meet -- and that check is what keeps it that way if either one moves.
+    // Just the two M4 heads, seated in their pockets on the plate's inner face. The cradles' fit check
+    // bites these: at 24.2 the head's centre is 9.2 mm off the unit's axis and its O8 reaches 13.2,
+    // against a band that lives at 29.0, so they do not meet -- and that check is what keeps it that way
+    // if either one moves. The depth keeps them clear too: the pocket's mouth is at 53.80 and the back
+    // band's deep face at 53.30.
     color("darkorange", 0.95)
         m4_points() translate([0, inner_d - pocket_m4, 0])
             rotate([-90, 0, 0]) cylinder(d = m4_head_d, h = pocket_m4);
@@ -1307,8 +1352,8 @@ module review_view() {
     // (measured here the hard way). `show_solid` is the way out of that: the same shell drawn opaque, for
     // looking at the outer form and for checking the markers against a real surface.
     // The unit as the ordinary ghost, NOT a % one: --render only carries one background object, and with
-    // unit also a % it vanished. Opaque, it still lets the collar's rim read -- O60.4 against its O57.5 --
-    // as a ring around it, which is what the lap looks like from the front.
+    // unit also a % it vanished. Opaque, it still lets the unit's own O57.5 read against the bore it
+    // sits in, which is what the lap looks like from the front.
     if (show_lid || show_base) {
         if (show_solid) {
             if (show_base) color("grey", 0.85) base();
@@ -1319,7 +1364,7 @@ module review_view() {
     }
     if (show_unit)   ghosts("unit");
     if (show_screws) screw_markers2();
-    if (show_collar) color("green", 0.85) unit_collar();
+    if (show_cradles) color("green", 0.85) unit_cradles();
     if (show_m4)     wall_markers();
     if (show_gland)  gland_marker();
     if (show_vent)   color("deepskyblue", 0.85) vent_marker();
@@ -1388,6 +1433,11 @@ if (part == "base") {
     color("silver") base();
     color("grey") translate([0, -58, 0]) lid();
     ghost_unit();
+} else if (part == "cradles") {
+    // The four arcs on their own, nothing else: what the fit check bites (fc = "cradles"), and the only
+    // way to measure the arcs' own surfaces -- the band that hugs, where the ramp starts and where it
+    // fades -- without the shell's own material in the way of the probe.
+    unit_cradles();
 } else if (part == "fitcheck") {
     // The unit against the PRINTED parts, not against `wall`: wall is the un-cut shell, so it would
     // report the front wall where the lid's seat and window have already taken the material away.
@@ -1421,7 +1471,7 @@ if (part == "base") {
     intersection() { lid(); button_cut_hole(btn_cut - 1.0); }
 } else if (part == "probe_mic") {
     // Against the BASE, like probe_grille is against the lid: empty means both microphone slots are open
-    // from outside the case into the cavity, wall and collar both. The probe is narrower and shorter
+    // from outside the case into the cavity, through the wall. The probe is narrower and shorter
     // than the cut and spans the whole depth of the wall, so it proves the opening end to end.
     intersection() { base(); mic_probe(); }
 } else if (part == "probe_gland") {

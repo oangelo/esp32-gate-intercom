@@ -6,7 +6,7 @@ through their walls:
 - **base** - the back tray: **closed on the wall face**, which is the one face that carries nothing
   because it beds flat on the post, and opened through its **bottom**, where the two microphone slots
   are cut (ADR-023). It carries the three pads that push the unit forward onto the seat, the two M3
-  pillars, the collar, the **two unit cradles** (ADR-028), the gland's boss and the pad its locknut bears
+  pillars, the **unit cradles at each end** (ADR-028, ADR-029), the gland's boss and the pad its locknut bears
   on, and — through its own back
   plate — the two M4 pockets and holes that ARE the fixing (ADR-021, ADR-027: no ears on the sides).
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
@@ -58,17 +58,20 @@ of the joint plane, which is a contact and not an interference.
 Neither part pays for the lap with support: through its last 3 mm the base's wall goes 3.40 to 1.70 mm and
 the lid's 3.40 to 1.50, so both shapes only lose material as the print rises.
 
-The collar that locates the unit is cut too, and it is where the case's own width shows: the cavity is
-Ø60 inside and the unit calipers at Ø57.5, so the ring has **1.25 mm** to spend. It spends it — 1.25 mm of
-wall on 0.2 mm of clearance, 5 mm tall, its outer 0.2 mm fused into the cavity's wall (ADR-020).
-`-D 'fc="collar"'` isolates that check.
+The unit is located at **both ends** now, by the four arcs of ADR-028 and ADR-029, and that is where the case's
+own width shows: the cavity is Ø60 inside and the unit calipers at Ø57.5, so there is **1.25 mm** of daylight
+to spend. The arcs spend 1.00 mm of it on each side and leave 0.25 mm of clearance to the cover at each end.
+`-D 'fc="cradles"'` isolates that check. ADR-020's closed collar, which used to hold the back end, is **out**:
+its bore was 0.20 mm a side and a 360° ring has nothing to give, so the printed base would not take the unit
+at all.
 
-The unit's **front** end is located now as well (ADR-028): two arcs of ±35° about the ±X directions, inner
-surface at r = 29.00, from y = 11.05 to 25.55, with a 40° print ramp lifting the clearance past y = 16.05.
-They take the bore's 1.25 mm of daylight down to 0.25 mm over the band nearest the mouth, which is what
-stops the unit sliding, rattling, and dropping out of the base when the lid comes off. `fitcheck` proves
-the clearance, and the arcs are why it stays empty: the surface that faces the cover is the cradle's own
-keep-out cylinder, 0.05 mm inside the sector's chord.
+Each band is two arcs of ±35° about the ±X directions, inner surface at r = 29.00. The **front** band runs from
+y = 11.05 to 25.55, with a 40° print ramp lifting the clearance past y = 16.05 (ADR-028); the **back** band is
+that same profile **translated** to the other end of the unit — hug from y = 48.30 to 53.30, its ramp climbing
+away from the mouth and landing on the cavity's floor at y = 55.30, so the first layer the printer lays of it
+rests on the plate (ADR-029). Together they are what stops the unit sliding, rattling, and dropping out of the
+base when the lid comes off. `fitcheck` proves the clearance, and the arcs are why it stays empty: the surface
+that faces the cover is the band's own keep-out cylinder, 0.05 mm inside the sector's chord.
 
 The two wall screws sit on the centre line at the quarter points of the height, z = 24.2 and z = 72.6
 (ADR-021), so the pair is symmetric about the case's own centre and the hanging weight arrives at them as
@@ -76,7 +79,7 @@ shear. In X they were already on x = 0; only Z moved, from 7/59.
 
 Everything that view draws is switchable, without editing the file: OpenSCAD's **Customizer** panel
 (the `show_*` block at the top of `case.scad`) gives a tick box each for the lid, the base, the unit,
-the screws, the collar and the M4, plus `show_solid` for the shell drawn opaque instead of as a
+the screws, the unit cradles and the M4, plus `show_solid` for the shell drawn opaque instead of as a
 background object. All of them default to on, so an untouched file opens exactly as it always did.
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
@@ -135,11 +138,11 @@ the 3.40 of plate, which leaves 1.90 of it, proved by `probe_m4`.
     make check     # compile the model and surface any warning or error
     make stl       # export build/case_base.stl and build/case_lid.stl
     make render    # PNG preview into cad/media/ (starts its own Xvfb display)
-    make review    # the review view at three angles: screws, pillars, inserts, collar
+    make review    # the review view at three angles: screws, pillars, inserts, cradles
     make section   # cutaway render, the review view: the assembled unit inside
     make inside_render  # translucent shell: the unit inside, and the rejected bare-parts layout
     make exploded  # the two printed parts pulled apart
-    make fit       # prove the ghosts touch no wall and the openings are open; must be empty seven times
+    make fit       # prove the ghosts touch no wall and the openings are open; must be empty twelve times
 
 `make check` must be clean before any export is taken seriously: OpenSCAD happily writes an STL with a
 non-manifold object, and a sliced mesh with gaps is a failed print, not a cosmetic problem.

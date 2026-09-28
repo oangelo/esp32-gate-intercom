@@ -118,22 +118,25 @@ holds: the vendor file describes a reference board, the caliper describes this o
 
 | Feature | Caliper | Vendor says | Effect |
 |---|---|---|---|
-| Body diameter | **57.50** | 58.00 (the DXF circle), 57.63 x 56.54 (the STEP board's bounding box) | both vendor numbers are high, by 0.50 and 0.13. The cavity stays Ø60, so the gap around the unit grows from 1.00 to **1.25 mm**; the collar on the floor is bored **57.90** (the unit plus 0.2 a side) and is 1.25 mm thick, still Ø60.40 outside, so its outer 0.20 mm keeps fusing with the cavity's wall |
+| Body diameter | **57.50** | 58.00 (the DXF circle), 57.63 x 56.54 (the STEP board's bounding box) | both vendor numbers are high, by 0.50 and 0.13. The cavity stays Ø60, so the gap around the unit grows from 1.00 to **1.25 mm**, and that is what the arcs that locate the unit spend: **r = 29.00**, the cover plus **0.25 mm** (ADR-028, ADR-029). The collar that used to hold the back end, bored 57.90 (the unit plus 0.2 a side), is out: 0.20 mm in a closed ring was too tight to take the printed base (ADR-029) |
 | Height, whole unit with its three rubber feet | **50.00** | 49.70 (the STEP, assembled) | 0.30 more than the STEP, which is the number the earlier rounds treated as the truth |
 | Height, feet off | **47.30** | 47.00 (the DXF, to the Ø52 disc), 43.70 + 5.10 = 48.80 (the product page) | the model uses **47.30**: the feet are peeled because they stick out of the grille face. The case's outer depth follows it to **58.70** |
 
 Those two caliper numbers are what `cad/case.scad` takes at the top of the file (`unit_dia`, `unit_h`), and
 the whole depth chain follows from them: `case_d` 58.70 = the unit's face 6.20 behind the crown + 47.30 +
 the 1.80 mm gap the microphones breathe + the 3.40 mm plate. The plate's inner face therefore sits at
-**55.30**, and everything keyed to it (the collar, the M4 pockets, the standoff pads, the M3 pillars) moves
-with it; only `mic_slot_cy` needed a hand, to 50.30, which keeps the slot's back end 0.80 mm inside the gap.
+**55.30**, and everything keyed to it (the M4 pockets, the standoff pads, the M3 pillars, the back band of
+cradles at 53.30) moves with it; only `mic_slot_cy` needed a hand, to 50.30, which keeps the slot's back end
+0.80 mm inside the gap.
 
 Two things this does not settle, and both are worth a second pass with the caliper:
 
 - **Whether 57.50 is the body's widest point.** It is *less* than both vendor numbers for the outline, and
   the housing has to contain the board, so one of the three is off. If a reading at the widest point comes
-  back as 58.00, the collar's bore goes back to 58.40 and the gap to 1.00 mm: two variables, `lip_bore`
-  and `lip_wall`.
+  back as 58.00, the whole bore of the unit's location moves with it: one variable, `unit_dia`, feeds
+  `cradle_r_in` (the hugging surface, plus `cradle_clr` 0.25), which is what both bands of arcs are built
+  from (ADR-028, ADR-029 — that single variable is exactly why the collar's bore and its wall were retired
+  with it).
 - **The Ø52 grille disc.** Not measured. The seat is Ø53.0 and the retaining lip grips 2 mm of the disc,
   so a disc that comes back over Ø53.0 has its seat re-cut.
 
@@ -196,8 +199,9 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   outside through its **bottom**, close behind the unit: **two slots of 1.20 × 8.00 mm** (ADR-023), one
   each side at the microphones' own x of ±18.23 mm (`r = 26.83`, `47.2° / 132.8°` in the board's frame,
   which is z = 17.3 in the case), running from y = 46.30 to 54.30 along the depth. Each slot passes
-  through the shell **and** the collar — 4.70 mm of material at that x, because the collar's bore is at
-  10.44 and `mic_slot_top` is 13.00 — and its back end (54.30) reaches 0.80 mm into the gap the unit
+  through the shell's own wall — 4.70 mm of material at that x while the collar stood on it, and the collar
+  is out as of 2026-09-28 (ADR-029), so what the slot crosses now is the wall alone — and its back end
+  (54.30) reaches 0.80 mm into the gap the unit
   breathes: the unit's own back face is at 53.50. No spot face: the hydrophobic membrane (ADR-017) is
   an adhesive-backed patch and the bottom is a Ø66.8 cylinder, so a 9 mm patch follows that curve to
   within 0.31 mm with nothing to peel its edge. The Ø9 × 1 mm seat that ADR-022 carried as its land is
@@ -219,10 +223,13 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   it lands there, clearing the lip by the lap's 0.20 mm. The 0.70 is also the joint's **closed** gap: with
   the ring squeezed, the lid ends up 0.70 mm forward of the printed plane and the lip reaches 2.30 mm into
   the recess instead of 3.00 (ADR-024).
-- The unit is located at **both ends** now: the collar at the back (0.20 mm of clearance, y = 50.30 to
-  55.30) and **two arcs** at the front (ADR-028) — ±35° about the ±X directions, inner surface at
-  **r = 29.00** (the Ø57.50 cover plus 0.25), from **y = 11.05 to 25.55**, with the print ramp lifting the
-  clearance at 40° past y = 16.05 and a 0.40 mm lead-in bevel at the mouth. Before them the bore's 1.25 mm
+- The unit is located at **both ends** by **four arcs** — one band at each end, ±35° about the ±X directions,
+  inner surface at **r = 29.00** (the Ø57.50 cover plus 0.25): the front band (ADR-028) from **y = 11.05 to
+  25.55**, with the print ramp lifting the clearance past y = 16.05 and a 0.40 mm lead-in bevel at the mouth,
+  and the back band (ADR-029) hugging the unit's last 5.00 mm from **y = 48.30 to 53.30** with its ramp
+  climbing back toward the mouth to nothing by y = 38.80 — that ramp is its lead-in. The ring that used to
+  hold the back end (the collar) is **out**: 0.20 mm a side in a closed 360° hoop was too tight to take the
+  printed base at all, where the arcs at 0.25 mm took the unit and hold it. Before ADR-028 the bore's 1.25 mm
   of daylight let the unit slide and rattle, and let it drop out of the base with the lid off.
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
   crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
