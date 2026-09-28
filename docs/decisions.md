@@ -618,6 +618,30 @@ from being "a hole in nothing". The axis is void again at 98.30 and 96.40, and t
 at 92.30. The base's volume fell **147.16 mm³** (65282.93 → 65135.77) — the collar, π × 6.25² × 1.20 =
 147.26 by hand.
 
+**Amendment (2026-09-28, the user's call — this corrects the second bullet above):** the collar's 1.20 mm
+was left **round**, and on a print run that is the one place the teardrop was not doing its job: a round
+bore's roof is a **ceiling**, and over that band the printer was left to bridge it alone — the hole's only
+bend of rule 4's 10 mm limit. The teardrop now runs into the band as well, with its tip **capped at
+`gland_cap = 6.80`** from the hole's axis: the flanks keep their 45 degrees and the roof finishes on a
+flat, so the tent reaches the flat and the washer keeps **1.20 mm of land** (8.00 is where its Ø16 ends) —
+*"essa ponta só ajuda se ela nascer junto com a superfície e subir até o topo do cilindro, para as camadas
+iniciais não precisarem de suporte"*. The cap is what settles the two requirements against each other: a
+full tent's tip reaches r / cos 45 = **8.84**, which is 0.84 mm **past** the washer — the leak path that
+kept the band round in the first place. The hole's **section** does not change: Ø12.50 round over its whole
+length, which is what the PG7's thread passes and what the washer's seat surrounds. Only the roof moved,
+and `teardrop_capped_xy()` is the shape that does it.
+
+**Measured on the exported STL, by ray-casting along +Y (the print's vertical for this run) at z = 99.50,
+0.30 under the flat:** the roof over the hole's axis sits at **6.800** from it, and is still 6.800 at
+x = ±1.50 — the flat cap, **4.08 mm** wide — then **5.839** at x = 3.00 and **3.748** at x = 5.00: the 45
+degree flanks, and then the bore's own crown. A round collar would read **6.25** on the axis and a full
+tent **8.84**, so the three numbers say which of the three shapes is in the part. At z = 98.00, 0.60 mm
+below the band, the axis reads **8.839**: the full tent still runs from there into the cavity, and the cap
+is a 1.20 mm band at the mouth and nothing more. `probe_gland` was extended with the cut — its tent piece
+now runs the whole hole to the flat, capped 1 mm inside the cut's own cap, so the band that used to be
+left to bridge is a band the probe tests (the 2026-09-26 lesson, paid for twice). The base's volume falls
+**5.10 mm³** (66109.60 → 66104.50).
+
 **What came after, and all of it is now drawn or cut:** the gasket ring (ADR-024's shoulder), the vent
 (ADR-026), the membranes' seats (ADR-023 answered them: there is nothing to cut), and the mounting closed
 with ADR-027 — no ears, because the two M4 through the back plate are the fixing. The wall screws' own

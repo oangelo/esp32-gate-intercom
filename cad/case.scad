@@ -737,9 +737,11 @@ mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactl
 //  2. Both parts print lying down, so the case's Z is the printer's Y and this whole feature lies IN the
 //     bed plane, horizontally. Three consequences, all handled below: the boss's own back side faces
 //     straight down (a 90 degree overhang) and gets a 45 degree tail; the hole's roof would be a
-//     12.50 mm bridge (rule 4 allows 10) and gets a teardrop; and the locknut's seat inside, which has
-//     to be a PAD raised on the cavity's curved ceiling rather than a spot-face cut into it -- there is
-//     no material over the arch to cut -- gets the same teardrop for the same reason.
+//     12.50 mm bridge (rule 4 allows 10) and gets a teardrop -- now over the hole's WHOLE length, its tip
+//     capped where the gasket's washer needs its land, so the last 1.20 mm of depth is not left to the
+//     printer to bridge either; and the locknut's seat inside, which has to be a PAD raised on the
+//     cavity's curved ceiling rather than a spot-face cut into it -- there is no material over the arch
+//     to cut -- gets the same teardrop for the same reason.
 gland_cz      = case_h;                 // 96.80: the apex of the top's cylinder, where the boss stands
 gland_cy      = unit_cy;                // 29.85: on the unit's axis, straight above the USB-C
 gland_proud   = 3.00;                   // how far the boss's flat stands above that apex
@@ -763,15 +765,25 @@ gland_tail_y  = gland_cy + gland_boss_r * (cos(gland_tail_a) + sin(gland_tail_a)
                                         // 44.21: the tail's point, in the case's frame, 14.36 out from
                                         // the axis
 gland_d       = 12.50;                  // the PG7's thread O.D.: the hole cut through boss and shell
-gland_round   = 1.20;                   // how deep the hole stays ROUND from the flat inwards. The
-                                        // gasket's ring seals on that face, and a teardrop opening
-                                        // would reach O17.7 -- past the washer -- so the round collar
-                                        // stays. It is the case's one deliberate concession to rule 4:
-                                        // 12.50 mm of bridge over 1.2 mm of depth, against the rule's
-                                        // 10. The alternative was a wider seal, not a leak
+gland_round   = 1.20;                   // how deep the hole's SECTION stays the plain round O12.50 from
+                                        // the flat inwards: the PG7's thread has to pass it, and the
+                                        // gasket's washer seals on the flat around it. What it is NOT any
+                                        // more (2026-09-28, the user's call -- it used to be the case's
+                                        // one knowing concession to rule 4) is a round ROOF: the teardrop
+                                        // runs into this band as well, capped by `gland_cap`, so nothing
+                                        // over the last 1.20 mm of depth is left to bridge on its own
 gland_tear    = 45.0;                   // from there in, the hole is a teardrop with its sides at this
                                         // angle to the hole's axis, tip pointing -Y (the print's up for
-                                        // this run is the case's -Y, so the overhang is on that side)
+                                        // this run is the case's -Y, so the overhang is on that side).
+                                        // 45 is forced, not chosen: the flanks have to pick up the bore
+                                        // exactly where the bore's own overhang reaches 45 degrees
+gland_cap     = 6.80;                   // where that teardrop's tip is CUT OFF, measured from the hole's
+                                        // axis, so the tent can run into the collar band as well: 8.00 is
+                                        // where the gland's O16 washer ends, so 6.80 leaves it 1.20 mm
+                                        // of land (rule 3's own minimum) and the roof over the collar now
+                                        // bridges 4.08 mm instead of 12.50 -- inside rule 4's 10 both
+                                        // ways. Cutting the tip costs no physical relief: it is air a
+                                        // few tenths above the bore's own crown at 6.25
 gland_nut_d   = 17.00;                  // the locknut's seat inside: O17 across the flats
 gland_nut_cut = 1.25;                   // how deep, and it is the ceiling's own curve that sets it: over
                                         // +-8.5 mm the O30 ceiling falls 1.23 mm, so this is within
@@ -1082,6 +1094,19 @@ module teardrop_xy(r, tip = 45, n = 48) {
         [for (i = [0:n]) let (a = tip - 90 + (360 - 2 * tip) * i / n) [r * cos(a), r * sin(a)]]));
 }
 
+module teardrop_capped_xy(r, tip = 45, cap = 6.80, n = 48) {
+    // The same teardrop with its point CUT OFF `cap` from the centre: the flanks keep their angle and the
+    // roof finishes flat instead of pointed. It exists because two requirements meet there: the roof over
+    // the collar band has to be a tent (so that the last millimetre of the hole is not a round ceiling the
+    // printer has to bridge on its own), and the tip a full tent puts at r / cos(tip) = 8.84 comes out
+    // past the gland's O16 washer at 8.00, which is a leak path. Capped, the tent reaches the flat and the
+    // washer keeps its land.
+    difference() {
+        teardrop_xy(r, tip, n);
+        translate([-2 * r, -2 * r]) square([4 * r, 2 * r - cap]);
+    }
+}
+
 module gland_boss_profile() {
     // The boss's cross-section: the O22 circle plus its tail, a triangle whose two lower vertices are
     // exactly where the tail's lines touch the circle. Those lines are tangent by construction
@@ -1101,10 +1126,12 @@ module gland_boss() {
 }
 
 module gland_hole_cut(d = gland_d, round_h = gland_round, tear = gland_tear) {
-    // The gland's hole in two steps: a plain round collar for the first round_h down from the flat --
-    // the gasket's ring seals on that face, and a teardrop opening would reach O17.7, past the washer --
-    // and a teardrop from there into the cavity, which is what keeps the roof printable. Cut as one
-    // difference, so between them they are the hole.
+    // The gland's hole, and it is the plain round O12.50 bore over its whole length (the thread passes it
+    // and the washer seals on the flat around it) plus the teardrop that carries the roof: the FULL tent
+    // from the cavity up to the collar band, and a tent with its tip CAPPED at `gland_cap` through the
+    // collar band itself, so that the last 1.20 mm of depth is a tent too and not a round ceiling the
+    // printer has to bridge alone (2026-09-28: it used to be exactly that, by design; the user called it).
+    // Cut as one difference, so between them they are the hole.
     // CAREFUL, AND THIS WAS A REAL BUG (found by the user on 2026-09-26, looking at the part): cylinder()
     // grows toward +Z from its own origin, so a collar that has to run from a point ABOVE the flat down
     // to gland_flat_z - round_h must be placed by its LOWER end. The first version put the origin at
@@ -1112,6 +1139,8 @@ module gland_hole_cut(d = gland_d, round_h = gland_round, tear = gland_tear) {
     // 1.20 mm -- the gasket's own seat -- stayed solid, with probe_gland passing empty because the probe
     // had the same mistake and never reached that band either.
     translate([0, gland_cy, gland_flat_z - round_h]) cylinder(d = d, h = round_h + 2);
+    translate([0, gland_cy, gland_flat_z - round_h])
+        prism_xy(round_h + 2) teardrop_capped_xy(d / 2, tear, gland_cap);
     translate([0, gland_cy, gland_nut_z - 2])
         prism_xy(gland_flat_z - round_h - gland_nut_z + 2) teardrop_xy(d / 2, tear);
 }
@@ -1133,16 +1162,18 @@ module gland_probe() {
     // empty, the hole is open end to end -- flat, boss, shell, ceiling and seat -- and no face of the
     // seat swallowed it.
     // ONE PIECE PER STEP OF THE CUT, EACH PLACED BY ITS LOWER END, because cylinder() grows toward +Z:
-    // the collar's piece runs 98.40 to 101.80 and the teardrop's 91.65 to 98.40, so they meet 0.2 mm
-    // either side of the collar's own end at 98.60 and nothing rides on a coplanar face. Placing the
-    // collar's piece from the flat upward -- which is what this probe used to do -- leaves the collar's
-    // own band untested, and an untested band is exactly where a hole that never got cut hides: the
-    // probe then reports empty on a closed part (see gland_hole_cut).
+    // the collar's rod runs 98.40 to 101.80 and the tent's 91.65 to 101.80, so the tent spans the collar
+    // band as well and tests the roof there -- the band the cut used to leave round. The tent's piece is
+    // capped 1 mm inside the cut's own cap and is 0.5 mm narrower, so it stays strictly inside the void
+    // it is testing and rides on no face of it. Placing the collar's piece from the flat upward -- which
+    // is what this probe used to do -- leaves the collar's own band untested, and an untested band is
+    // exactly where a hole that never got cut hides: the probe then reports empty on a closed part (see
+    // gland_hole_cut).
     translate([0, gland_cy, gland_flat_z - gland_round - 0.2])
         cylinder(d = gland_d - 1, h = gland_round + 2.2);
     translate([0, gland_cy, gland_nut_z - 0.5])
-        prism_xy(gland_flat_z - gland_round - 0.2 - gland_nut_z + 0.5)
-            teardrop_xy(gland_d / 2 - 0.5, gland_tear);
+        prism_xy(gland_flat_z + 2 - gland_nut_z + 0.5)
+            teardrop_capped_xy(gland_d / 2 - 0.5, gland_tear, gland_cap - 1);
 }
 
 module m4_probe() {

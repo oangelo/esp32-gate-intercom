@@ -255,8 +255,11 @@ and the microphone ports are on the bottom now (ADR-023). **The gland goes throu
 edge, so a gland directly above it is the shortest cable route and the only one that needs no bend inside
 the case. It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
-a 50 degree tail, a **Ø12.50 mm** hole whose first 1.20 mm stay round for the gasket's washer and which then
-becomes a teardrop into the cavity, and a pad under the locknut that leaves **7.65 mm** of material to
+a 50 degree tail, a **Ø12.50 mm** hole round over the whole of its length — the PG7's thread passes it and
+the gasket's washer lands on the flat around it — with a teardrop carrying its roof into the cavity, the
+tent's tip **capped at 6.80 mm** from the axis so that it runs through the collar band as well and still
+leaves the washer its **1.20 mm of land** (2026-09-28), and a pad under the locknut that leaves **7.65 mm**
+of material to
 thread into (ADR-025). The **vent** is decided too, and cut: on the **-X side**, mid-height, a Ø4.00 hole
 whose mouth carries a **Ø11.00 × 0.35 recess** for the membrane patch to drop into, so the adhesive lands
 on a floor and the patch finishes flush with the wall. The side is the one face with nothing else on it,
