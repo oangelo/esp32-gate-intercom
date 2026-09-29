@@ -618,7 +618,8 @@ from being "a hole in nothing". The axis is void again at 98.30 and 96.40, and t
 at 92.30. The base's volume fell **147.16 mm³** (65282.93 → 65135.77) — the collar, π × 6.25² × 1.20 =
 147.26 by hand.
 
-**Amendment (2026-09-28, the user's call — this corrects the second bullet above):** the collar's 1.20 mm
+**Amendment (2026-09-28, the user's call — this corrects the second bullet above; superseded later the same
+day, see the ramp amendment below):** the collar's 1.20 mm
 was left **round**, and on a print run that is the one place the teardrop was not doing its job: a round
 bore's roof is a **ceiling**, and over that band the printer was left to bridge it alone — the hole's only
 bend of rule 4's 10 mm limit. The teardrop now runs into the band as well, with its tip **capped at
@@ -641,6 +642,58 @@ is a 1.20 mm band at the mouth and nothing more. `probe_gland` was extended with
 now runs the whole hole to the flat, capped 1 mm inside the cut's own cap, so the band that used to be
 left to bridge is a band the probe tests (the 2026-09-26 lesson, paid for twice). The base's volume falls
 **5.10 mm³** (66109.60 → 66104.50).
+
+**Amendment (2026-09-28, later the same day, the user's call again — the cap above is out, and this is
+what replaced it):** the cap fixed the band's *shape* and not its *slope*. A roof that is flat in **Y** is a
+**bridge** wherever it stands — the printer has to cross the void in one layer — and the user read it off
+the part: *"o início da teardrop já exige um suporte, esse início deveria começar rente à superfície e ir
+saindo até a superfície superior"*, and asked whether the hole could be **moved** so that the teardrop's
+beginning started at the print plate. **It cannot, and the numbers are why:** the plate *is* the back
+plate's own outer face (y = 58.70); the tent's beginning — where its flanks leave the bore — sits
+r × cos 45 = **4.42 mm above the hole's axis** (y = 25.43, which is 33.27 mm above the plate), so putting
+that beginning on the plate would need the hole's axis at y = **63.12**, i.e. **4.42 mm behind the back
+plate** and outside the case; and at the deepest position the geometry allows at all (the bore grazing the
+cavity's floor, axis at y = 49.05) the beginning is still **14.07 mm** above the plate. Moving the hole
+would also break the reason it is on the top in the first place (the paragraph above: straight above the
+USB-C). Support is not a question of *where* the hole sits; it is a question of the *angle* of the roof's
+faces.
+
+**So the cap is replaced by a 45 degree ramp.** The teardrop's tip is cut by a plane at 45 degrees **in Z**
+— the hole's own axis, which is horizontal in the print — passing through the point where the roof stands
+`gland_cap = 6.80` over the axis **at the flat's own face**. Going inward the roof rises a millimetre per
+millimetre: from 6.80 at z = 99.80 to the tent's full apex of 8.84 at z = **97.76**, and from there in the
+tent is whole again. It is the same surface the tent's flanks already have, in the other direction, and it
+does the one thing the cap could not: as the print rises, this cut only ever **removes** material — the void
+grows toward the mouth by a millimetre of Z for every millimetre of height — so **no layer of the roof is
+ever laid over air**, not even for 4 mm. The mouth's face still stands at **6.80** over the axis, so the
+Ø16 washer still keeps its **1.20 mm of land**, and the hole's section is unchanged: Ø12.50 round over its
+whole length. `gland_roof_ramp()` is the shape now; `teardrop_capped_xy()` went out with the cap it existed
+for.
+
+**Measured on the exported STL, rays along +Y (the print's vertical for this run),** roof height over the
+axis at x = 0: **6.810** at z = 99.79 (the flat's own face — 1.19 mm of land for the washer), **7.100** at
+99.50, **8.000** at 98.60, **8.600** at 98.00, **8.839** at 97.70. The differences are 0.29, 0.90 and
+0.60 mm over the same Z, i.e. a slope of **1.000** — the ramp, at exactly 45 degrees — and from 97.76 in,
+the full tent's own tip.
+
+**And the faces themselves, which is what a slicer looks at.** Over the hole's roof (z 92.00–99.95,
+x ±10, y 19.5–30.5), auditing every face that hangs in this run by |n_y| — 1.0000 is a ceiling, 0.7071 is
+exactly 45 degrees:
+- the **cap** version has **4 faces flatter than 45 degrees**, the worst at |n_y| = **1.0000**: two triangles
+  of pure ceiling at y = 23.05, 6.80 over the axis, at x = ±0.68, z = 99.00 and 99.40 — the 4.08 mm of flat
+  the user pointed at;
+- the **ramp** version has **2**, both at |n_y| = **0.7127** (44.5 degrees), and both are present in *both*
+  versions: the 48-gon's own facet at the tent's tangent points (x = ±4.48), a polygon artifact half a degree
+  under the rule's line. **No ceiling anywhere.**
+
+`probe_gland` moved with the cut — its tent piece is ramped 0.5 mm inside the cut's own ramp, so it still
+rides on no face of the void it tests. The base's volume falls **2.17 mm³** (66104.50 → **66102.33**): the
+ramp opens the roof that the cap had closed, over the 2.04 mm of depth where the two differ.
+
+**Two traps this pair of amendments paid for, worth keeping:** a flat roof is a bridge wherever it stands,
+so "the tent covers the band" is not the same statement as "nothing over the band has to be bridged"; and
+the position of a hole in the print's own vertical never changes what has to be supported — a support
+question is only ever answered by the angle of the faces the print leaves hanging.
 
 **What came after, and all of it is now drawn or cut:** the gasket ring (ADR-024's shoulder), the vent
 (ADR-026), the membranes' seats (ADR-023 answered them: there is nothing to cut), and the mounting closed

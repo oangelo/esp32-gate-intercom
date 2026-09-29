@@ -256,9 +256,13 @@ edge, so a gland directly above it is the shortest cable route and the only one 
 the case. It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
 a 50 degree tail, a **Ø12.50 mm** hole round over the whole of its length — the PG7's thread passes it and
-the gasket's washer lands on the flat around it — with a teardrop carrying its roof into the cavity, the
-tent's tip **capped at 6.80 mm** from the axis so that it runs through the collar band as well and still
-leaves the washer its **1.20 mm of land** (2026-09-28), and a pad under the locknut that leaves **7.65 mm**
+the gasket's washer lands on the flat around it — with a teardrop carrying its roof into the cavity over
+that whole length, and where it reaches the flat it is a **45 degree ramp** rather than a flat cap: the
+roof stands **6.80 mm** over the axis at the flat's own face, which still leaves the washer its **1.20 mm
+of land**, and every face of the roof is then a 45 degree surface, so the print has nothing over the hole
+to bridge (2026-09-28, the second amendment that day: a flat cap there *is* a bridge, and moving the hole
+cannot change that — the tent's beginning sits 4.42 mm above its axis and the plate is the back plate's own
+face), and a pad under the locknut that leaves **7.65 mm**
 of material to
 thread into (ADR-025). The **vent** is decided too, and cut: on the **-X side**, mid-height, a Ø4.00 hole
 whose mouth carries a **Ø11.00 × 0.35 recess** for the membrane patch to drop into, so the adhesive lands

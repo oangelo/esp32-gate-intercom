@@ -95,8 +95,9 @@ flush instead of sitting proud on the wall — 0.50 of clearance around a Ø10.0
 the floor goes from 3.40 to 3.05. A counterbore in a vertical wall adds no overhang to the print. The two microphone membranes are
 drawn too, as patches on the bottom's own curve — `show_mic_mem` — and nothing is cut for them, which is
 ADR-023's answer to "the membranes' seats". The gland's top is cut (ADR-025):
-a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole whose first 1.20 mm stay round for the gasket's
-washer and which then becomes a teardrop into the cavity, and a pad under the locknut. The pigtail
+a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole that is a teardrop over its whole length -- its roof
+meeting the flat on a 45 degree ramp, which leaves the gasket's washer its 1.20 mm of land without leaving
+the print anything to bridge -- and a pad under the locknut. The pigtail
 leaves the gland and drops straight into the unit's USB-C, which points up at the unit's top edge.
 `probe_gland` is what proves that opening is one hole. The two mounting ears were drawn and then dropped, by
 the user, the same day: what fixes the case is the two M4 through the back plate, so nothing is added to the
