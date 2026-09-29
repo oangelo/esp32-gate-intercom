@@ -13,7 +13,7 @@ check:
 	@mkdir -p $(BUILD)
 	@openscad -D 'part="assembly"' -o $(BUILD)/check.stl $(SCAD) > $(BUILD)/openscad.log 2>&1 \
 		|| { cat $(BUILD)/openscad.log; exit 1; }
-	@grep -iE 'warning|error' $(BUILD)/openscad.log || echo "clean compile"
+	@grep -iE 'warning|error' $(BUILD)/openscad.log | grep -viE 'status: *noerror' || echo "clean compile"
 
 ## Export both printed parts
 stl: base lid gasket
