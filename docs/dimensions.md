@@ -250,10 +250,18 @@ fixing: there are no mounting ears on the sides — the plate beds on the post a
 diameter and the depth of its body behind the panel are measured on arrival and become parameters in the
 same file. Neither the gland nor the vent touches the back
 plate: that face is what beds against the wall, so nothing but the wall screws' own holes goes through it,
-and the microphone ports are on the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user), on the unit's own axis
-29.85 mm back from the crown — the unit's centre in the depth: the unit's USB-C points **up** at its top
+and the microphone ports are on the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user): it stood on the unit's own axis
+29.85 mm back from the crown — the unit's centre in the depth, because the unit's USB-C points **up** at its top
 edge, so a gland directly above it is the shortest cable route and the only one that needs no bend inside
-the case. It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of
+the case — and on 2026-09-29 (the user) it moved **10.59 mm further back, to 40.44 mm**: the deepest point
+the part allows, where the boss's own tail clears the cavity's floor by 0.50 mm, the same clearance the
+cradles keep. That costs the route its plumb line: the port is still under the hole, so the pigtail now
+leans about 17 degrees. It buys nothing for the print, and that is measured rather than argued — the
+teardrop travels rigidly with the hole (its roof reads 6.810 / 7.100 / 8.000 / 8.600 / 8.839 mm over the
+axis on both sides of the move) and the hanging faces in the roof region are the same 22, the same angles,
+only 10.59 mm further along Y. To land the tent's beginning on the bed the axis would have to sit at
+y = 63.12, which is 4.42 mm **behind** the back plate itself.
+It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
 a 50 degree tail, a **Ø12.50 mm** hole round over the whole of its length — the PG7's thread passes it and
 the gasket's washer lands on the flat around it — with a teardrop carrying its roof into the cavity over

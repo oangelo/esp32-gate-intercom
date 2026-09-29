@@ -559,7 +559,9 @@ an error in OpenSCAD**: it is geometry that quietly does not happen. Check every
 **Decision (2026-09-26, the user's):** the 5 V entry is a **PG7 through the top of the case**, on the
 unit's own axis — (x = 0, y = 29.85), the unit's centre in the depth — standing on a **raised boss**, so
 that the gland's gasket and its locknut both land on flat faces. The vent stays on the bottom or on a
-side; the back plate still carries nothing at all.
+side; the back plate still carries nothing at all. **That placement was moved on 2026-09-29: the gland now
+sits at y = 40.44, 10.59 mm further back — see ADR-030, which also corrects this ADR's own units on the
+tail's angle.**
 
 **Why the top, and not the bottom or a side as the earlier rounds had it:** the unit's own USB-C is at the
 unit's top edge, pointing **up** (its centre in the vendor's frame is (0, −24.60), which in the case's
@@ -610,7 +612,8 @@ to 101.80. The wrong paragraph above was itself written from a measurement read 
 instead of its numbers — the radius list at the flat was `[11.0, 14.36]`, with no 6.25 in it, while
 inviting the reader to see one.
 
-**Measured after the fix, by ray-casting the exported STL along the gland's own axis (x = 0, y = 29.85):**
+**Measured after the fix, by ray-casting the exported STL along the gland's own axis (x = 0, y = 29.85 — the
+axis has been at 40.44 since ADR-030, and every number here travels with it, unchanged):**
 at z = 99.50, 0.30 under the flat, the axis is in the **void** — the ray crosses the hole's wall at 6.25
 and the boss's outer wall at 11.00 — where that same point was in **material** before the fix. 8.00 out at
 the same height is still material (one crossing, at 11.00), which is the pair that keeps the first result
@@ -939,4 +942,61 @@ own height (z = 33.400), from the axis outward, settles both bands:
 **1050.52 mm³** away with it, so the net is **−98.33 mm³** — a tenth of a cubic centimetre *less* filament than
 before, for a band that locates the unit. Both numbers are measured, by rebuilding the base with the back band
 commented out (`65157.41 mm³`: no collar, front band only). The lid is not touched at all.
+
+## ADR-030: the gland moves 10.59 mm back along +Y, and the print does not notice
+
+**Decision (2026-09-29, the user's — asked twice: "vamos mover o furo, de maneira que o início do teardrop
+comece na placa de impressão", and then "quero que mova em y, na direção positiva, para as costas da base,
+entendeu? claro que dá."):** the hole's axis moves off the unit's own axis, from **y = 29.85 to y = 40.44** —
+10.59 mm further back along +Y, the deepest point the part allows: the boss's own tail ends at 40.44 + 14.36 =
+**54.80**, which clears the cavity's floor by **0.50 mm**, the clearance the cradles keep. It is one
+translation of the whole feature — hole, boss, tail and the locknut's pad — and it is a parameter
+(`gland_cy`), so it is one number to move again.
+
+**Why it stops there, and not at the back plate:** the binding constraint is not the hole but the **boss's
+tail**. The bore alone could go to y = 49.05, where it grazes the plate's inner face, but the tail (14.36 mm
+from the axis) would then be through the plate and out of the case's back at 63.41, 4.71 mm past its outer
+face. What the hole reaches for nothing is free: the cavity's depth is 8 to 55.30 and the plate is only 3.40
+thick, so the last 14.86 mm of this case is a solid wall the gland may not enter.
+
+**What it costs: the cable route loses its plumb line.** ADR-025 put the gland on the unit's own axis because
+that is the only place the pigtail reaches the USB-C with no bend. The port is still under the hole, but 10.59
+mm off centre, so the run from the gland to the port is now a flight of about **17 degrees** instead of a
+plumb line. That is the whole price, it is the user's call to pay, and it is recorded here rather than
+argued about.
+
+**Why the print does not notice — measured, not argued.** Four numbers, on the STL, either side of the move:
+- the roof over the axis reads **6.810 / 7.100 / 8.000 / 8.600 / 8.839 mm** at z = 99.79, 99.50, 98.60, 98.00
+  and 97.70 — the same numbers to the thousandth that the hole read before the move, because the relief
+  travels rigidly with the hole;
+- the audit of faces that hang in the roof region gives the **same 22 faces at the same angles** — worst
+  |n_y| = 0.7770, then 0.7660, and the 48-gon's 0.7127 facet — with their centroids **exactly 10.59 mm**
+  further along Y (38.27 → 48.86, 39.96 → 50.55);
+- the base's volume is **66102.33 mm³, unchanged to the hundredth**: a translation that touched no boundary of
+  the solid would leave it untouched, and it did;
+- `make check` clean and `make fit` **12 of 12** empty, `probe_gland` (the hole is one hole) and `fitcheck`
+  (the unit's ghost) among them.
+
+**The finding underneath the request, since it will come back: in this feature the point of a teardrop
+cannot be born at the bed.** The request is the beginning of the teardrop on the print's first layer, and the
+first layer of this base *is* the back plate (y = 58.70). Both teardrops in the gland are ruled out by
+arithmetic, not by taste:
+- the **hole's** teardrop begins where its flanks leave the bore, r cos 45 = **4.42 mm above the axis**. For
+  that to land on the bed the axis would need y = **63.12** — 4.42 mm *behind* the plate's own outer face.
+  Moving the axis cannot do it, and the move has already been made to its limit. Today that beginning sits
+  **22.68 mm above the bed**, where it was 33.27;
+- the **boss's tail** is the other teardrop, and it is the one whose point is 3.90 mm above the bed. Its
+  flanks are tangent to the boss's Ø22, which fixes the point's distance at 11/cos(angle): a *shorter* wedge
+  cannot reach further, and a *longer* one does not exist — the flanks converge. To land the point on the bed
+  the tangent would have to sit at **37 degrees off vertical** (3 less printable than rule 4 allows), and to
+  land it flat on the bed it would have to be a buttress **36.5 mm wide** on the crown. Neither is paid for
+  here.
+- **One correction to the ledger, found while measuring this.** ADR-025 says the tail's sides are "tangent to
+  the boss's circle at 40 degrees ... the worst surface 40 degrees off vertical against rule 4's 45". The
+  audit disagrees with the units: those 22 faces sit at |n_y| = 0.766 to 0.777, which is **39 to 40 degrees
+  off the horizontal** — that is **50 degrees off vertical**, five past rule 4, which is where the mild droop
+  on the tail's flanks comes from. Setting the tail's tangent to 45 degrees would put it exactly on rule 4 and
+  move its point from 3.90 to 4.50 mm above the bed; it changes the boss's outside silhouette, so it waits for
+  the user.
+
 

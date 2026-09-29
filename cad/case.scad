@@ -721,12 +721,15 @@ mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactl
 // plain prism along the depth, which mirrors by construction.
 
 // ------------------------------------------------------ features: cable gland (base, the top)
-// The 5 V entry, and the cable route with it: a PG7 through the TOP of the case, on the unit's own axis
-// (0, 29.85). That is exactly where the pigtail wants to be -- the unit's USB-C is on that axis at its
-// top edge, pointing up (its centre in the vendor's frame is (0, -24.60), which in the case's own frame
-// is z = 58.30, right at the top of the unit) -- so the cable leaves the gland and drops straight into
-// the port, with no bend inside the cavity and nothing to tie it to. That is the whole argument for the
-// top over the bottom: geometry, not looks (ADR-025).
+// The 5 V entry, and the cable route with it: a PG7 through the TOP of the case. It started on the
+// unit's own axis (0, 29.85) -- exactly where the pigtail wants to be, since the unit's USB-C is on that
+// axis at its top edge pointing up (its centre in the vendor's frame is (0, -24.60), which in the case's
+// own frame is z = 58.30, right at the top of the unit) -- so the cable used to leave the gland and drop
+// straight into the port, with no bend inside the cavity. That is the argument for the TOP over the
+// bottom: geometry, not looks (ADR-025). On 2026-09-29 the user moved it 10.59 mm back along +Y, as far
+// as the part allows (see gland_cy), to bring the teardrop's beginning as low in the print as it can go;
+// the port is still under the hole, so the drop is now a flight of about 17 degrees rather than a plumb
+// line, and that is the one thing the move cost.
 //
 // Two things make the top awkward, and both are answered here rather than worked around:
 //
@@ -744,7 +747,22 @@ mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactl
 //     inside, which has to be a PAD raised on the cavity's curved ceiling rather than a spot-face cut into
 //     it -- there is no material over the arch to cut -- gets the same teardrop for the same reason.
 gland_cz      = case_h;                 // 96.80: the apex of the top's cylinder, where the boss stands
-gland_cy      = unit_cy;                // 29.85: on the unit's axis, straight above the USB-C
+gland_cy      = 40.44;                  // 10.59 mm BEHIND the unit's own axis (unit_cy = 29.85), which is
+                                        // as far back as this gland can go: any further and the boss's tail
+                                        // (gland_tail_y, 14.36 out from the axis) reaches the cavity's
+                                        // floor -- 40.44 + 14.36 = 54.80, 0.50 mm clear of it, the same
+                                        // clearance the cradles keep. 2026-09-29, the user's call, to
+                                        // bring the teardrop's beginning as low in the print as the part
+                                        // allows: it now sits 22.68 mm above the bed where it sat 33.27.
+                                        // The bed IS the back plate, and the tent's beginning is
+                                        // r cos 45 = 4.42 above the axis, so landing it on the bed would
+                                        // put the axis 4.42 mm BEHIND that plate, outside the case: this
+                                        // is the closest this hole can come to it. What it costs is the
+                                        // cable route: the pigtail leant on the drop before (ADR-025),
+                                        // and now it leans about 17 degrees forward into the port. What
+                                        // it does NOT change is the print: the relief travels with the
+                                        // hole, the roof's faces are the same 45 degree surfaces, and the
+                                        // measurements are identical over the new axis
 gland_proud   = 3.00;                   // how far the boss's flat stands above that apex
 gland_flat_z  = gland_cz + gland_proud; // 99.80: the face the gland's gasket lands on
 gland_root_z  = 94.00;                  // where the boss's prism is buried. At z = 94 the case's own
