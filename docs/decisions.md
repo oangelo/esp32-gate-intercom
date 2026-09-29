@@ -988,7 +988,7 @@ arithmetic, not by taste:
 - the **boss's tail** is the other teardrop, and it is the one whose point is 3.90 mm above the bed. Its
   flanks are tangent to the boss's Ø22, which fixes the point's distance at 11/cos(angle): a *shorter* wedge
   cannot reach further, and a *longer* one does not exist — the flanks converge. To land the point on the bed
-  the tangent would have to sit at **37 degrees off vertical** (3 less printable than rule 4 allows), and to
+  the tangent would have to sit at **37 degrees off vertical**, which is 8 degrees past what rule 4 allows, and to
   land it flat on the bed it would have to be a buttress **36.5 mm wide** on the crown. Neither is paid for
   here.
 - **One correction to the ledger, found while measuring this.** ADR-025 says the tail's sides are "tangent to
