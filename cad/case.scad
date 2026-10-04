@@ -23,7 +23,8 @@
 // Z = height (0 at the floor). The case stands upright in use.
 //
 // PRINT ORIENTATION: both parts print lying down, with the case's Y as the printer's Z.
-// The base prints on its back plate (cavity opening up, pillars vertical, microphone slots vertical)
+// The base prints on its back plate (cavity opening up, insert holes vertical, microphone slots
+// vertical)
 // and the lid prints on its face (cavity opening up, so the grille's 49 holes come out as
 // vertical holes instead of a 44 mm ceiling to bridge, and the lands that step 2 spot-faces into the
 // crown give it its bed contact). The lap costs neither part a support, and with the lip flush there is
@@ -95,7 +96,7 @@ part    = "review";     // the one selector: review | inside | assembly | inside
 // everything, exactly as before.
 //
 // Why they exist: the review view is the joint seen through the shell, and six solids at once is a lot
-// to read. Un-tick what is in the way -- the unit to look at the pillar against the switch, the screws
+// to read. Un-tick what is in the way -- the unit to look at the carrier against the switch, the screws
 // to look at the holes they will sit in, both shells to look at the marker set alone.
 //
 // One trap, measured: the shell is a % (background) object and `--render` does not draw those at all --
@@ -104,10 +105,10 @@ part    = "review";     // the one selector: review | inside | assembly | inside
 // `show_solid`, which draws it as an ordinary opaque object instead.
 /* [The review view] */
 show_lid      = true;   // [true,false]  the front shell, with its grille and the button
-show_base     = true;   // [true,false]  the back tray, with the bosses and the pillars
+show_base     = true;   // [true,false]  the back tray, with the bosses and the carriers
 show_solid    = false;  // [true,false]  the shell solid and opaque, instead of a % (background) object
 show_unit     = true;   // [true,false]  the assembled Waveshare, as a ghost
-show_screws   = true;   // [true,false]  the two M3, their pillars and the brass inserts
+show_screws   = true;   // [true,false]  the two M3, their carriers and the brass inserts
 show_cradles  = true;   // [true,false]  the arcs that cradle the unit, at both ends of it (cut material,
                         //                drawn green so it reads under the shell)
 show_m4       = true;   // [true,false]  the two M4 into the wall, as markers: the pockets and holes they
@@ -629,8 +630,8 @@ pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says
 // (0, 76)) leave a corridor on either side of the centre line. REVIEW 2 put the screw at (17, 68);
 // with a O8.2 boss around it on the lid's inner face the gap to the switch's O30 nut flange drops to
 // 0.09 mm, which is contact. The pair moves to (18, 67): 1.4 mm to that flange, 3.0 mm to the unit's
-// collar as it stood then (out now: ADR-029), 8.9 mm to the cavity's side wall, and the pillar's own
-// O8 clears the switch's body by 5.1 mm.
+// collar as it stood then (out now: ADR-029), 8.9 mm to the cavity's side wall, and what carries the
+// insert there (the pillar then, the gusset now, ADR-031) clears the switch's body by 4.2 mm.
 m3b        = [18.0, 67.0];
 m3b_d      = 3.40;      // clearance hole for M3 through the lid's boss
 m3b_head_d = 5.70;      // counterbore: the DIN 912 M3 head is O5.5 x 3.0, plus 0.05 a side
@@ -640,11 +641,49 @@ m3b_head_h = 3.20;      // counterbore depth: 3.0 of head and 0.2 of recess, so 
 m3b_boss_d = 8.20;      // the lid's internal boss: 1.25 mm of wall around the counterbore (rule 3)
 m3b_boss_h = 3.00;      // leaves 2.84 mm of material under the head, which is what the head clamps
 m3b_shank  = 12.0;      // M3 x 12 socket head, the length the BOM already lists
-// The pillar: it stands off the back plate (y = inner_d) to the joint plane, 47 mm long. The base
-// prints lying on its back plate, so the case's Y is the printer's Z -- the pillar prints as a plain
-// vertical column, with no support and no bridged hole.
-m3b_pil_d  = 8.00;
-m3b_pil_y  = joint_y;
+// The CARRIER (2026-10-04): what holds the insert no longer climbs from the back plate. It grows from
+// the cavity's SIDE WALL, in the same family as the four arcs that cradle the unit (ADR-028): a gusset
+// keyed into the wall, with the insert's hole bored straight into its flat top. The pillar it replaced
+// was a 47 mm column standing free in the cavity, a 47 mm lever with its insert 47 mm from the mouth;
+// the carrier is short and its insert is pressed in 10 mm from the mouth.
+//
+// It is ONE shape: a ramp, a vertical face and a flat top. No cylinder and no cone, and that is the
+// point (ADR-031): a boss standing on the gusset would need its own far end closed by a cone so its
+// disk did not appear whole in mid-air, and the ramp's top already IS a flat surface the print lays
+// down last, normal to the screw. Boring the hole into that surface is the whole of it.
+//
+// The print sets all three surfaces, and all three are surfaces the cradles already print:
+//   - the ramp, at the cradles' own 0.84 mm out per mm of depth (ADR-028), so it starts as a line on
+//     the wall and thickens as the print rises: never a ledge, never a bridged face;
+//   - the face, VERTICAL (n_y = 0), as the pillar was;
+//   - the top, flat and facing -Y: the first surface the print can lay material on over open air.
+m3c_ramp   = 0.84;      // mm out from the wall per mm along the depth: the cradles' own ramp
+m3c_face_x = 14.0;      // 14.00: the gusset's inner face. The insert's hole is at 18.00 and O4.00, so
+                        // its edge is at 16.00 and this leaves 2.00 of material on that side: the same
+                        // wall the O8 pillar used to give it, and rule 3's 1.20 with room to spare
+m3c_top_y  = joint_y;   // 8.00: the flat top, ON the joint plane -- the surface the insert is pressed
+                        // into, and the last thing the print lays down
+m3c_ramp_y0 = 15.0;     // where the face ends and the ramp begins. Above it the ramp runs at
+                        // x = m3c_face_x + m3c_ramp * (y - m3c_ramp_y0), so at the hole's own x (18.00)
+                        // the material reaches 19.76: 1.76 mm behind the hole's floor at 18.00, and
+                        // that floor is not sitting on the ramp's own surface
+m3c_wall_x = sqrt(pow(cav_x, 2) - pow(m3b[1] - z_top, 2));   // 29.78: the cavity's side wall at the
+                        // screw's own z. The cavity's top end is a circle (r = cav_x about z_top), so
+                        // the wall is a function of z alone: 29.78 here, 28.87 at the gusset's top,
+                        // 0.9 further in, which is one of the things that bounds the gusset's height
+m3c_key    = 0.75;      // how far past that wall the gusset runs, into the shell's own material:
+                        // added material joins cleanly when it is not coplanar with the face it lands on
+// The same two faces again, in the SCREW's own frame (m3_carrier is built there, at x = 0 and z = 0 on
+// the screw's axis, and m3_carriers puts the pair in). The carrier is not symmetric about that axis --
+// the gusset grows outward -- so these are what the mirror below turns into the other side.
+m3c_face_xl = m3c_face_x - m3b[0];                  // -4.00
+m3c_wall_xl = m3c_wall_x + m3c_key - m3b[0];        // 12.53
+m3c_ramp_y = m3c_ramp_y0
+             + (m3c_wall_x + m3c_key - m3c_face_x) / m3c_ramp;   // 34.68: where the ramp reaches the
+                        // wall. It is the carrier's deepest material, and the first layer it appears in
+m3c_z_h    = 3.50;      // half the gusset's height: 63.50 to 70.50. The hole is O4.00, so that is 1.50
+                        // of material above and below it, and 1.35 mm clear of the unit's own top edge
+                        // at 62.15
 m3b_ins_d  = 4.00;      // blind hole for the insert (BOM: M3 heat-set insert, 4.6 OD x 5 long)
 m3b_ins_l  = 5.00;
 m3b_ins_h  = 10.0;      // hole depth: 5.0 of insert plus 5.0 of relief for the M3 x 12's tip
@@ -655,7 +694,7 @@ m3b_face_y   = crown_r - sqrt(pow(crown_r, 2) - pow(m3b[0], 2));          // 1.4
 m3b_wallin_y = crown_r - sqrt(pow(crown_in, 2) - pow(m3b[0], 2));        // 4.47, its inner face
 m3b_seat_y   = m3b_face_y + m3b_head_h;                                    // 4.66, the head's seat
 // Worked end to end: the shank runs from m3b_seat_y to 16.66, the insert spans 8.00 to 13.00 (all
-// 5 mm of it bitten) and the pillar's blind hole ends at 18.00, 1.34 mm clear of the tip.
+// 5 mm of it bitten) and the carrier's blind hole ends at 18.00, 1.34 mm clear of the tip.
 //
 // The collar on the floor (the "lábio") is GONE as of 2026-09-28 -- ADR-020 is superseded by ADR-029.
 // It was the ring of rim that located the unit's back end: bore O57.90 against the unit's O57.50 (0.20
@@ -862,32 +901,44 @@ vent_mem_d  = 10.00;    // the stick-on membrane patch, drawn as a marker. A fla
 vent_mem_t  = 0.35;     // membrane plus its adhesive, and equal to vent_recess_t: the marker ends flush
 
 module screw_markers2() {
-    // REVIEW 3, drawn only, nothing cut here: the two screws, their pillars and their inserts. All of
+    // REVIEW 3, drawn only, nothing cut here: the two screws, their carriers and their inserts. All of
     // them are the SAME solids the fit check below bites into, so what you look at and what the boolean
-    // tests cannot drift apart. The pillar goes translucent so the brass insert in its top reads
-    // through it. The cradles are NOT here: they have their own switch (`show_cradles`), since they are
-    // cut material like the collar they replaced.
-    color("blue", 0.35)  m3b_points() m3_pillar();
+    // tests cannot drift apart. The CARRIERS' markers come from m3_carriers and not from m3b_points: the
+    // gusset is not symmetric about the screw, so a translate would leave the second one floating
+    // inboard (which is exactly how that was caught). They go translucent so the brass insert in each
+    // top reads through. The cradles are NOT here: they have their own switch (`show_cradles`), since
+    // they are cut material like the collar they replaced.
+    color("blue", 0.35)  m3_carriers();
     color("gold", 0.95)  m3b_points() m3_insert();
     color("red", 0.95)   m3b_points() m3_screw();
 }
 
-fc = "all";             // narrows fitcheck_joint: all | screw | neighbours | cradles
+fc = "all";             // narrows fitcheck_joint: all | screw | neighbours | cradles | carriers
 
 module fitcheck_joint() {
-    // The review-3 joint, by boolean instead of by eye. Three questions, one volume, and `fc` narrows
+    // The review-3 joint, by boolean instead of by eye. Four questions, one volume, and `fc` narrows
     // it to one of them when the answer is not empty:
     //  1. "screw": the screw's OWN solid against both printed parts: the counterbore, the shank hole
-    //     and the pillar's blind hole all have to swallow it, with the lid's boss in the way and with
+    //     and the carrier's blind hole all have to swallow it, with the lid's boss in the way and with
     //     the insert sharing the hole it is pressed into;
-    //  2. "neighbours": the pillar and the boss against the unit and the switch's body behind the panel
-    //     (its O30 flange is the same obstruction, being what button_lands_cut spot-faces away);
+    //  2. "neighbours": the carriers and the lid's own boss against the unit and the switch's body
+    //     behind the panel (its O30 flange is the same obstruction, being what button_lands_cut
+    //     spot-faces away);
     //  3. "cradles": the four arcs are cut material now (ADR-028, ADR-029), so their own clearance is a
     //     real question -- 0.25 mm all round the unit, which is what `cradle_clr` is for. It bites the
     //     arcs rather than base(), which they are part of: against base() this check would meet by
     //     construction and say nothing. It is `fitcheck`'s question asked of one feature, and the M4
     //     heads ride along: at 13.2 mm off the unit's axis they are 15.8 mm inside a band at 29.0, so
     //     the check is what keeps them that way if either one moves.
+    //  4. "carriers": the carriers against the LID, which is the lap's question asked of them. The
+    //     recess that takes the lid's lip is cut from the base AFTER the carriers are in it, so a
+    //     gusset that reached into the outer 1.70 of the wall would have its end quietly eaten by that
+    //     cut. They stop short of it: 30.53 against the recess's own 30.70 at the gusset's top edge
+    //     (0.17 mm, the tightest point in the piece) and 1.18 mm against the lip's inner face. This is
+    //     the check that keeps it that way if either the carriers or the lap moves. The joint plane
+    //     itself is taken out of it, like fitcheck_pair does: the carrier's front face and the lid's own
+    //     cut face both end on y = 8, and a shared plane is a zero-thickness sheet to CGAL, not a
+    //     clearance.
     if (fc == "all" || fc == "screw")
         intersection() {
             m3b_points() m3_screw();
@@ -895,7 +946,7 @@ module fitcheck_joint() {
         }
     if (fc == "all" || fc == "neighbours")
         intersection() {
-            union() { m3_pillars(); m3b_points() m3_boss(); }
+            union() { m3_carriers(); m3b_points() m3_boss(); }
             union() { ghost_unit(); switch_body(); button_lands_cut(); }
         }
     if (fc == "all" || fc == "cradles")
@@ -903,6 +954,8 @@ module fitcheck_joint() {
             unit_cradles();
             union() { ghost_unit(); m4_heads(); }
         }
+    if (fc == "all" || fc == "carriers")
+        intersection() { m3_carriers(); lid(); keep_above(joint_y + eps); }
 }
 
 module screw_markers() {
@@ -953,22 +1006,69 @@ module m3_lid_cuts() {
     }
 }
 
-module m3_pillar() {
-    // The pillar as a solid: off the back plate (5 mm of plate behind it) to the joint plane, i.e. it
-    // spans m3b_pil_y to inner_d. The base prints on that back plate, so this is a vertical column: no
-    // support, and its blind hole prints as a vertical hole, not a ceiling to bridge.
-    translate([0, m3b_pil_y, 0]) rotate([-90, 0, 0])
-        cylinder(d = m3b_pil_d, h = inner_d - m3b_pil_y);
+module m3_carrier() {
+    // One carrier as a solid, built in the SCREW's own frame -- x = 0 and z = 0 are the screw's axis.
+    // m3_carriers below puts the pair in, and m3_carrier_holes bores the insert's hole. Both the render
+    // and the fit check use THIS module, so what you look at and what the boolean tests bite cannot
+    // drift apart.
+    //
+    // One profile in (x, y) extruded across z, and nothing else: the ramp from the wall in to the face,
+    // the face itself (vertical), and the flat top the hole goes into. Every side face of it is either
+    // the ramp (0.84 mm out per mm of depth, facing up in the print), the vertical face, or the flat top
+    // at y = 8 -- so none of them can hang, and there is no boss to close and no cone to add (ADR-031).
+    translate([0, 0, -m3c_z_h])
+        linear_extrude(height = 2 * m3c_z_h)
+            polygon(points = [
+                [m3c_face_xl,     m3c_top_y],
+                [m3c_face_xl,     m3c_ramp_y0],
+                [m3c_wall_xl,     m3c_ramp_y],
+                [m3c_wall_xl,     m3c_top_y],
+            ]);
 }
 
-module m3_pillars() { m3b_points() m3_pillar(); }
+module m3_carriers() {
+    // The pair, one per screw, and a MIRROR rather than a translate for the second: the gusset only
+    // exists on the outward side of its own screw, so the two are not the same shape slid across. (The
+    // screws themselves, the lid's boss and the holes ARE symmetric, so those still go in through
+    // m3b_points.) Mirroring also keeps each one's ramp facing up in the print, on both sides.
+    translate([m3b[0], 0, m3b[1]]) m3_carrier();
+    mirror([1, 0, 0]) translate([m3b[0], 0, m3b[1]]) m3_carrier();
+}
 
-module m3_pillar_holes() {
-    // The blind hole for the brass insert: O4.0 x 10. The 5 mm insert ends flush with the pillar's
-    // face and the M3 x 12's tip still has 5 mm of relief under it, so the screw cannot bottom out
-    // on plastic before it clamps.
-    m3b_points() translate([0, m3b_pil_y - eps, 0]) rotate([-90, 0, 0])
+module m3_carrier_holes() {
+    // The blind hole for the brass insert: O4.0 x 10, bored straight into the carrier's flat top (the
+    // test that it lands in solid material is probe_carrier). The 5 mm insert ends flush with that top
+    // and the M3 x 12's tip still has 5 mm of relief under it, so the screw cannot bottom out on
+    // plastic before it clamps. Bored along Y, it prints as a vertical hole, not a ceiling to bridge.
+    m3b_points() translate([0, m3c_top_y - eps, 0]) rotate([-90, 0, 0])
         cylinder(d = m3b_ins_d, h = m3b_ins_h);
+}
+
+module carrier_probe() {
+    // The carriers' own material, where it has to BE: two rods per side. Unlike every other probe in
+    // this file this one is checked by a DIFFERENCE, not an intersection -- "cut these out of the base"
+    // must come back empty, which is the opposite question from "these two must not touch". It exists
+    // because a carrier built in the wrong frame once passed the fit check by floating clear of
+    // everything it was supposed to touch: empty intersections prove nothing about whether the material
+    // is in the right place. What it insists on:
+    //   - a O6.5 ring around the insert's hole, from 9 to 15: 2.00 mm of material between the hole and
+    //     the carrier's face, which is what the O8 pillar used to provide and what rule 3 asks for. It
+    //     stops at 15 rather than 17 because the ramp is only at y = 17 by x = 15.68: past that the
+    //     ring's own deep edge would be standing in air, which the check would (correctly) call missing
+    //     material at the tip of the test;
+    //   - a 4.5 x 6 x 6 block through the ramp's middle at 18 to 24, which is the ramp's own zone and
+    //     the part of it a mis-built carrier would be missing. (It was 8 deep and reached 26; the
+    //     ramp's own line is at 25.12 by x = 22.5, so the block's top corner poked out of it. The probe
+    //     is what caught that too -- a rod that pokes out is material the base does not have.)
+    for (s = [1, -1]) {
+        translate([s * m3b[0], m3c_top_y + 1, m3b[1]]) rotate([-90, 0, 0])
+            difference() {
+                cylinder(d = 6.50, h = 6);
+                cylinder(d = m3b_ins_d + 2 * eps, h = 6 + 1);
+            }
+        translate([s * 24.75 - 2.25, 18, m3b[1] - 3])
+            cube([4.50, 6, 6]);
+    }
 }
 
 module m4_pockets() {
@@ -990,7 +1090,7 @@ module m4_pockets() {
 
 module m3_insert() {
     // The brass insert as a solid: M3 heat-set, 4.6 OD x 5 long (BOM). Drawn where it ENDS UP in use,
-    // i.e. flush with the pillar's face, not sticking out as it does before it goes in.
+    // i.e. flush with the boss's face, not sticking out as it does before it goes in.
     rotate([-90, 0, 0]) cylinder(d = 4.60, h = m3b_ins_l);
 }
 
@@ -1003,7 +1103,7 @@ module m3_screw() {
 
 module switch_body() {
     // What the bought 22 mm switch puts BEHIND the panel: O22, 30 mm deep from the panel face
-    // (ADR-018). Nothing is cut with this -- it is a neighbour, to check the pillar and the boss.
+    // (ADR-018). Nothing is cut with this -- it is a neighbour, to check the carrier and the boss.
     translate([0, btn_land_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_cut, h = 30);
 }
 
@@ -1250,8 +1350,10 @@ module joint_recess_cut() {
     // The BASE's side of the lap: the outer lap_step + lap_gap of its wall over the same band. What is
     // left is a 1.70 mm rim that the lip slides over with 0.20 mm of clearance all the way round. A 2D
     // difference extruded in the band, cut from the base: the recess is exactly the material that has
-    // to go, and nothing else in the band is touched (the pillars are 11 mm inboard of it, and the
-    // cradles' own mouth face starts at 11.05, 0.04 mm behind this band -- which is the clearance
+    // to go, and nothing else in the band is touched. The carriers' gussets do reach into the wall, but
+    // they stop 0.17 mm short of this cut at the gusset's own top edge (30.53 against 30.70; what keeps
+    // that so is fitcheck_joint's "carriers"), and the cradles' own mouth face starts at 11.05, 0.04 mm
+    // behind this band -- which is the clearance
     // ADR-028 had to buy after a first cut reached into it and the boolean came back with the ring in
     // place).
     difference() {
@@ -1283,7 +1385,8 @@ module base() {
     // is bedded flat on the post -- and opened instead through its BOTTOM, where the two microphone
     // slots pierce the wall just behind the unit (step 3 of the feature list), and through its TOP,
     // where the cable gland does (ADR-025). What it carries is the three pads that push the unit forward
-    // onto the seat, the two pillars the lid screws into, the four arcs that cradle the unit at both
+    // onto the seat, the two carriers the lid screws into (ADR-031: they key into the side walls now
+    // instead of climbing from the back plate), the four arcs that cradle the unit at both
     // ends (ADR-028, ADR-029: the collar that used to hold its back end is out), the recess the lid's
     // lip drops into (the lap), the boss the gland sits on and the pad its locknut bears on.
     // The vent is cut through its side (ADR-026). Nothing is added to the sides: what holds the case is
@@ -1294,12 +1397,12 @@ module base() {
                 intersection() { body(); keep_above(joint_y); }
                 cavity();
             }
-            m3_pillars();
+            m3_carriers();
             unit_cradles();
             gland_boss();
             gland_nut_pad();
         }
-        m3_pillar_holes();
+        m3_carrier_holes();
         mic_slot_cut();
         gland_hole_cut();
         m4_pockets();
@@ -1311,7 +1414,8 @@ module base() {
 
 module lid() {
     // Front shell: the closed grille field over the unit's own grille, the button, the two
-    // counterbored holes whose screws pull it down onto the base's pillars, and the lip -- the outer
+    // counterbored holes whose screws pull it down onto the base's carriers (grown off the base's side
+    // walls, ADR-031), and the lip -- the outer
     // lap_step of its shell carried lap_d back past the joint plane, flush with the case's own
     // surface. The unit's seat and the grille are both at 6.25 or in front of it, so an 8.0 joint
     // leaves every feature of the front on the lid.
@@ -1514,7 +1618,7 @@ if (part == "base") {
 } else if (part == "fitcheck_internal") {
     ghosts_pairwise();
 } else if (part == "fitcheck_joint") {
-    // REVIEW 3: the screw against both printed parts, and the pillar and the boss against their
+    // REVIEW 3: the screw against both printed parts, and the carrier and the boss against their
     // neighbours. Must be empty.
     fitcheck_joint();
 } else if (part == "fitcheck_pair") {
@@ -1555,6 +1659,13 @@ if (part == "base") {
     // Against the BASE. Empty means the vent is a hole through the side wall and not a pocket in it:
     // the rod is 1 mm narrower than the O4.00 and spans the wall from inside the cavity to outside.
     intersection() { base(); vent_probe(); }
+} else if (part == "probe_carrier") {
+    // Against the BASE, and the one probe in the file that is a DIFFERENCE and not an intersection: it
+    // asks that the carriers' material IS there (the insert's seat inside the boss's wall, and the
+    // gusset's own middle), so it cuts its rods out of the base and must come back empty. The others
+    // ask whether two solids touch; this one asks whether a solid exists at all -- and a carrier once
+    // built in the wrong frame passed every one of them by floating clear of everything.
+    difference() { carrier_probe(); base(); }
 } else if (part == "fitcheck_gasket") {
     // The ring against both halves AT THE JOINT'S CLOSED GAP: the lid lifted the 0.70 the ring is
     // squeezed to, because in the dry, printed position that space is simply the lid's own material.

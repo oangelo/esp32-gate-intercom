@@ -282,6 +282,12 @@ echo path.
 
 ## ADR-019: the joint is two screws into inserts on pillars off the back plate
 
+**SUPERSEDED IN PART by ADR-031 (2026-10-04): the inserts are no longer on pillars off the back plate —
+they are pressed into gussets grown off the cavity's side walls. The screw, its counterbore, the boss on
+the lid's inner face, the M3 x 12 and the pair's position at (18, 67) are all unchanged; the pillar, and
+the 47 mm of it that stood between the insert and the plate, are out. What follows is the record of the
+joint as it was built.**
+
 **Decision:** the lid is held to the base by **two M3 x 12 socket head cap screws** (ISO 4762, head
 Ø5.5 x 3.0, stainless A2 into the brass inserts of ADR-017), in the corridor between the unit and the
 panel switch, at (18, 67) and its mirror on X. Each screw enters through a **cylindrical counterbore**
@@ -998,5 +1004,66 @@ arithmetic, not by taste:
   on the tail's flanks comes from. Setting the tail's tangent to 45 degrees would put it exactly on rule 4 and
   move its point from 3.90 to 4.50 mm above the bed; it changes the boss's outside silhouette, so it waits for
   the user.
+
+## ADR-031: the insert's carrier grows off the side wall, and the pillar is gone
+
+**Decision (2026-10-04, the user's, in two steps).** The two M3 that hold the lid no longer bite inserts in
+pillars standing off the back plate. The insert is pressed into a **gusset grown off the cavity's side
+wall** — the same family as the arcs that cradle the unit (ADR-028) — and the **Ø4 x 10 blind hole is bored
+straight into the gusset's flat top**. There is no boss and no cone, because the top is a surface the print
+lays down last and needs nothing under it.
+
+The user's first instruction moved the base of the column to the wall: *"as pilastras, ao invés de virem das
+costas da base, vão ficar apoiadas numa estrutura que cresce das laterais da base. Tipo o que foi feito para
+segurar a parte frontal da unit."* The second removed the boss: *"acho que fica mais fácil tirar o cilindro e
+só colocar o furo nessa peça que nasce da parede, pois assim não precisa ainda colocar o cilindro e uma coisa
+nele para evitar suporte em baixo. A própria rampa, com a superfície reta no topo, e furo no topo para o
+insert, já basta."* Both are right for the same reason: **a boss needs a closed far end, and a flat top does
+not.** The boss's disk against open air is a 50 mm² ceiling to bridge; closing it with a cone costs a
+surface; the ramp's own top is already flat, already facing -Y, and already normal to the screw.
+
+**The carrier, one profile in (x, y) extruded across z, mirrored for the second screw:**
+- the **face** at x = ±14.00, vertical. The hole is Ø4.00 at 18.00, so its edge is at 16.00 and the face
+  leaves **2.00 mm** of material on that side — the wall the Ø8 pillar used to give it, and rule 3's 1.20
+  with room to spare;
+- the **ramp** at the cradles' own 0.84 mm out per mm of depth (ADR-028), from the face at y = 15.00 out to
+  the wall (29.78, plus a 0.75 key into the shell's own material) at y = **34.68**;
+- the **flat top** at y = 8.00, which IS the joint plane, with the **Ø4 x 10** hole bored into it: the insert
+  spans 8.00 to 13.00, the M3 x 12's tip still has 5.00 mm of relief, and the hole's floor at 18.00 has
+  **1.77 mm** of material behind it (measured);
+- z = **63.50 to 70.50**: 1.50 of material above and below the hole, and **1.35 mm** to the unit's own top
+  edge at 62.15 — where a carrier tall enough to hold an Ø8 boss had only 0.35.
+
+**The lid is not touched, and neither the screw nor its position:** the counterbore, the boss on the lid's
+inner face (`m3_lid_boss`, Ø8.2, the surface the head clamps), the head's seat, the M3 x 12 and the pair's
+place at (18, 67) are exactly as ADR-019 left them, and the insert's axis is still Y. ADR-019 is superseded
+on the pillar alone.
+
+**Why the print does not notice — measured on the STL, and every surface is one the cradles already print:**
+- the carrier reaches its wall on both sides — x = -30.53 to +30.53, exactly mirrored — with a 0.84 ramp, a
+  vertical face, a flat top and vertical z faces. **Nothing it adds points at +Y**, so nothing needs support;
+- the base's volume is **64952.49 mm³**, 1149.84 less than the pillar version's 66102.33. The two carriers add
+  3604.96 mm³ of new material (3898.15 of them, less 293.19 the wall already occupied under their key) where
+  the two Ø8 x 47.30 pillars took 4754.79: the case comes out **lighter**, and the tallest free-standing thing
+  in the cavity is gone;
+- rays along the STL: at the screw's own axis, material from **17.99 to 19.76** (the hole's floor and the
+  ramp: 1.77 of plastic under the insert); at x = 25, **8.00 to 28.10** (the ramp's own line); at x = 14.50,
+  **8.00 to 15.60** (the face's edge); across at y = 9.50, **14.00-16.00 and 20.00-31.49** on both sides —
+  the face, the hole's wall, and the rim (the lap's recess starts at 31.49);
+- clearances: **4.2 mm** to the switch's body at the corner (14, 70.5), **1.35 mm** to the unit's top edge;
+- `make check` clean, `make fit` **13 of 13** empty, the new `probe_carrier` among them.
+
+**A trap paid for here, and the check that now catches it: an empty intersection proves nothing about whether
+the material exists.** The first cut of the carrier was built in the global frame while the pair goes in
+through `m3b_points()`, so it came out displaced — and **every** fit check passed, because a carrier floating
+clear of the unit and the switch interferes with nothing. The second cut had the placement right and still
+passed for the wrong reason: the review marker was drawn from `m3b_points() m3_carrier()` while the pair is
+`translate + mirror`, which left the second marker 12 mm inboard of its wall — what the user saw on the -x
+side as *"a mesma peça ... meio transparente e transladada"*. Both are fixed (the marker takes
+`m3_carriers()`, and the mirror is what makes the pair, since a gusset is not symmetric about its screw), and
+`probe_carrier` now asks the opposite question by **difference**: rods and blocks that must be *inside* the
+base's material, cut out of it, must come back empty. On its way in it caught itself — a ring whose deep edge
+reached y = 17 where the ramp is only at 15.89 by the ring's own inner edge (x = 14.75) — which is the grade
+of check this needed.
 
 

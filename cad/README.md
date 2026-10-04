@@ -6,7 +6,8 @@ through their walls:
 - **base** - the back tray: **closed on the wall face**, which is the one face that carries nothing
   because it beds flat on the post, and opened through its **bottom**, where the two microphone slots
   are cut (ADR-023). It carries the three pads that push the unit forward onto the seat, the two M3
-  pillars, the **unit cradles at each end** (ADR-028, ADR-029), the gland's boss and the pad its locknut bears
+  carriers (ADR-031: gussets grown off the side walls, their insert holes bored into their flat tops),
+  the **unit cradles at each end** (ADR-028, ADR-029), the gland's boss and the pad its locknut bears
   on, and — through its own back
   plate — the two M4 pockets and holes that ARE the fixing (ADR-021, ADR-027: no ears on the sides).
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
@@ -37,12 +38,15 @@ caliper's height — and the unit sits low (centre at 33.4) to free the upper ha
 `probe_m4`, `probe_vent`) — that the openings are open through the walls, by boolean instead of by eye.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
-into brass inserts per ADR-017) pull the lid down onto two pillars that stand off the back plate, in
+into brass inserts per ADR-017) pull the lid down onto two carriers that grow off the cavity's side
+walls (ADR-031 — they stood on pillars off the back plate until 2026-10-04), in
 the corridor between the unit and the panel switch. Each screw's counterbore is cut from the crown's
 own surface at the screw's x, and the lid's boss under it (`m3_lid_boss`) is what the head clamps --
 the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its own would leave the
-head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and `-D
-'fc="screw"'` / `-D 'fc="neighbours"'` splits it when the answer is not empty.
+head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and
+`-D 'fc=...'` narrows the answer when it is not empty -- `screw`, `neighbours`, `cradles` or
+`carriers`. `probe_carrier` asks the one question none of those can: that the carriers' material is
+where it has to be, by cutting its rods out of the base (they must not exist outside it).
 
 The joint itself is a **half-lap** as of this review (ADR-024): the lid carries a lip and the base the
 recess it drops into, all the way round the contour, so the two halves can no longer be shifted sideways
@@ -142,7 +146,7 @@ the 3.40 of plate, which leaves 1.90 of it, proved by `probe_m4`.
     make check     # compile the model and surface any warning or error
     make stl       # export build/case_base.stl and build/case_lid.stl
     make render    # PNG preview into cad/media/ (starts its own Xvfb display)
-    make review    # the review view at three angles: screws, pillars, inserts, cradles
+    make review    # the review view at three angles: screws, carriers, inserts, cradles
     make section   # cutaway render, the review view: the assembled unit inside
     make inside_render  # translucent shell: the unit inside, and the rejected bare-parts layout
     make exploded  # the two printed parts pulled apart

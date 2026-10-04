@@ -59,10 +59,11 @@ section: display
 	@ls -la cad/media/case_section.png
 	@python3 tools/annotate_render.py cad/media/case_section.png cad/media/case_section_anotado.png --view section
 
-## Prove the ghosts touch neither a wall nor each other, and that the openings are open.
+## Prove the ghosts touch neither a wall nor each other, and that the openings are open, and that the
+## carriers' own material is where it has to be (probe_carrier asks that one by difference).
 ## Everything except nothing: all of these must print "empty".
 fit:
-	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair fitcheck_gasket probe_grille probe_button probe_mic probe_gland probe_m4 probe_vent; do \
+	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair fitcheck_gasket probe_grille probe_button probe_mic probe_gland probe_m4 probe_vent probe_carrier; do \
 		printf '%-22s ' $$p; \
 		openscad -D "part=\"$$p\"" -o $(BUILD)/$$p.stl $(SCAD) 2>&1 \
 			| grep -q 'top level object is empty' && echo 'empty: no interference' || echo 'GEOMETRY: interference, look at it'; \

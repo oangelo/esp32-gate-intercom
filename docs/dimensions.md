@@ -125,7 +125,7 @@ holds: the vendor file describes a reference board, the caliper describes this o
 Those two caliper numbers are what `cad/case.scad` takes at the top of the file (`unit_dia`, `unit_h`), and
 the whole depth chain follows from them: `case_d` 58.70 = the unit's face 6.20 behind the crown + 47.30 +
 the 1.80 mm gap the microphones breathe + the 3.40 mm plate. The plate's inner face therefore sits at
-**55.30**, and everything keyed to it (the M4 pockets, the standoff pads, the M3 pillars, the back band of
+**55.30**, and everything keyed to it (the M4 pockets, the standoff pads, the M3 carriers of ADR-031, the back band of
 cradles at 53.30) moves with it; only `mic_slot_cy` needed a hand, to 50.30, which keeps the slot's back end
 0.80 mm inside the gap.
 
