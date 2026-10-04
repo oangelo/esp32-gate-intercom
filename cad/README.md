@@ -103,10 +103,13 @@ a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole that is a teardrop over
 meeting the flat on a 45 degree ramp, which leaves the gasket's washer its 1.20 mm of land without leaving
 the print anything to bridge -- and a pad under the locknut. The gland sat on the unit's own axis (29.85 mm
 back) so that the pigtail left it and dropped straight into the unit's USB-C, which points up at the unit's
-top edge; on 2026-09-29 the user moved it 10.59 mm back, to 40.44 mm along Y, which is as deep as the part
-allows (the boss's tail ends 0.50 mm clear of the cavity's floor). The port is still under the hole, so the
-drop is now a flight of about 17 degrees, and that is what the move cost; for the print it changed nothing,
-which the audit shows rather than asserts. `probe_gland` is what proves that opening is one hole. The two mounting ears were drawn and then dropped, by
+top edge; the user moved it back along +Y twice, 10.59 mm on 2026-09-29 to 40.44 mm (ADR-030), and 3.90 more
+on 2026-10-04 to **44.34 mm** (ADR-032), where the boss's tail's point lands exactly on the case's back face
+-- the bed -- so the boss's first layer is printed on the plate instead of 3.90 mm above it, and in z from 94
+to 96.80 the tail merges into the plate as a buttress. The port is still under the hole, so the drop is a
+flight of about 22 degrees rather than the plumb line it was, and that is what the two moves cost; the bed's
+own plane is the limit now, because further back the point would poke through the plate. For the hole itself
+neither move changes anything, which the audit shows rather than asserts. `probe_gland` is what proves that opening is one hole. The two mounting ears were drawn and then dropped, by
 the user, the same day: what fixes the case is the two M4 through the back plate, so nothing is added to the
 sides and the case stays 66.80 mm wide (ADR-027). The two wall screws are cut, since ADR-021
 had them decided: a Ø8.00 x 1.50 pocket in the plate's inner face for the head and a Ø4.50 hole on through

@@ -951,6 +951,12 @@ commented out (`65157.41 mm³`: no collar, front band only). The lid is not touc
 
 ## ADR-030: the gland moves 10.59 mm back along +Y, and the print does not notice
 
+**AMENDED by ADR-032 (2026-10-04): "the deepest point the part allows" here is not the deepest the part
+allows. It was set by the boss's tail clearing the cavity's floor — but the tail's point is the first layer
+of the boss, so what it has to clear is nothing: ADR-032 lands it exactly on the back face, which is the bed,
+at gland_cy = 44.34. Everything this ADR measured about the hole's own relief is unchanged and still true;
+what it got wrong is which point the print cares about.**
+
 **Decision (2026-09-29, the user's — asked twice: "vamos mover o furo, de maneira que o início do teardrop
 comece na placa de impressão", and then "quero que mova em y, na direção positiva, para as costas da base,
 entendeu? claro que dá."):** the hole's axis moves off the unit's own axis, from **y = 29.85 to y = 40.44** —
@@ -1065,5 +1071,59 @@ side as *"a mesma peça ... meio transparente e transladada"*. Both are fixed (t
 base's material, cut out of it, must come back empty. On its way in it caught itself — a ring whose deep edge
 reached y = 17 where the ramp is only at 15.89 by the ring's own inner edge (x = 14.75) — which is the grade
 of check this needed.
+
+## ADR-032: the gland's tail lands its point on the back face, so the boss starts on the bed
+
+**Decision (2026-10-04, the user's).** The gland moves **3.90 mm further back along +Y**, from gland_cy 40.44
+to **44.34**, and the parameter is now `gland_cy = case_d - gland_tail_reach`: the boss's tail's point lands
+**exactly on the case's back face**, which is the bed — so the boss's first layer is printed on the plate
+instead of 3.90 mm above it. The instruction: *"o início dele precisa começar exatamente nas costas da base,
+para evitar suporte na impressão."*
+
+**Why ADR-030's limit was not the limit.** ADR-030 moved the gland back to bring the **teardrop's beginning**
+as low in the print as the part allows, and stopped where the boss's tail cleared the cavity's floor by
+0.50 mm. But the teardrop's beginning is not what the printer has to support: the relief travels rigidly with
+the hole (ADR-030 proved that, and it is still true) and every face of the roof is a 45 degree surface. What
+hangs is the boss's **material**: the prism runs from z = 94 to 99.80, the case's own top is at 96.80, so
+3.00 mm of the boss are a cantilever, and the deepest point of that cantilever — its first layer — was the
+tail's point at 54.80, **3.90 mm above the bed**. Since the bed IS the back plate (the base prints lying on
+its back face at y = 58.70), landing the point there starts the whole boss on the plate: in the z band where
+the plate exists (94 to 96.80) the tail is simply inside it and comes out as a buttress, and above it the
+point is a first layer on the bed.
+
+ADR-030's other argument stands untouched and is not contradicted — to land the **tent's beginning** on the
+bed the axis would have to sit at y = 63.12, 4.42 mm behind the plate, because the tent stands 4.42 above
+its axis — but it was answering about the wrong point: the tent is not what hangs.
+
+**The numbers.** The tail's reach is 14.36 from the axis (its flanks 50 degrees off +Y, tangent at 40 off the
+circle), so gland_cy = 58.70 - 14.36 = **44.34**: 14.49 mm behind the unit's own axis (unit_cy = 29.85),
+3.90 more than ADR-030's 10.59. Measured on the STL:
+
+- the ray along Y at the gland's own axis, above the case's top (x = 0, z = 97), reads **35.50 / 50.59 /
+  58.70**: the crown, the hole, and the material ending exactly on the back face;
+- the same ray at z = 95, where the plate is, reads the SAME numbers with **no crossing at 55.30**: the tail
+  and the plate are one body, not two surfaces that meet;
+- across X at (y = 57, z = 97) the material stops at |x| = **2.03**, which is the tail's own wedge at that
+  height (predicted 2.03);
+- along Z at (x = 0, y = 58.60) the material is continuous from the plate to 99.80, with no crossing at 94 or
+  at 96.80 — the prism and the case are one body, and the flat is still the last thing printed — and nothing
+  past 99.80;
+- the bbox is y = **8.00 .. 58.70**: nothing protrudes out of the back, so the case still beds flat on the post;
+- the base's volume is **64951.09 mm³**, 1.40 LESS than before, because the part of the boss that now sits
+  inside the plate is absorbed by the union;
+- the hole is open end to end (the axis is void at z = 95 and at z = 98.5), which `probe_gland` agrees with;
+- `make check` clean, `make fit` **13 of 13** empty.
+
+**What it costs, and what it does not.** The cable: the flight from the shell's inner mouth (z = 93.40) to
+the port leans **22.4 degrees** off vertical, where it leant 16.8. Nothing else moves: the hole, its relief,
+the washer's 1.20 mm of land on the flat and the flat itself are the same surfaces over a new axis. The
+locknut's pad travels with it, and its teardrop's point (12.02 out) now reaches 56.36 and is buried inside
+the plate — hidden, and the seat's plane at 92.15 is unchanged.
+
+**Still open, and it is the user's call:** the tail's flanks are 40 degrees off the horizontal, 5 degrees
+past rule 4 (ADR-025's own 50 degree half-angle). They now rise out of solid plate and bed over a 5.93 mm run
+instead of hanging from a point in the air, so it is a much smaller thing than it was; opening the tail to 45
+degrees brings it back inside the rule, widens the tail by 1.20 mm and puts the axis at 43.14 instead of
+44.34 — with this parametrisation that is `gland_tail = 45` and nothing else.
 
 

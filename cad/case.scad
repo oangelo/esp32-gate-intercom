@@ -765,10 +765,14 @@ mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactl
 // axis at its top edge pointing up (its centre in the vendor's frame is (0, -24.60), which in the case's
 // own frame is z = 58.30, right at the top of the unit) -- so the cable used to leave the gland and drop
 // straight into the port, with no bend inside the cavity. That is the argument for the TOP over the
-// bottom: geometry, not looks (ADR-025). On 2026-09-29 the user moved it 10.59 mm back along +Y, as far
-// as the part allows (see gland_cy), to bring the teardrop's beginning as low in the print as it can go;
-// the port is still under the hole, so the drop is now a flight of about 17 degrees rather than a plumb
-// line, and that is the one thing the move cost.
+// bottom: geometry, not looks (ADR-025).
+//
+// The user has moved it back along +Y twice since, both times for the print rather than for the cable:
+// 10.59 mm on 2026-09-29, to bring the teardrop's beginning as low in the print as the part allowed
+// (ADR-030), and 3.90 more on 2026-10-04, so that the tail's point lands exactly ON the case's back
+// face -- the bed -- and the boss's first layer is printed on the plate instead of 3.90 mm above it
+// (ADR-032). The port is still under the hole, so the drop is a flight now, 22.4 degrees off vertical
+// rather than a plumb line, and that is the one thing the two moves cost.
 //
 // Two things make the top awkward, and both are answered here rather than worked around:
 //
@@ -778,30 +782,20 @@ mic_mem_t    = 0.30;    // membrane plus its adhesive. Drawn as a marker, exactl
 //     case's Z.
 //  2. Both parts print lying down, so the case's Z is the printer's Y and this whole feature lies IN the
 //     bed plane, horizontally. Three consequences, all handled below: the boss's own back side faces
-//     straight down (a 90 degree overhang) and gets a 45 degree tail; the hole's roof would be a
-//     12.50 mm bridge (rule 4 allows 10) and gets a teardrop -- now over the hole's WHOLE length, and
+//     straight down (a 90 degree overhang) and gets a tail -- whose point now lands on the back face,
+//     which is the bed, so the boss is started by the plate and not by a tip in the air (ADR-032); the
+//     hole's roof would be a 12.50 mm bridge (rule 4 allows 10) and gets a teardrop -- now over the
+//     hole's WHOLE length, and
 //     where it reaches the flat's own face it is a 45 degree RAMP rather than a flat cap, so every face of
 //     the roof is a 45 degree surface from the cavity out to the mouth and the printer bridges none of it,
 //     while the gasket's O16 washer still gets its 1.20 mm of land on the flat; and the locknut's seat
 //     inside, which has to be a PAD raised on the cavity's curved ceiling rather than a spot-face cut into
 //     it -- there is no material over the arch to cut -- gets the same teardrop for the same reason.
 gland_cz      = case_h;                 // 96.80: the apex of the top's cylinder, where the boss stands
-gland_cy      = 40.44;                  // 10.59 mm BEHIND the unit's own axis (unit_cy = 29.85), which is
-                                        // as far back as this gland can go: any further and the boss's tail
-                                        // (gland_tail_y, 14.36 out from the axis) reaches the cavity's
-                                        // floor -- 40.44 + 14.36 = 54.80, 0.50 mm clear of it, the same
-                                        // clearance the cradles keep. 2026-09-29, the user's call, to
-                                        // bring the teardrop's beginning as low in the print as the part
-                                        // allows: it now sits 22.68 mm above the bed where it sat 33.27.
-                                        // The bed IS the back plate, and the tent's beginning is
-                                        // r cos 45 = 4.42 above the axis, so landing it on the bed would
-                                        // put the axis 4.42 mm BEHIND that plate, outside the case: this
-                                        // is the closest this hole can come to it. What it costs is the
-                                        // cable route: the pigtail leant on the drop before (ADR-025),
-                                        // and now it leans about 17 degrees forward into the port. What
-                                        // it does NOT change is the print: the relief travels with the
-                                        // hole, the roof's faces are the same 45 degree surfaces, and the
-                                        // measurements are identical over the new axis
+                                        // gland_cy is set further down, once the tail's own reach is
+                                        // known: the tail is what decides where the axis can sit, and
+                                        // where it puts the tail's point is the print's own business
+                                        // (ADR-032)
 gland_proud   = 3.00;                   // how far the boss's flat stands above that apex
 gland_flat_z  = gland_cz + gland_proud; // 99.80: the face the gland's gasket lands on
 gland_root_z  = 94.00;                  // where the boss's prism is buried. At z = 94 the case's own
@@ -817,11 +811,36 @@ gland_tail    = 50.0;                   // the tail's half-angle, off the case's
                                         // side. It is the print that sets it: the printer builds this
                                         // run with the case's Y as its vertical, the boss's back side
                                         // faces down, and 50 leaves the worst surface 40 degrees off
-                                        // vertical against rule 4's 45
+                                        // vertical against rule 4's 45. Since ADR-032 those flanks rise
+                                        // from the back face itself, so the 5 degrees past the rule is a
+                                        // 5.93 mm run out of solid plate and not a knife edge in the
+                                        // air; opening it to 45 would bring it back inside the rule and
+                                        // widen the tail by 1.20 mm, and that is still the user's call
 gland_tail_a  = 90 - gland_tail;        // 40: where the tail's two lines touch the circle, off +Y
-gland_tail_y  = gland_cy + gland_boss_r * (cos(gland_tail_a) + sin(gland_tail_a) / tan(gland_tail));
-                                        // 44.21: the tail's point, in the case's frame, 14.36 out from
-                                        // the axis
+gland_tail_reach = gland_boss_r * (cos(gland_tail_a) + sin(gland_tail_a) / tan(gland_tail));
+                                        // 14.36: how far the tail's point sits out from the axis
+gland_cy      = case_d - gland_tail_reach;
+                                        // 44.34: the tail's point landing exactly ON the case's own back
+                                        // face, which is the bed -- so the boss's first layer is printed
+                                        // on the plate instead of 3.90 mm in the air (ADR-032, the
+                                        // user's call, 2026-10-04: "o início dele precisa começar
+                                        // exatamente nas costas da base"). Nothing protrudes: the point
+                                        // is flush with the back face, so the case still beds flat on
+                                        // the post, and in z from 94 to 96.80 -- where the plate is --
+                                        // the tail simply merges into it and becomes a buttress. The
+                                        // axis is 14.49 mm behind the unit's own (unit_cy = 29.85),
+                                        // 3.90 more than the 10.59 of ADR-030, and the cable pays for
+                                        // it: the flight from the shell's inner mouth (z = 93.40) to
+                                        // the port leans 22.4 degrees off vertical, where it leant
+                                        // 16.8. What it does NOT change is the hole: the relief travels
+                                        // with it, the roof's faces are the same 45 degree surfaces,
+                                        // the tent's beginning is where it was relative to the axis,
+                                        // and the O16 washer still has its 1.20 mm of land
+gland_tail_y  = gland_cy + gland_tail_reach;
+                                        // 58.70 = case_d exactly: the tail's point, flush with the back
+                                        // face. Further and it would poke through the plate the case
+                                        // beds on; this is now the limit, where ADR-030's was the
+                                        // point stopping 0.50 short of the cavity's floor
 gland_d       = 12.50;                  // the PG7's thread O.D.: the hole cut through boss and shell
 gland_round   = 1.20;                   // how deep, from the flat inwards, the bore is also cut as a plain
                                         // CYLINDER -- a true O12.50 rather than the 48-gon inscribed in
@@ -1283,7 +1302,9 @@ module gland_nut_pad() {
     // spot-face -- a flat face there means material, a pad that fills the arch and stops at 92.15. It is
     // a teardrop with its point on +Y, for the same reason the boss has its tail there: this pad's own
     // back side would hang. What the nut sees is a seat 2.25 mm wide round the hole, on a pad 1.25 mm
-    // thick at its centre, and 7.65 mm of material through the hole.
+    // thick at its centre, and 7.65 mm of material through the hole. Since ADR-032 the axis sits far
+    // enough back that this point (12.02 out from the axis) reaches 56.36 and is buried inside the back
+    // plate: the pad's own V ends on the plate's inner face, which is hidden and harmless.
     translate([0, gland_cy, gland_nut_z]) prism_xy(2.00) mirror([0, 1, 0])
         teardrop_xy(gland_nut_d / 2, gland_tear);
 }

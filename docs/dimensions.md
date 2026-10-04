@@ -253,14 +253,19 @@ plate: that face is what beds against the wall, so nothing but the wall screws' 
 and the microphone ports are on the bottom now (ADR-023). **The gland goes through the TOP** (2026-09-26, the user): it stood on the unit's own axis
 29.85 mm back from the crown — the unit's centre in the depth, because the unit's USB-C points **up** at its top
 edge, so a gland directly above it is the shortest cable route and the only one that needs no bend inside
-the case — and on 2026-09-29 (the user) it moved **10.59 mm further back, to 40.44 mm**: the deepest point
-the part allows, where the boss's own tail clears the cavity's floor by 0.50 mm, the same clearance the
-cradles keep. That costs the route its plumb line: the port is still under the hole, so the pigtail now
-leans about 17 degrees. It buys nothing for the print, and that is measured rather than argued — the
-teardrop travels rigidly with the hole (its roof reads 6.810 / 7.100 / 8.000 / 8.600 / 8.839 mm over the
-axis on both sides of the move) and the hanging faces in the roof region are the same 22, the same angles,
-only 10.59 mm further along Y. To land the tent's beginning on the bed the axis would have to sit at
-y = 63.12, which is 4.42 mm **behind** the back plate itself.
+the case — and the user has moved it **back along +Y twice since**: 10.59 mm on 2026-09-29, to 40.44 mm
+(ADR-030), and 3.90 more on 2026-10-04 to **44.34 mm** (ADR-032), where the boss's tail's point lands
+exactly on the case's own back face. That face IS the bed (the base prints lying on its back), so the boss's
+first layer is printed on the plate instead of 3.90 mm above it: the point is flush (bbox y = 8.00..58.70,
+nothing protrudes) and in z from 94 to 96.80, where the plate is, the tail merges into it as a buttress.
+The bed's plane is what sets the limit now — further and the point would poke through the plate. That costs
+the route another 5.6 degrees: the pigtail leans **22.4 degrees** off vertical where it leant 16.8. ADR-030's
+move bought the print nothing and said so (the teardrop travels rigidly with the hole: its roof reads
+6.810 / 7.100 / 8.000 / 8.600 / 8.839 mm over the axis on both sides of the move, and the hanging faces in
+the roof region are the same 22, the same angles, only further along Y); ADR-032's move is the one that
+does, in the last place left — the boss's own start. Its old argument stands and is not contradicted: to
+land the **tent's beginning** on the bed the axis would have to sit at y = 63.12, 4.42 mm behind the back
+plate, but that was answering about the wrong point — the tent is not what hangs.
 It sits on a raised boss, so that its gasket and its locknut both land on flat faces instead of
 on the case's curved top, and all three of those are now cut in the base: a **Ø22 × 3.00 mm** boss carrying
 a 50 degree tail, a **Ø12.50 mm** hole round over the whole of its length — the PG7's thread passes it and
