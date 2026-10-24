@@ -165,7 +165,7 @@ file does not carry, plus the two parts the STEP names with library codes only.
 |---|---|---|---|
 | 1 | PCB outline: diameter and any flats | TODO | the STEP bounding box is 57.63 x 56.54 against the DXF's Ø58.00 circle. Measure both axes and note whether the edge has castellated pads that stick out |
 | 2 | Confirm the MEMS acoustic port is on the component side | TODO | the STEP says yes (a Ø0.66 recess with a mesh on the top face of the package). The check is a loupe on the real board, and it decides which wall of the case carries the acoustic ports |
-| 3 | Panel button: head diameter, body depth behind the panel, thread length, panel thickness range | TODO | the case-side part is a 22 mm cutout metal momentary switch with a 3-9 V LED (ADR-018). The seller's listing exposes no drawing, so measure the part on arrival. The cutout is 22 mm |
+| 3 | Panel button: head diameter, body depth behind the panel, thread length, panel thickness range | TODO | the case-side part is a metal momentary switch with a 3-9 V LED (ADR-018). The seller's listing exposes no drawing, so measure the part on arrival. The cutout is 22.10 — the switch's 22.00 plus 0.10 of print clearance (ADR-033) — and the flange's pocket is Ø25.00 |
 | 4 | Speaker cable length and the direction it leaves the board | TODO | routes from the speaker header at (-17.52, -6.00) on the solder side. The MX1.25 battery header is not identifiable in the STEP (library code), and only matters if the cell stays (ADR-011) |
 | 5 | Weight of the assembled stack | TODO | sanity check for the wall/pole mount |
 
@@ -237,11 +237,14 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   that field any more: one opening is sound going out, the other is sound coming in.
 - Three pads on the back plate push the unit forward onto the seat; the gap behind it is 1.80 mm.
 
-Case-side hardware adds its own fixed numbers: a **Ø22 mm cutout** for the panel button (ADR-018) with a
-flat land behind it for the switch gasket, a **PG7 or M12 cable gland** for the **5 V** entry (the buck
-now lives outside, so still two 0.75 mm² conductors, but at 5 V), a breathable membrane vent — a **Ø4.00
-hole in the -X side wall**, at mid-height (z = 48.40) and mid-depth (y = 29.35), with its membrane stuck
-over it (ADR-026) — and M4
+Case-side hardware adds its own fixed numbers: a **Ø22.10 mm cutout** for the panel button — the switch's
+own 22.00 plus **0.10** of print clearance (ADR-018, ADR-033) — with a **Ø25.00 flat land** in front of it,
+which is both the switch gasket's seat and the recess the flange drops into, and a **PG7 or M12 cable gland**
+for the **5 V** entry (the buck
+now lives outside, so still two 0.75 mm² conductors, but at 5 V), a **Ø4.20 hole in the -X side wall** at
+mid-height (z = 48.40) and mid-depth (y = 29.35) — M5x0.8's tapping drill, because the vent takes a **screwed
+e-PTFE breather valve** rather than the stick-on patch it was designed around (ADR-026, ADR-033), with the
+Ø11.00 × 0.35 recess still in its mouth — and M4
 wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
 (z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
 hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. These two ARE the
@@ -277,13 +280,17 @@ to bridge (2026-09-28, the second amendment that day: a flat cap there *is* a br
 cannot change that — the tent's beginning sits 4.42 mm above its axis and the plate is the back plate's own
 face), and a pad under the locknut that leaves **7.65 mm**
 of material to
-thread into (ADR-025). The **vent** is decided too, and cut: on the **-X side**, mid-height, a Ø4.00 hole
-whose mouth carries a **Ø11.00 × 0.35 recess** for the membrane patch to drop into, so the adhesive lands
-on a floor and the patch finishes flush with the wall. The side is the one face with nothing else on it,
+thread into (ADR-025). The **vent** is decided too, and cut: on the **-X side**, mid-height, a Ø4.20 hole —
+4.00 until 2026-10-24, when the stick-on patch it was designed for was replaced by a **screwed M5x0.8
+e-PTFE breather valve** and the hole became that thread's tapping drill (ADR-033) —
+whose mouth carries a **Ø11.00 × 0.35 recess**, cut for the membrane patch to drop into, so the adhesive lands
+on a floor and the patch finishes flush with the wall, and left in place for the valve's own O-ring or head
+until the part is calipered. The side is the one face with nothing else on it,
 and the middle is where the capsule's straight band makes the wall a flat plane and the hole square to it
 (ADR-026). The hole needs no teardrop: its axis lies in the bed plane, so it prints as a horizontal tunnel
-with a 4 mm bridge for a ceiling, and the recess is a counterbore in a vertical wall, which adds no
-overhang. The wall under the recess's floor is **3.05**.
+with a 4.2 mm bridge for a ceiling, and the recess is a counterbore in a vertical wall, which adds no
+overhang. The wall under the recess's floor is **3.05** — which is 3.8 turns of M5x0.8, the number that matters
+to whether the valve holds.
 
 Inside the cavity there is now nothing to make room for: the unit fills it. The free space left is the
 upper part, above the unit's top edge at 62.15, which is where the button's body and the cable route to the

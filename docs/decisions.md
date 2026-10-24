@@ -1126,4 +1126,73 @@ instead of hanging from a point in the air, so it is a much smaller thing than i
 degrees brings it back inside the rule, widens the tail by 1.20 mm and puts the axis at 43.14 instead of
 44.34 — with this parametrisation that is `gland_tail = 45` and nothing else.
 
+## ADR-033: the vent takes a screwed breather (Ø4.20), and the button's cutout and flange pocket are 22.10 / 25.00
+
+**Decision (2026-10-24, the user's calls, one message each):**
+
+1. the vent hole goes from Ø4.00 to **Ø4.20** — "o furo do respiro, preciso que seja 4.2mm" — because the
+   vent is no longer a stick-on patch: it takes a **bought M5x0.8 breather valve** with an e-PTFE membrane
+   (the one he sent, AliExpress 1005012361706108: IP67, 25 to 50 ml/mm²/min at 1 psi, -50 to 120 °C, sold in
+   packs of 10, black). **4.20 is M5x0.8's tapping drill**, so the hole in the wall is now the pilot the valve
+   forms its thread in;
+2. the button's cutout goes from Ø22.00 to **Ø22.10** — "vamos dar mais 0.1 de folga no buraco";
+3. the button's outer land — the spot-face the switch's gasket seals on, and the recess the flange (a aba)
+   drops into — goes from Ø29.00 to **Ø25.00** — "o recesso da aba, vamos colocar o diametro em 25mm".
+
+**Why the button is three parameters and not one literal.** `btn_sw = 22.00` is the switch's own cutout,
+`btn_clr = 0.10` is what the print is given, `btn_cut = btn_sw + btn_clr` is what the lid is cut with. The
+split earns its keep immediately: `switch_body()` is the bought switch's ghost and a neighbour of the carriers
+in `fitcheck_joint`, so it now takes **`btn_sw`**, not `btn_cut` — had it kept the cutout it would have been
+0.05 mm fatter than the real switch and the clearance to the carrier would have been reported wider than it
+is. The lands are not keyed to the cutout either: they are set by the gasket and the flange, so widening the
+hole moves neither and only the annulus around it changes.
+
+**What the numbers cost.** The two vent bridges and the adhesive land both grow a little, and neither is
+anywhere near a limit: the bridge over the hole goes 4.00 → **4.20** against rule 4's 10, and the patch's
+adhesive still has **2.90 mm** of ring around it ((10.00 - 4.20)/2). The wall under the patch is the 3.05
+ADR-026 left, unchanged. The button's land is where the change bites: the seat around the cutout goes from
+**3.45 mm** to **1.45 mm** ((25.00 - 22.10)/2), which is the tightest number in the case and passes rule 3's
+1.20 by 0.25 — and it is the ring the switch's gasket bears on, so it is a real face and not a leftover. The
+pocket's floor is **flat at y = 1.21**, which is what a flange sits on; what varies is the depth at the
+pocket's rim, **1.20 at the crown's apex and 0.52 at Ø25.00**, because the crown has already receded to
+y = 0.687 out there. A flange thicker than 0.52 therefore stands a little proud at its edge, and one that
+must finish flush needs `btn_land_y` deeper, not the pocket wider.
+
+**Measured on the exported meshes, not argued:**
+
+- vent, ray along +Y at x = -31.70 (mid-wall), z = 48.40: crossings **8.00 / 27.26 / 31.44 / 58.70**, so the
+  bore is **4.18** where the nominal is 4.20 — the 0.02 is `$fs = 0.4` faceting, and 27.26/31.44 is
+  29.35 ± 2.09; at z = 51.40 and z = 45.40 the same ray is in **material**, i.e. the wall above and below the
+  bore is real;
+- vent, the base's volume: **64951.09 → 64947.17 mm³**, 3.92 less, and π/4 × (4.20² − 4.00²) × 3.05 = 3.93 by
+  hand — the tunnel is 3.40 of wall less the 0.35 recess;
+- button, ray along +X at y = 2.85, z = 76.40: crossings **-11.05 / +11.05**, so the cutout is **22.10**;
+- button, A/B on the lid with `btn_clr` as the ONLY variable (0.10 against 0.00): **17537.09** against
+  **17544.28 mm³**, 7.19 less;
+- pocket, ray along +Y at z = 76.40: at x = **12.48** material starts at **1.21** (the pocket's floor), at
+  x = **12.52** it starts at **0.70** (the crown), so the pocket's wall is between them — **Ø25.00** — and
+  the floor is the plane 1.20/1.21 with the +0.01 that a boolean against a `+eps` face leaves;
+- the lid's volume is **17672.03 mm³**, against 17536.42 with the pocket at Ø29.02;
+- `make check` clean, `make fit` **13 of 13** empty, `probe_vent` and `probe_button` included.
+
+**Found while measuring, recorded and NOT fixed.** The button's *inner* land, `btn_land_in = 30.00` at
+y = 4.50, **cuts air**: the cavity's front surface is the crown's inner surface, which runs 3.00 at the centre
+to 3.99 at r = 15, so material ends between 1.21 and 3.95 and the Ø30 cylinder at 4.50 has nothing to remove.
+Two consequences the parameter's own comment hid: the wall the button hole crosses is **2.35 mm** at its rim
+(ray at x = 11.10: 1.21 → 3.56), not the 3.30 between the two land planes; and a nut would land on the arch,
+which has about 1.0 mm of sagitta over Ø30, instead of on a flat. So the switch's gasket — and now the flange
+— seals on the outer land, which does exist, and the nut has no land at all. The fix, if it is wanted, is not a
+cut but a **PAD**: material added out to y = 4.50 in the annulus Ø22.20 to Ø30.00, which the lid's own print
+orientation (face down, layers rising into +Y) supports for free. Left for the user to call: he asked for the
+sealing faces, not for the nut's.
+
+**Still open: the valve's own calipers.** What is cut now is the pilot hole the thread will be formed in: the
+wall gives it **3.05 mm**, which is 3.8 turns of M5x0.8 — enough for a nylon-bodied plug to hold at the torque
+a vent needs, but it is an assumption, not a measurement. Whether the valve cuts that thread in the ASA by
+itself, whether the hole should instead carry a printed female thread, and whether a local boss should buy it
+more length (a boss on a vertical wall has its axis in the bed plane, so it would need a 45 degree tail, the
+gland's own family of relief) all wait on five numbers off the part in his hand: the threaded length, the
+head's diameter and height, the O-ring's diameter and where it sits, and the valve's own bore. The Ø11.00 ×
+0.35 recess is part of that question too — it was the patch's seat, and it may now be the O-ring's.
+
 

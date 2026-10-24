@@ -290,8 +290,22 @@ rear_y_end    = inner_d;                            // 55.30: the cavity's floor
 // A bought 22 mm panel switch (ADR-018) seals against a FLAT land, and the front face is convex:
 // so the cutout gets a spot-faced land outside (for the switch gasket) and another inside (for the
 // nut), which also keeps the wall between them a uniform 3.3 mm.
-btn_cut     = 22.0;     // the switch's own cutout
-btn_land    = 29.0;     // outer land diameter: gasket + enough to be flat. NOT 31: with the centre at
+btn_sw      = 22.0;     // the switch's own cutout (ADR-018): O22 through its thread
+btn_clr     = 0.10;     // clearance in the cutout, the user's call (2026-10-24): 0.05 a side. Under rule
+                        // 6's 0.2 tight fit, on purpose -- the switch's own gasket is what seals the
+                        // hole, so the plastic only has to let the body through without scraping
+btn_cut     = btn_sw + btn_clr;   // 22.10: what the lid is actually cut with. The lands below are NOT
+                        // keyed to it: they are set by the switch's gasket and nut, so widening the
+                        // hole moves neither, and the land's annulus around the hole widens with it
+btn_land    = 25.0;     // outer land diameter: the switch gasket's seat, and now the flange's (ABA)
+                        // 2026-10-24, the user's call: 25.00, so the flange drops into a pocket whose
+                        // FLOOR is flat at y = btn_land_y. Was 29.00, chosen to be flat "gasket and
+                        // enough" and not 31 for the ceiling -- with 25 that margin only grows. What
+                        // the 4 mm cost: the annulus left around the 22.10 hole goes 3.50 -> 1.45 mm,
+                        // still over rule 3's 1.20. Depth of the pocket at its rim (r = 12.50) is
+                        // 0.51 mm, not 1.20: the crown is at y = 0.687 there, so that is how far the
+                        // floor sits under the surface at the edge. The floor itself is FLAT, which
+                        // is what a flange sits on; only the edge depth varies
 btn_land_in = 30.0;     // 76 the inner land tops out at 91 and the cavity's ceiling is at 93, so the
                         // wall above the hole keeps 2 mm of material instead of reaching zero
 btn_land_y  = 1.20;     // outer land plane: 1.2 mm into the crown at its apex
@@ -504,8 +518,14 @@ module button_cut_hole(d) {
 }
 
 module button_lands_cut() {
-    // Two flat spot-faces: the switch gasket seals on the outer one, the nut clamps on the inner
-    // one, and the wall between them is a uniform 3.3 mm.
+    // Two flat spot-faces: the switch gasket -- and now the flange -- seals on the outer one, the nut
+    // was meant to clamp on the inner one. MEASURED 2026-10-24, and the second half of that sentence
+    // is not true of the part: the cavity's front surface is the crown's INNER surface, which runs
+    // 3.00 at the centre to 3.99 at r = 15, so material ends between 1.21 and 3.95 and the Ø30 cut at
+    // y = 4.50 removes air. The wall the button hole crosses is 2.35 mm at its rim (ray in +Y at
+    // x = 11.10: 1.21 -> 3.56), not the 3.30 between the two land planes, and a nut would land on
+    // the arch with ~1.0 mm of sagitta over Ø30. Left as it is (the outer land is what seals); the
+    // fix, if it is wanted, is a PAD added out to 4.50 in the annulus Ø22.2..Ø30, not a cut.
     translate([0, btn_land_y - 25, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_land, h = 25 + eps);
     translate([0, btn_land_in_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_land_in, h = 25);
 }
@@ -898,13 +918,15 @@ gland_nut_z   = z_top + cav_x - gland_nut_cut;   // 92.15: the seat's plane
 // ports are 40 mm below it, on the bottom -- as far from this hole as the case gets. The microphones
 // once shared the speaker's field and that was direct coupling, so nothing gets added near them.
 // The hole is also well behaved in the print: its axis runs along the case's X, which is IN the bed
-// plane, so it comes out as a horizontal tunnel whose ceiling is a 4 mm bridge -- under rule 4's 10 --
+// plane, so it comes out as a horizontal tunnel whose ceiling is a 4.2 mm bridge -- under rule 4's 10 --
 // and, being horizontal through a vertical wall, water cannot run into it: it would have to climb.
 vent_side   = -1;       // -1: the case's -X wall. 1 would mirror it, for nothing
 vent_z      = 48.40;    // the middle of the side: the middle of the capsule's straight band (33.40 to
                         // 63.40) and of the case's height, which come to the same number
 vent_y      = case_d / 2;   // 29.35: the middle of the depth, so the patch sits centred on the panel
-vent_d      = 4.00;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it
+vent_d      = 4.20;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it.
+                        // Was 4.00 until 2026-10-24, the user's call (the breather's own body wants the
+                        // bigger bore); the bridge over it grows 0.20, still a third of rule 4's 10
 vent_recess_d = 11.00;  // the counterbore the patch drops into: 0.50 mm of clearance around a O10.00
                         // patch, so the adhesive seats flat instead of the disc standing proud on the
                         // surface (the user's call, 2026-09-26). A pocket on the OUTSIDE, and this is the
@@ -1123,7 +1145,9 @@ module m3_screw() {
 module switch_body() {
     // What the bought 22 mm switch puts BEHIND the panel: O22, 30 mm deep from the panel face
     // (ADR-018). Nothing is cut with this -- it is a neighbour, to check the carrier and the boss.
-    translate([0, btn_land_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_cut, h = 30);
+    // It is the SWITCH's own 22.00 and not the cutout's 22.10: the gap it leaves the carrier is a
+    // clearance, and inflating the ghost with the hole's clearance would flatter it by 0.05.
+    translate([0, btn_land_y, btn_cz]) rotate([-90, 0, 0]) cylinder(d = btn_sw, h = 30);
 }
 
 // ----------------------------------------------------- the microphone ports (base, step 3)
@@ -1180,7 +1204,7 @@ module vent_cut() {
     // The opening through the case's -X wall, cut from outside in, in two steps: the hole itself, and
     // the counterbore the membrane patch drops into.
     // The hole's axis runs along the case's X, which is IN the bed plane when the base prints: the
-    // tunnel is horizontal, its ceiling is the 4 mm bridge, and it needs no teardrop -- the 4.00
+    // tunnel is horizontal, its ceiling is the 4.2 mm bridge, and it needs no teardrop -- the 4.20
     // diameter is the whole of it, and rule 4 allows 10.
     // It starts 4 mm outside the surface and ends 6 mm inside it, so the 3.40 of wall is crossed with
     // room to spare at both ends whatever the wall's own thickness turns out to be.
@@ -1197,7 +1221,7 @@ module vent_cut() {
 
 module vent_probe() {
     // One piece per step of the cut, each placed by its own inner end and each 0.50 smaller in diameter
-    // than what it spans -- the hole's rod 0.50 under the 4.00, the recess's disc 0.50 under the 11.00.
+    // than what it spans -- the hole's rod 0.50 under the 4.20, the recess's disc 0.50 under the 11.00.
     // If both intersections with the base are empty then the whole path is open: cavity, 3.05 of wall,
     // recess, out. Neither piece stops short of the band it is here to test, and no face of either sits
     // on a face of the part that is within 0.10 of it.
@@ -1678,7 +1702,7 @@ if (part == "base") {
     intersection() { base(); m4_probe(); }
 } else if (part == "probe_vent") {
     // Against the BASE. Empty means the vent is a hole through the side wall and not a pocket in it:
-    // the rod is 1 mm narrower than the O4.00 and spans the wall from inside the cavity to outside.
+    // the rod is 1 mm narrower than the O4.20 and spans the wall from inside the cavity to outside.
     intersection() { base(); vent_probe(); }
 } else if (part == "probe_carrier") {
     // Against the BASE, and the one probe in the file that is a DIFFERENCE and not an intersection: it

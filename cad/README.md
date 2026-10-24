@@ -11,7 +11,8 @@ through their walls:
   on, and — through its own back
   plate — the two M4 pockets and holes that ARE the fixing (ADR-021, ADR-027: no ears on the sides).
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
-  unit's disc presses on, and the flat land and O22 cutout for the panel button.
+  unit's disc presses on, and the **Ø25.00 flat land** and **Ø22.10 cutout** for the panel button — the
+  switch's own 22.00 plus 0.10 of clearance (ADR-018, ADR-033).
 
 ## Files
 
@@ -91,12 +92,15 @@ markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
 Still to come: nothing. The feature list is complete as of 2026-09-26. The joint's gasket
 is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of TPU 95A printed soft
 and squeezed to 0.70, flat on the shoulder the lap leaves, proved by `fitcheck_gasket` (ADR-024's "The ring
-itself"). The vent is a Ø4.00 hole in the middle of the -X side — mid-height, where the capsule's straight
+itself"). The vent is a Ø4.20 hole in the middle of the -X side — mid-height, where the capsule's straight
 band makes the wall a flat plane and the hole square to it, so the 3.40 mm of wall is crossed cleanly — a
-horizontal tunnel with a 4 mm bridge for a ceiling, proved by `probe_vent`, with a breathable membrane
-stuck over it (ADR-026). Its mouth carries a **Ø11.00 × 0.35 recess** so that patch drops in and finishes
-flush instead of sitting proud on the wall — 0.50 of clearance around a Ø10.00 patch, and the wall under
-the floor goes from 3.40 to 3.05. A counterbore in a vertical wall adds no overhang to the print. The two microphone membranes are
+horizontal tunnel with a 4.2 mm bridge for a ceiling, proved by `probe_vent`. It was Ø4.00 with a breathable
+membrane **stuck over it** (ADR-026); since ADR-033 it takes a **screwed M5x0.8 e-PTFE breather valve** off the
+shelf, and 4.20 is that thread's tapping drill, so the hole is the pilot the valve forms its thread in over
+3.05 mm of wall (3.8 turns — the number still to be checked against the part). The mouth still carries the
+**Ø11.00 × 0.35 recess** it was given for the patch — 0.50 of clearance around a Ø10.00 patch, and the wall
+under the floor goes from 3.40 to 3.05 — and whether that recess becomes the valve's O-ring seat is one of the
+open questions, not a decided one. A counterbore in a vertical wall adds no overhang to the print. The two microphone membranes are
 drawn too, as patches on the bottom's own curve — `show_mic_mem` — and nothing is cut for them, which is
 ADR-023's answer to "the membranes' seats". The gland's top is cut (ADR-025):
 a Ø22 x 3.00 boss with a 50 degree tail, a Ø12.50 hole that is a teardrop over its whole length -- its roof
