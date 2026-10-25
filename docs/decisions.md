@@ -1196,3 +1196,105 @@ head's diameter and height, the O-ring's diameter and where it sits, and the val
 0.35 recess is part of that question too — it was the patch's seat, and it may now be the O-ring's.
 
 
+
+
+## ADR-034: the case takes a height knob (130.00), the cradle opens up, and the shell's rim becomes a 2 mm roll
+
+**Decision (2026-10-25, the user's calls, in his order):**
+
+1. **the case grows in Z, and the height becomes a parameter** — `case_h = 130.00` with `btn_cz = 79.40` and
+   `m3b_dz = 9.40`, all three annotated for the OpenSCAD Customizer (group "The knobs"). He needed room for
+   the wires: *"vou precisar colocar muitos fios, então quero esticar também no eixo z"* — the unit's **2x9
+   header is the end that points down** and the case was giving it **1.25 mm**;
+2. **the cradle opens up** — `cradle_clr` 0.25 → **0.50** and a **1.20 mm** lead-in bevel, because *"no local
+   que entra a unit, a parte do fundo, tá muito difícil de entrar"*;
+3. **the shell's convex edges get a 2.00 mm roll** — the front's rim included, all the way round, over the two
+   domes as well. The button's pocket is left alone: he asked for it, it was built twice, and he dropped it
+   (*"esquece por hora, deixa sem filet"*).
+
+**Why everything above the unit rises with it, and what that buys.** The switch's body is Ø22 x 30 deep and
+hangs 11.00 below the button's centre, ending 0.25 mm off the unit's top edge (68.15). Raising the unit alone
+would have driven the body into it. So `lift` moved the unit *and* the button *and* its two lands, the joint's
+screws and their carriers, and the cavity's ceiling: every clearance the case was checked for comes out
+identical to the hundredth, and the whole of the new space appears **under** the unit, which is where the
+connector needs it. Below the unit: **7.25 mm** (was 1.25). Above the button: **47.20** at 130.00.
+
+**Why a knob and not a literal.** `straight = case_h - case_w`, `z_top = case_h - r_end`, `vent_z = case_h/2`,
+`gland_root_z = case_h - 2.80`, the M4 at the quarter points — all derived, so one number moves the whole
+capsule and nothing can come unstuck. Each knob has a **floor that is a physical limit, not a preference**, and
+`make fit` is the guard: `case_h` 99.80 (the land needs 4.50 of wall above it and the ceiling sits 3.40 below
+the apex); `btn_cz` 79.40 (the switch's body against the unit's top edge); `m3b_dz` **8.88** — at 8.80 the
+carrier's gusset tops out at 74.10 and the switch's ghost floor is at 74.02, so `fitcheck_joint` returned
+**0.0167 mm³** of interference and the default stayed 9.40. The height itself went where he took it: **164.80**
+was the number that put the button at exactly half, he read it as too long, **150.00** was a step, and he
+settled on **130.00** — at which the button sits 14.40 above the middle, 47.20 below the ceiling, and 34.70
+above the land's plane.
+
+**Two bugs the stretch exposed, both measured.** `m3c_wall_x = sqrt(cav_x² - (m3b_z - z_top)²)` only held while
+the M3 pair sat inside the top end's circle; with the pair 40 mm into the straight band the radicand went
+negative, the gusset came out `nan` and three checks fell over (bbox in y from 0 to 58.7). Replaced by
+`cav_face_x(m3b[1])`, the inner analogue of `face_x(z)`, so the carrier now bears on a flat wall (30.00) instead
+of a curve (29.78). And `fitcheck_pair` went 12/13 after the lift: the joint recess's cut was
+`body() ∩ band ∩ outline_outer() − offset(1.70)`, whose first two terms put a face exactly on the outer surface,
+so the boolean left a **0.0266 mm³ blade** where the recess's end face met it. Cutting the band straight against
+the offset of the rim (a `prism` against a `square`, no `body()`, no `outline_outer()` in the operands) removed
+the coincidence and the check.
+
+**The cradle: three options, measured on the scratch meshes.** A' (0.50 of clearance and a 1.20 lead-in) −390.10
+mm³; A (0.80 of clearance, no lead-in) −644.97; B (the bottom band out entirely) −952.19. A' was applied
+(*"executa a sua recomendação"*) and came out at **−444.48** on the real base, the 54 mm³ of difference being the
+bands' 6 mm of extra height in the ±35° sectors. At 1.0 mm of total play the unit still does not rattle; A would
+have been the limit before it did, and B only if the problem had been the bottom.
+
+**The button's pocket: built twice, dropped.** First as a torus tangent to the **seat**: it left the edge on the
+*face*, which is not what *"uma curva suave que entra da superfície para encontrar o botão"* means. Second as an
+arc tangent to **both** the crown's surface and the pocket's wall, which needs the pocket 0.50 deeper
+(`btn_land_y` 1.20 → 1.70) to have any room — the wall at the rim is only 0.51 tall — and he still read it as a
+step in the wrong place. Both are out; the pocket is back at ADR-033's 1.20 and the mouth keeps its 90° edge.
+
+**The shell's rim: four constructions, three of them wrong, all measured.** The front's face is the crown's
+cylinder (in XY) and the sides are the capsule (in XZ), so their intersection is a crease that runs the whole rim
+of the front: **73°** on the straight band, opening to **90°** at each apex. It cannot be a lathe like the button,
+and a section-based fillet has to be swept along a 3D curve:
+
+- **a chain of prisms, one per station** (72 a side): each section is laid straight along Z, so where the crease
+  leans the pieces zigzag. The user read it at once: *"tá serrilhado em algumas partes"*;
+- **a lofted polyhedron**: a single one is accepted, but the union of the two sides is rejected by the Manifold
+  kernel (`PolySet -> Manifold conversion failed: NotManifold`) and the broken solid leaves a **0.5 mm fin** of
+  material along the crease. Subtracting one side at a time avoids the warning but not the trouble: the cut came
+  out at **0.06 mm** instead of 2.00 and the lid's volume *rose* (24 807.37 against 24 749.06). Silent garbage;
+- **a chain of `hull()`s**: the section is **concave** (the fillet's arc bulges into the corner), and `hull()`
+  returns the convex closure, so the arc comes out as its chord — a **0.48 mm** flat chamfer where a 2 mm round
+  was asked for;
+- **what is in the file: the OPENING of the two prisms.** Erode both by r (the capsule's outline via
+  `outline_offset(r)`, the crown's cylinder at `crown_r - r`), then dilate by a ball of radius r. Morphologically
+  that rounds **every convex edge** of the shell by exactly r and leaves every flat face where it was, and it
+  does not care *which* two surfaces meet — which is why it is the only one of the four that takes the two domes.
+
+Two traps in the opening, both caught by measuring: the prism has to be **shortened by r at each end**
+(`prism_xz(case_d - 2r, r)`), because the 2D offset does not touch the extrusion — without it the ball pushed the
+case **1.90 mm deeper** at the back and the base came out at 60.602 with **+14 070 mm³**; and the ball needs
+`bezel_fn = 24`, because a polyhedral ball does not reach its own radius between vertices — at `$fn = 10` the
+front's apex came out at **y = 0.098**, which is r(1 - cos 18°) to the digit, and at 24 the error is **0.017**.
+
+**Measured on the exported meshes:**
+
+- the band, ray along -X at z = 65: outer surface **31.96** at y=4.6, **32.68** at 5.0, **33.04** at 5.4, **33.24**
+  at 5.8, **33.34** at 6.2, **33.38** at 6.6 — one arc, no kink, arriving at the side tangentially;
+- the top dome, ray along -X at z = 120: **20.04** at y=1.8, **22.75** at 2.6, **23.22** at 3.0, **23.56** at 3.4,
+  **23.80** at 4.2 — the crease that was there is gone;
+- the apex, ray along +Y at x = 0: the front is at **0.02** at z=127 and z=128, at **0.29** at 129.0 and at
+  **1.15** at 129.8 — the ridge rolls back instead of meeting the dome at 90°;
+- volumes: base **83 196.95 → 82 620.51** (-576.44), lid **24 749.06 → 24 471.90** (-277.16);
+- `make check` clean, `make fit` **13 of 13** empty, `fitcheck_pair`, `fitcheck_joint`, `fitcheck_gasket` and
+  `probe_carrier` included.
+
+**Side effects, said out loud.** The opening acts on the whole shell, so it also rolls the case's **back rim**
+(y = 58.70) and the two **top/bottom ridges** — consistent, and reversible with `front_bezel_r = 0` for the old
+sharp shell. And every flat face sits **0.017 mm** behind where it was (the ball's facets), which moves the
+button's pocket depth 1.20 → 1.217 and every other face measured off the crown by the same amount: below the
+printer's resolution, but the user measures with a caliper, so it is written down rather than left implicit.
+
+**Left open.** The microphone's path grew with the lift: the two slots are cut in the bottom and did not move, so
+the distance to the unit's own ports went from ~1.6 to ~7.6 mm. The chamber in front of them is what carries the
+sound; a duct or a cone is not modelled, and whether it is needed is a question for a real call, not for a render.

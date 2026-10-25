@@ -12,7 +12,8 @@ through their walls:
   plate — the two M4 pockets and holes that ARE the fixing (ADR-021, ADR-027: no ears on the sides).
 - **lid** - the front shell: the **closed grille** over the unit's own grille, the spot-faced seat the
   unit's disc presses on, and the **Ø25.00 flat land** and **Ø22.10 cutout** for the panel button — the
-  switch's own 22.00 plus 0.10 of clearance (ADR-018, ADR-033).
+  switch's own 22.00 plus 0.10 of clearance (ADR-018, ADR-033) -- and, since ADR-034, a shell whose convex
+  edges are all rolled by 2.00 mm, the front's rim included.
 
 ## Files
 
@@ -109,8 +110,8 @@ the print anything to bridge -- and a pad under the locknut. The gland sat on th
 back) so that the pigtail left it and dropped straight into the unit's USB-C, which points up at the unit's
 top edge; the user moved it back along +Y twice, 10.59 mm on 2026-09-29 to 40.44 mm (ADR-030), and 3.90 more
 on 2026-10-04 to **44.34 mm** (ADR-032), where the boss's tail's point lands exactly on the case's back face
--- the bed -- so the boss's first layer is printed on the plate instead of 3.90 mm above it, and in z from 94
-to 96.80 the tail merges into the plate as a buttress. The port is still under the hole, so the drop is a
+-- the bed -- so the boss's first layer is printed on the plate instead of 3.90 mm above it, and in z from 127.20
+to 130.00 the tail merges into the plate as a buttress. The port is still under the hole, so the drop is a
 flight of about 22 degrees rather than the plumb line it was, and that is what the two moves cost; the bed's
 own plane is the limit now, because further back the point would poke through the plate. For the hole itself
 neither move changes anything, which the audit shows rather than asserts. `probe_gland` is what proves that opening is one hole. The two mounting ears were drawn and then dropped, by

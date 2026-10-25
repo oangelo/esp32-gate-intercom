@@ -65,6 +65,45 @@
 //
 // Convention: millimetres. Variable names are ASCII only (the parser breaks on accents).
 
+// ------------------------------------------------------ the Z stretch (ADR-034)
+// The user needs room UNDER the unit: its 2x9 header is the end that points down, and the case gave it
+// 1.25 mm. So the unit rises by `lift` and the whole upper assembly rises with it -- the button and its
+// two lands, the joint screws and their carriers, the gland, the cavity's ceiling -- which is what keeps
+// every clearance the case was checked for exactly as it was (the switch's body stays 0.25 mm off the
+// unit's top edge, the land keeps 4.50 of wall above it, the M3 pair stays in the corridor). The only
+// new space is below the unit, and that is the point. The capsule pays for it in its straight band.
+lift     = 6.00;        // how far the unit rises, and with it everything above it. 6.00 is the user's
+                        // "uns milimetros" with a DuPont connector in mind; it is the ONE number to change
+// ---------------------------------------------------------------------------------------------------
+// THE KNOBS (2026-10-25: "tem um parametro para eu controlar a altura?"). They are independent, they are
+// annotated for the CUSTOMIZER (View > Customizer gives each of them a slider or a step), and `make fit`
+// is what guards them: a value that pushes a ghost into a wall fails the check instead of printing.
+//   case_h -- the height, apex to apex. FLOOR 99.80: the button's land needs 4.50 of wall above it and
+//            the cavity's ceiling sits 3.40 below the apex (btn_cz + 12.50 + 4.50 + 3.40). No ceiling,
+//            only the print bed (lying on its back the case needs case_h x 66.80 of plate).
+//   btn_cz -- the button's centre, from the bottom. FLOOR 79.40: the switch's body (O22, 30 deep) hangs
+//            11.00 below the button's centre and has to clear the unit's top edge (68.15) by 0.25. That
+//            is what decides how central the button can look: 164.80 was the height that put it at
+//            exactly half, and it read too long; at 130.00 the middle is 65.00 and 79.40 is as near as
+//            the hardware goes (the button ends up 14.40 above the middle, and 47.20 below the ceiling)
+//   m3b_dz -- the two joint screws, this far BELOW the button (they ride with it, so the pair always
+//            stays in the corridor between the unit and the switch). 9.40 is the proven number: the
+//            carrier's gusset (3.50 either side of the screw) then tops out at 73.50, 0.52 mm under the
+//            switch's ghost, which is what fitcheck_joint's `neighbours` bites on -- 8.80 put it 0.08 mm
+//            INTO it (btn 79.40, screws 70.60, gusset top 74.10, ghost floor 74.02). At 9.40 the pair
+//            straddles the middle of a 150.00 case: 74.70 against 75.00.
+/* [The knobs] */
+// height of the case, apex to apex. Floor 99.80, no ceiling but the print bed
+case_h   = 130.00;      // [100:2:220]
+// the button's centre, from the bottom. Floor 79.40 (the switch's body against the unit)
+btn_cz   = 79.40;       // [79.4:0.2:160]
+// how far below the button the two joint screws sit. 9.40 is the floor for this button height
+m3b_dz   = 9.40;        // [8.6:0.2:16]
+// NOT moved by the lift, and they have to be checked against it: the microphone slots (cut in the
+// bottom, so they stay where the bottom is -- the air path from them to the unit's own ports grows by
+// `lift`, which is why 6.00 was preferred to 10) and the two M4, which are the quarter points of the
+// height and therefore drift with it (37.50 and 112.50 at case_h = 150.00) -- still symmetric about it.
+
 // --------------------------------------------------------- measured (docs/dimensions.md)
 board_dia    = 57.63;   // board is ROUND. The vendor DXF says 58.00, and the unit's own body calipers
                         // at 57.50 (2026-09-26), so the board sits a shade under both. Unused by any
@@ -149,15 +188,16 @@ unit_dia  = 57.50;
 unit_h    = 47.30;      // 50.00 calipered with the feet on, minus their 2.70
 unit_face_y = 6.20;     // its grille face: clears the inner crown at the unit's rim by 1.00 mm
 unit_cy   = unit_face_y + unit_h / 2;   // 29.85: unit centre on the depth axis
-unit_cz   = 33.40;      // = z_btm, the centre of the bottom end (33.4): the LOWEST it can sit and still
-                        // clear the rounded bottom, and low is what frees the upper half for the panel
-                        // button (ADR-018). Was 33.00 at a 3.0 mm wall: the skin grew 0.4 and the whole
+unit_cz   = 33.40 + lift;   // z_btm (33.40) + the lift: was the LOWEST it could sit and still clear the
+                        // rounded bottom, and rising is what frees the room below for the 2x9 header's
+                        // connectors (ADR-034). Was 33.00 at a 3.0 mm wall: the skin grew 0.4 and the whole
                         // interior came with it, so the 1.25 mm gap around the unit is untouched
 
 case_w  = 66.8;         // the cavity's O60 plus 2 x 3.4 of wall. Was 66.0 at a 3.0 wall: the case grew
                         // 0.8 across so the joint's lip could sit flush with its surface (ADR-024),
                         // which leaves the board 1.19 mm of clearance a side instead of 1.00
-case_h  = 30.0 + case_w;   // 96.8: 30 mm of straight side + the two ends (ADR-015: capsule)
+straight = case_h - case_w;    // 83.20: the capsule's straight side, z_btm to z_top, from the height above
+                        // (it was 30.00 at 96.80, and 98.00 at the 164.80 that read too long)
 case_d  = 58.7;         // the unit's depth 47.30 (feet peeled off) + the front gap at its face (6.20)
                         // + the back gap (1.80) + the plate (3.40) = 58.70, so it follows unit_h one
                         // for one. Was 58.0, then 58.4 when the shell grew to 3.4. DECIDED: the
@@ -245,13 +285,18 @@ cradle_slope  = 0.84;   // rise per mm of depth: 40 degrees, inside the 45 the p
                         // the subtraction off the material's own face), so the slope it ACTUALLY cuts
                         // is 0.798 per mm -- 38.6 degrees. Measured on the mesh (part = "cradles"):
                         // 29.359 at y = 16.50 and 29.758 at 17.00, 0.40 per half millimetre
-cradle_clr    = 0.25;   // radial clearance to the unit's cover (the collar's 0.20, one step up -- and
-                        // the clearance the print has now proved: the front band took the unit and holds
-                        // it, so the bands that came after it use the same number)
-cradle_lead   = 0.40;   // the lead-in bevel at each band's mouth -- the front band's faces the unit's
-                        // rim, the back band's faces its back end -- so what the unit finds is a mouth
-                        // and not a step
-cradle_r_in   = unit_dia / 2 + cradle_clr;                  // 29.00: the hugging surface
+cradle_clr    = 0.50;   // radial clearance to the unit's cover. Was 0.25, the collar's 0.20 one step up,
+                        // and the print proved it too tight at the mouth: the unit has to find the bore
+                        // with its rim at an angle, and 0.25 all round is a 0.50 hole on a 57.50 cover
+                        // that goes in by hand. 0.50 is A' of the three options put to the user on
+                        // 2026-10-24 (A' takes 390.10 mm3 out of the base); it is the widest that
+                        // still holds -- 1.00 mm of total play, and each band keeps its full 5.00 mm of
+                        // bore at the unit's end (cradle_hug)
+cradle_lead   = 1.20;   // the lead-in bevel at each band's mouth (45 deg) -- the front band's faces
+                        // the unit's rim, the back band's faces its back end, so what the unit finds is
+                        // a mouth and not a step. Was 0.40: with 0.50 of clearance a 0.40 bevel barely
+                        // shows, and this is the bevel that does the guiding
+cradle_r_in   = unit_dia / 2 + cradle_clr;                  // 29.25: the hugging surface
 cradle_r_out  = cradle_r_in + 15;                           // 44: a bound only, body() clips it
 cradle_ramp_r = cradle_r_in + 9.5 * cradle_slope;           // 36.98: wider than the bore's own radius
                         // anywhere in the arc (30 / cos 35 = 36.62), which is what makes a ramp fade to
@@ -281,7 +326,7 @@ rear_y0       = 48.30;  // its mouth-side face, and the first thing the unit's b
                         // sits on the unit's last 5 mm -- the skirt the collar gave (3.20) and more
 rear_y_full   = rear_y0 + cradle_hug;               // 53.30: where the hug ends and the ramp starts
 rear_y_end    = inner_d;                            // 55.30: the cavity's floor. The ramp runs into it
-                        // and is cut off there -- 2.00 mm of rise, r = 29.00 to 30.60 at the +/-X
+                        // and is cut off there -- 2.00 mm of rise, r = 29.25 to 30.85 at the +/-X
                         // directions, where it fades out entirely at 54.55 -- so the band's deepest
                         // material is the plate's own face. It is also 17 mm clear of the vent's mouth
                         // on the -X side (y = 29.35 +/- 2.00), which `probe_vent` keeps honest anyway
@@ -308,15 +353,14 @@ btn_land    = 25.0;     // outer land diameter: the switch gasket's seat, and no
                         // is what a flange sits on; only the edge depth varies
 btn_land_in = 30.0;     // 76 the inner land tops out at 91 and the cavity's ceiling is at 93, so the
                         // wall above the hole keeps 2 mm of material instead of reaching zero
-btn_land_y  = 1.20;     // outer land plane: 1.2 mm into the crown at its apex
+btn_land_y  = 1.20;     // outer land plane: 1.20 mm into the crown at its apex. A round-over at the
+                        // pocket's mouth was tried twice on 2026-10-25 and both were rejected: a torus
+                        // tangent to the SEAT cut the face at an angle, and the arc tangent to BOTH
+                        // needed the pocket 0.50 deeper (1.70) to have room -- and the user still read
+                        // it as a step in the wrong place. Dropped: the mouth keeps its 90 degree edge,
+                        // and this stays where ADR-033 left it
 btn_land_in_y = 4.50;   // inner land plane: uniform 3.3 mm of wall between the two
-btn_cz      = 76.4;     // button centre. Constraints, all three: below the cavity's ceiling (93.4) with
-                        // the land; above the unit's top edge at 62.15 and clear of the seat's rim at
-                        // 59.9 by 1.5 mm; and the switch's body (O22, 30 deep) has to live between
-                        // them -- it ends up at 61.9, so it clears the unit by 0.25 mm and the ceiling
-                        // by a lot. That 0.25 is the tightest margin in the case: the caliper settled
-                        // the unit's height at 47.30 (2026-09-26), and it is this margin that moves
-                        // first if the real part ever measures longer.
+// btn_cz is a KNOB, set with case_h at the top of the file; see the block there for its floor and why.
 
 // ------------------------------------------------------------------- helpers
 
@@ -360,13 +404,51 @@ module outline_offset(d) {
 // end circle's radius where an end curves away -- which end by which half of the case the z falls in.
 function face_x(z) = (z > z_btm && z < z_top) ? r_end : sqrt(pow(r_end, 2) - pow(z - (z > z_top ? z_top : z_btm), 2));
 
+// The same for the INNER surface (the cavity's wall), cav_x out on the straight band. It exists because
+// a carrier's gusset is tall enough to span both regions: before ADR-034 the M3 pair sat above z_top, in
+// the top end's circle, and the wall was a sqrt of a positive number; with the case grown, the pair is
+// deep inside the straight band, where the old expression took the sqrt of a negative and the gusset came
+// out as nan (it cost fitcheck_pair, fitcheck_joint and probe_carrier to catch it).
+function cav_face_x(z) = (z > z_btm && z < z_top) ? cav_x : sqrt(pow(cav_x, 2) - pow(z - (z > z_top ? z_top : z_btm), 2));
+
 module crown_outer() { translate([0, crown_r, -1]) cylinder(r = crown_r, h = case_h + 2); }
 module crown_inner() { translate([0, crown_r, -1]) cylinder(r = crown_in, h = case_h + 2); }
 
-module body() {
+// ADR-034, option B: the shell is now the OPENING of the two prisms by a ball of radius front_bezel_r --
+// erode both prisms by r, dilate by the same ball. Morphologically that rounds EVERY convex edge of the
+// shell by exactly r and leaves every flat face exactly where it was, and it does not care which two
+// surfaces meet at the crease. That is why it is the only construction that also takes the crease over
+// the two DOMES (73 degrees opening to 90 at each apex): a section-based fillet cannot, and three of them
+// were built and rejected -- see docs/decisions.md. Set front_bezel_r = 0 to get the old sharp shell.
+front_bezel_r = 2.00;
+bezel_fn     = 24;      // facets around the dilating ball. The ball has to REACH the original surface, and
+                        // a polyhedral ball falls short of its own radius between vertices: at $fn = 10 the
+                        // front's apex came out at y = 0.098 instead of 0.00, i.e. exactly r(1 - cos 18).
+                        // 24 puts that error at 0.017 mm and costs nothing: the whole base still renders in
+                        // 0.2 s, because the core is one convex intersection and Manifold does it fast
+
+module arete_prisms(r) {
+    // the two prisms eroded by r: the capsule's outline in by r, the crown's cylinder smaller by r
     intersection() {
-        prism_xz(case_d) outline_outer();
-        crown_outer();
+        // the prism is also SHORTENED by r at each end: the offset works on the 2D outline only, so
+        // without this the prism would still run 0..case_d and the dilating ball would push the case
+        // 1.90 mm deeper at the back (measured: the base came out at 60.602 and +14 070 mm3)
+        prism_xz(case_d - 2 * r, r) outline_offset(r);
+        translate([0, crown_r, -1]) cylinder(r = crown_r - r, h = case_h + 2);
+    }
+}
+
+module body() {
+    if (front_bezel_r <= 0) {
+        intersection() {
+            prism_xz(case_d) outline_outer();
+            crown_outer();
+        }
+    } else {
+        minkowski() {
+            arete_prisms(front_bezel_r);
+            sphere(r = front_bezel_r, $fn = bezel_fn);
+        }
     }
 }
 
@@ -652,7 +734,9 @@ pocket_m4  = 1.50;      // REVIEW 2: 1.5 mm deep is what the corrected note says
 // 0.09 mm, which is contact. The pair moves to (18, 67): 1.4 mm to that flange, 3.0 mm to the unit's
 // collar as it stood then (out now: ADR-029), 8.9 mm to the cavity's side wall, and what carries the
 // insert there (the pillar then, the gusset now, ADR-031) clears the switch's body by 4.2 mm.
-m3b        = [18.0, 67.0];
+m3b        = [18.0, btn_cz - m3b_dz];   // 70.00: m3b_dz below the button, in the corridor between the
+                        // unit and the switch's body, so it rides with the button (ADR-034). At 70.00 the
+                        // pair straddles the middle of a 150.00 case: 74.70 against 75.00
 m3b_d      = 3.40;      // clearance hole for M3 through the lid's boss
 m3b_head_d = 5.70;      // counterbore: the DIN 912 M3 head is O5.5 x 3.0, plus 0.05 a side
 m3b_head_h = 3.20;      // counterbore depth: 3.0 of head and 0.2 of recess, so the head ends up
@@ -687,10 +771,10 @@ m3c_ramp_y0 = 15.0;     // where the face ends and the ramp begins. Above it the
                         // x = m3c_face_x + m3c_ramp * (y - m3c_ramp_y0), so at the hole's own x (18.00)
                         // the material reaches 19.76: 1.76 mm behind the hole's floor at 18.00, and
                         // that floor is not sitting on the ramp's own surface
-m3c_wall_x = sqrt(pow(cav_x, 2) - pow(m3b[1] - z_top, 2));   // 29.78: the cavity's side wall at the
-                        // screw's own z. The cavity's top end is a circle (r = cav_x about z_top), so
-                        // the wall is a function of z alone: 29.78 here, 28.87 at the gusset's top,
-                        // 0.9 further in, which is one of the things that bounds the gusset's height
+m3c_wall_x = cav_face_x(m3b[1]);   // 30.00: the cavity's side wall at the screw's own z, which with the
+                        // case grown to 164.80 is the straight band itself (it was 29.78 when the pair sat
+                        // in the top end's circle). The gusset is 3.50 tall either side of the screw, so
+                        // it no longer crosses into a curve and the wall it keys into is flat
 m3c_key    = 0.75;      // how far past that wall the gusset runs, into the shell's own material:
                         // added material joins cleanly when it is not coplanar with the face it lands on
 // The same two faces again, in the SCREW's own frame (m3_carrier is built there, at x = 0 and z = 0 on
@@ -818,8 +902,10 @@ gland_cz      = case_h;                 // 96.80: the apex of the top's cylinder
                                         // (ADR-032)
 gland_proud   = 3.00;                   // how far the boss's flat stands above that apex
 gland_flat_z  = gland_cz + gland_proud; // 99.80: the face the gland's gasket lands on
-gland_root_z  = 94.00;                  // where the boss's prism is buried. At z = 94 the case's own
-                                        // surface is 12.93 mm wide in X, wider than the boss's 11, so
+gland_root_z  = case_h - 2.80;          // 100.00 at lift 6.00 (94.00 before): where the boss's prism is
+                                        // buried. It rides with the top (ADR-034), and 2.80 is the number
+                                        // that was there: at 2.80 below the apex the case's own surface is
+                                        // 12.93 mm wide in X, wider than the boss's 11, so
                                         // the base face hides inside the material: the sides simply
                                         // emerge from the shell and no ledge is left around them
 gland_boss_d  = 22.00;                  // its diameter. A PG7's sealing washer is about O16, so this
@@ -921,8 +1007,10 @@ gland_nut_z   = z_top + cav_x - gland_nut_cut;   // 92.15: the seat's plane
 // plane, so it comes out as a horizontal tunnel whose ceiling is a 4.2 mm bridge -- under rule 4's 10 --
 // and, being horizontal through a vertical wall, water cannot run into it: it would have to climb.
 vent_side   = -1;       // -1: the case's -X wall. 1 would mirror it, for nothing
-vent_z      = 48.40;    // the middle of the side: the middle of the capsule's straight band (33.40 to
-                        // 63.40) and of the case's height, which come to the same number
+vent_z      = case_h / 2;   // = 51.40 at lift 6.00, and 48.40 before: the middle of the side, which is
+                        // both the middle of the capsule's straight band (z_btm to z_top) and of the case's
+                        // height -- the two come to the same number because the band is 30.00 un-stretched.
+                        // The stretch moves it up by lift/2, which is what keeps it in the middle
 vent_y      = case_d / 2;   // 29.35: the middle of the depth, so the patch sits centred on the panel
 vent_d      = 4.20;     // the hole itself. Rule 6's membranes are stuck over it, not seated in it.
                         // Was 4.00 until 2026-10-24, the user's call (the breather's own body wants the
@@ -1402,7 +1490,13 @@ module joint_recess_cut() {
     // ADR-028 had to buy after a first cut reached into it and the boolean came back with the ring in
     // place).
     difference() {
-        intersection() { body(); prism_xz(lap_d + 2 * eps, joint_y - eps) outline_outer(); }
+        // The band is cut against the rim's offset on its own -- no intersection with body() and no
+        // outline_outer() in the way. Both of those put a surface of the cut EXACTLY on the base's own
+        // outer surface, and the boolean came back with a 0.03 mm3 skin of the band left behind, in the
+        // corner where the recess's end face meets the outer surface (found when ADR-034's stretch moved
+        // the cradles and fitcheck_pair stopped being empty). Inside the band the body IS the outline,
+        // so the ring this cuts is the same ring, minus the coplanar face.
+        prism_xz(lap_d + 2 * eps, joint_y - eps) square([400, 400], center = true);
         prism_xz(case_d, 0) outline_offset(lap_step + lap_gap);
     }
 }

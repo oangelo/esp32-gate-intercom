@@ -215,7 +215,8 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   outside has the mouth of the 0.20 mm gap, the whole 3.00 mm of lap and the press of the two screws to
   beat before it reaches the gasket's shoulder. An 8.00 joint leaves the unit's seat (6.25), the grille
   field (3.00 to 6.25) and the button's lands (1.20, 4.47) all on the lid. The shell is 3.40 -- which is
-  why the case is **66.80 x 96.80 x 58.70**, uniformly -- and the **front** wall is still 3.00.
+  why the case is **66.80 x 130.00 x 58.70** (the height is ADR-034's knob; the gland's boss takes it to
+  133.00), uniformly -- and the **front** wall is still 3.00.
   The gasket itself is a **1.70 mm wide** ring, **printed in TPU 95A** since 2026-09-26 (closed-cell
   silicone foam before that, ADR-024's amendment), **1.00 mm** free and squeezed
   to **0.70** by the two screws -- the 30 percent ADR-017 asks for -- lying flat on the rim's shoulder. It
@@ -223,16 +224,21 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   it lands there, clearing the lip by the lap's 0.20 mm. The 0.70 is also the joint's **closed** gap: with
   the ring squeezed, the lid ends up 0.70 mm forward of the printed plane and the lip reaches 2.30 mm into
   the recess instead of 3.00 (ADR-024).
-- The unit is located at **both ends** by **four arcs** — one band at each end, ±35° about the ±X directions,
-  inner surface at **r = 29.00** (the Ø57.50 cover plus 0.25): the front band (ADR-028) from **y = 11.05 to
-  25.55**, with the print ramp lifting the clearance past y = 16.05 and a 0.40 mm lead-in bevel at the mouth,
+- The shell's outer edges are **rolled by 2.00 mm** (ADR-034): both prisms are eroded by r and dilated by a
+  ball of radius r, so the front's rim -- 73° on the straight band, 90° at each apex -- comes out tangent to both
+  of its surfaces all the way round, and so do the back rim and the two top/bottom ridges. `front_bezel_r = 0`
+  restores the sharp shell. Every flat face sits **0.017 mm** behind where it was, which is the dilating ball's
+  own faceting, and that is what moved the button's pocket depth to 1.217.
+- The unit is located at **both ends** by **four arcs** -- one band at each end, ±35° about the ±X directions,
+  inner surface at **r = 29.25** (the Ø57.50 cover plus 0.50, ADR-034): the front band (ADR-028) from **y = 11.05 to
+  25.55**, with the print ramp lifting the clearance past y = 16.05 and a **1.20** mm lead-in bevel at the mouth,
   and the back band (ADR-029) hugging the unit's last 5.00 mm from **y = 48.30 to 53.30** with its ramp
   climbing back toward the mouth to nothing by y = 38.80 — that ramp is its lead-in. The ring that used to
   hold the back end (the collar) is **out**: 0.20 mm a side in a closed 360° hoop was too tight to take the
   printed base at all, where the arcs at 0.25 mm took the unit and hold it. Before ADR-028 the bore's 1.25 mm
   of daylight let the unit slide and rattle, and let it drop out of the base with the lid off.
 - The front stays closed over the unit with the **Ø44 field of Ø2 holes**, 0.80 mm recessed behind the
-  crown's apex to make a drip lip, centred on the unit's axis 33 mm from the bottom end. The speaker's own
+  crown's apex to make a drip lip, centred on the unit's axis 39.40 mm from the bottom end. The speaker's own
   grille sits right behind it, so the path out is two grilles in series. The microphones do **not** share
   that field any more: one opening is sound going out, the other is sound coming in.
 - Three pads on the back plate push the unit forward onto the seat; the gap behind it is 1.80 mm.
@@ -242,11 +248,11 @@ own 22.00 plus **0.10** of print clearance (ADR-018, ADR-033) — with a **Ø25.
 which is both the switch gasket's seat and the recess the flange drops into, and a **PG7 or M12 cable gland**
 for the **5 V** entry (the buck
 now lives outside, so still two 0.75 mm² conductors, but at 5 V), a **Ø4.20 hole in the -X side wall** at
-mid-height (z = 48.40) and mid-depth (y = 29.35) — M5x0.8's tapping drill, because the vent takes a **screwed
+mid-height (z = 65.00) and mid-depth (y = 29.35) — M5x0.8's tapping drill, because the vent takes a **screwed
 e-PTFE breather valve** rather than the stick-on patch it was designed around (ADR-026, ADR-033), with the
 Ø11.00 × 0.35 recess still in its mouth — and M4
 wall/pole mounting holes — **two**, on the case's centre line a quarter up and a quarter down its height
-(z = 24.2 and 72.6): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
+(z = 32.50 and 97.50): a **Ø8.00 × 1.50** pocket in the plate's inner face for the head, then a **Ø4.50**
 hole on through, which leaves **1.90 mm** of plate (rule 3). Both are cut; ADR-021. These two ARE the
 fixing: there are no mounting ears on the sides — the plate beds on the post and the screws hold it there
 (ADR-027). The button's head
@@ -260,7 +266,7 @@ the case — and the user has moved it **back along +Y twice since**: 10.59 mm o
 (ADR-030), and 3.90 more on 2026-10-04 to **44.34 mm** (ADR-032), where the boss's tail's point lands
 exactly on the case's own back face. That face IS the bed (the base prints lying on its back), so the boss's
 first layer is printed on the plate instead of 3.90 mm above it: the point is flush (bbox y = 8.00..58.70,
-nothing protrudes) and in z from 94 to 96.80, where the plate is, the tail merges into it as a buttress.
+nothing protrudes) and in z from 127.20 to 130.00, where the plate is, the tail merges into it as a buttress.
 The bed's plane is what sets the limit now — further and the point would poke through the plate. That costs
 the route another 5.6 degrees: the pigtail leans **22.4 degrees** off vertical where it leant 16.8. ADR-030's
 move bought the print nothing and said so (the teardrop travels rigidly with the hole: its roof reads
