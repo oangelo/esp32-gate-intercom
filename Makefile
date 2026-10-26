@@ -4,7 +4,7 @@
 SCAD  ?= cad/case.scad
 BUILD ?= build
 
-.PHONY: all check stl base lid display render section fit exploded inside_render screwplan review clean
+.PHONY: all check stl base lid gasket cap display render section fit exploded inside_render screwplan review clean
 
 all: check
 
@@ -15,8 +15,8 @@ check:
 		|| { cat $(BUILD)/openscad.log; exit 1; }
 	@grep -iE 'warning|error' $(BUILD)/openscad.log | grep -viE 'status: *noerror' || echo "clean compile"
 
-## Export both printed parts
-stl: base lid gasket
+## Export the printed parts
+stl: base lid gasket cap
 
 base:
 	@mkdir -p $(BUILD)
@@ -36,6 +36,13 @@ gasket:
 	@openscad -D 'part="gasket"' -o $(BUILD)/case_gasket.stl $(SCAD) > $(BUILD)/gasket.log 2>&1 \
 		|| { cat $(BUILD)/gasket.log; exit 1; }
 	@grep -iE 'warning|error' $(BUILD)/gasket.log || echo "build/case_gasket.stl clean"
+
+## The two screw-hole caps (ADR-035): printed in ASA with the shell, one per screw, laid flat on the bed.
+cap:
+	@mkdir -p $(BUILD)
+	@openscad -D 'part="cap"' -o $(BUILD)/case_cap.stl $(SCAD) > $(BUILD)/cap.log 2>&1 \
+		|| { cat $(BUILD)/cap.log; exit 1; }
+	@grep -iE 'warning|error' $(BUILD)/cap.log | grep -viE 'status: *noerror' || echo "build/case_cap.stl clean"
 
 ## Xvfb display for headless PNG rendering (do not use xvfb-run, it hangs OpenSCAD)
 display:
@@ -63,7 +70,7 @@ section: display
 ## carriers' own material is where it has to be (probe_carrier asks that one by difference).
 ## Everything except nothing: all of these must print "empty".
 fit:
-	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair fitcheck_gasket probe_grille probe_button probe_mic probe_gland probe_m4 probe_vent probe_carrier; do \
+	@for p in fitcheck fitcheck_parts fitcheck_internal fitcheck_joint fitcheck_pair fitcheck_gasket fitcheck_cap probe_grille probe_button probe_mic probe_gland probe_m4 probe_vent probe_carrier; do \
 		printf '%-22s ' $$p; \
 		openscad -D "part=\"$$p\"" -o $(BUILD)/$$p.stl $(SCAD) 2>&1 \
 			| grep -q 'top level object is empty' && echo 'empty: no interference' || echo 'GEOMETRY: interference, look at it'; \

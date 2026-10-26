@@ -739,12 +739,35 @@ m3b        = [18.0, btn_cz - m3b_dz];   // 70.00: m3b_dz below the button, in th
                         // pair straddles the middle of a 150.00 case: 74.70 against 75.00
 m3b_d      = 3.40;      // clearance hole for M3 through the lid's boss
 m3b_head_d = 5.70;      // counterbore: the DIN 912 M3 head is O5.5 x 3.0, plus 0.05 a side
-m3b_head_h = 3.20;      // counterbore depth: 3.0 of head and 0.2 of recess, so the head ends up
-                        // INSIDE the crown. The wall is only 3.04 here, so the counterbore breaks
-                        // through it on its own circle: the seat is the boss below, not the wall.
+m3b_head_h = 4.40;      // counterbore depth (2026-10-25, was 3.20): the head sinks 1.40 below the
+                        // crown instead of 0.20, and that 1.40 is the cap's thickness. The wall is
+                        // only 3.01 here, so the counterbore broke through it even at 3.20: the seat
+                        // is the boss below, not the wall. Floor at 5.86, boss material under it 1.61
+                        // (rule 3: 1.20). Ceiling on this knob is 4.81 -- beyond that the boss has
+                        // nothing left under the head for it to clamp.
 m3b_boss_d = 8.20;      // the lid's internal boss: 1.25 mm of wall around the counterbore (rule 3)
-m3b_boss_h = 3.00;      // leaves 2.84 mm of material under the head, which is what the head clamps
+m3b_boss_h = 3.00;      // leaves 1.64 mm of material under the head, which is what the head clamps
 m3b_shank  = 12.0;      // M3 x 12 socket head, the length the BOM already lists
+
+// THE CAP (2026-10-25, his ask): once the screws are in, the two counterbores are plugged, so the front
+// reads as one surface -- "quero fazer uma tampinha, para aparafusar, e depois fechar o buraco".
+//
+// The cap is a SLICE OF THE CROWN, not a disc with a flat top. Its top face is cut by the case's own
+// front cylinder, so it continues the surface to the thousandth: no step to sand, no spot-face to hide,
+// nothing to align -- the only witness is the seam of its own O5.50 circle, and that seam sits in the
+// same 1.4 degrees of slope the front already has. Its BOTTOM is flat, and flat does two jobs: it is
+// what the cap stands on while printing (on the bed, since the lid prints on its face, the cap's bottom
+// is already the -Y side), and it is what stops it -- the bottom lands on the socket head's own top
+// face, which sits exactly cap_h below the crown, so pressing it in seats it FLUSH instead of letting
+// it sink until it disappears. A cap resting on the screw's head is not a compromise: the head is a
+// known 3.00 tall and the counterbore's floor is cut from the crown, so both ends of that stack are
+// derived from the same two numbers.
+m3b_head_k = 3.00;      // the DIN 912 M3 head's own height: the seat is this far below the head's top
+cap_h      = m3b_head_h - m3b_head_k;   // 1.40: from the crown down to the face the cap lands on
+cap_d      = 5.50;      // O, against the counterbore's 5.70: 0.10 a side, a press fit by hand. In ASA
+                        // a printed O5.70 comes out ~5.65, so this is the loose end of "press"; at
+                        // 5.58 it needs a mallet. His call if he wants it tighter.
+cap_lead   = 0.40;      // 45 degree chamfer on the leading rim, so it starts square in the hole
 // The CARRIER (2026-10-04): what holds the insert no longer climbs from the back plate. It grows from
 // the cavity's SIDE WALL, in the same family as the four arcs that cradle the unit (ADR-028): a gusset
 // keyed into the wall, with the insert's hole bored straight into its flat top. The pillar it replaced
@@ -1114,7 +1137,7 @@ module m3_boss() {
 }
 
 module m3_lid_boss() {
-    // The seat for the head, added to the lid. The wall is 3.04 here and the counterbore is 3.20, so
+    // The seat for the head, added to the lid. The wall is 3.01 here and the counterbore is 4.40, so
     // the counterbore takes that wall away on its own circle: without this boss there would be
     // nothing under the head for it to clamp, and the two parts would not be held together at all.
     // O8.2 leaves 1.25 mm of wall around the counterbore. It grows INWARD, so the lid still prints
@@ -1133,6 +1156,43 @@ module m3_lid_cuts() {
         translate([0, m3b_seat_y - eps, 0]) rotate([-90, 0, 0])
             cylinder(d = m3b_d, h = m3b_boss_h + 2);              // through the boss
     }
+}
+
+module cap_solid(sx) {
+    // One cap, buildable only HERE and not in a frame of its own: its top is the crown's own surface, and
+    // the crown is a function of x only, so the cap's shape and the case's curvature cannot drift apart.
+    // The plug is built in the SCREW's frame (x = 0 at the screw), but the crown has to stay in the
+    // case's frame -- translating it along with the plug would put its surface at y = 0 on the screw's
+    // own axis instead of m3b_face_y, and the cut would then do nothing at all and leave a FLAT top.
+    // That is what the first version did: two 64.97 mm3 plain discs, 0.46 short of the crown at the
+    // inner edge. So the crown is brought back by -sx * m3b[0] instead.
+    translate([sx * m3b[0], 0, m3b[1]])
+    difference() {
+        intersection() {
+            // the plug: from just outside the crown down to the head's top face, where it stops
+            translate([0, m3b_face_y - 0.5, 0]) rotate([-90, 0, 0])
+                cylinder(d = cap_d, h = cap_h + 0.5);
+            translate([-sx * m3b[0], 0, -m3b[1]]) crown_outer();   // the crown, in the case's own frame
+                                                             // (both x and z undone -- the crown's prism
+                                                             // starts at z = -1, so shifting it by the
+                                                             // screw's z cut the cap off at 69.00):
+                                                             // that cut IS the cap's top face
+        }
+        // the lead-in: a 45 degree chamfer on the leading rim, cut as the wedge between the plug and a
+        // cone that opens upward -- the bottom face comes out O(cap_d - 2*cap_lead), widening to cap_d
+        // one lead above it, so the cap finds the bore before it has to be square to it
+        translate([0, m3b_face_y + cap_h + 0.01, 0]) rotate([90, 0, 0])
+            difference() {
+                cylinder(d = cap_d + 2, h = cap_lead + 0.02);
+                cylinder(d1 = cap_d - 2 * cap_lead, d2 = cap_d + 2, h = cap_lead + 0.02);
+            }
+    }
+}
+
+module cap_pair() {
+    // Both caps, in the case's own frame -- which is how they are checked against the lid and how the
+    // assembly shows them. part = "cap" lays the same pair down for printing (see the dispatch).
+    for (sx = [1, -1]) cap_solid(sx);
 }
 
 module m3_carrier() {
@@ -1705,10 +1765,16 @@ if (part == "base") {
     // The gasket ring on its own, for printing in TPU: 1.70 mm wide, 1.00 mm thick, and its shape is
     // the case's own contour between the rim's edges.
     gasket();
+} else if (part == "cap") {
+    // The two caps, laid down for printing: their flat bottom is already the -Y side (the lid prints on
+    // its face, so -Y is the bed), so one rotation puts both on the bed and their crowned tops up -- a
+    // rise of 0.46 over O5.50, 1.4 degrees from horizontal, which needs nothing under it.
+    translate([0, 0, m3b_face_y + cap_h]) rotate([-90, 0, 0]) cap_pair();
 } else if (part == "assembly") {
     // Opaque, for the outer form.
     base();
     lid();
+    cap_pair();
     ghosts("unit");
 } else if (part == "inside") {
     // The review view now: the shell translucent, the assembled unit inside it.
@@ -1776,6 +1842,12 @@ if (part == "base") {
     // field is open through the front wall. The probe is 1.0 mm smaller than the cut, so it does not
     // ride on the hole's wall.
     intersection() { lid(); grille_hole_cut(grille_hole - 1.0); }
+} else if (part == "fitcheck_cap") {
+    // The caps against the LID, in the case's frame: must be empty. It asks that the cap's O5.50 finds
+    // its 5.70 bore and that its crowned top does not stand on the crown it is cut from -- the two ways
+    // this little part can be wrong. Both ends of its stack are derived (the bore's floor from the
+    // crown, its bottom from the head's 3.00), so what this check bites is a NUMBER that moved.
+    intersection() { lid(); cap_pair(); }
 } else if (part == "probe_button") {
     intersection() { lid(); button_cut_hole(btn_cut - 1.0); }
 } else if (part == "probe_mic") {

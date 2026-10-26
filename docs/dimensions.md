@@ -224,6 +224,13 @@ Fixed by the measurements, with the unit going in **assembled** (roadmap item 5)
   it lands there, clearing the lip by the lap's 0.20 mm. The 0.70 is also the joint's **closed** gap: with
   the ring squeezed, the lid ends up 0.70 mm forward of the printed plane and the lip reaches 2.30 mm into
   the recess instead of 3.00 (ADR-024).
+- Each of the two M3's **counterbores** is cut from the crown's own surface at the screw's x (1.46) and is
+  **Ø5.70 x 4.40** deep (ADR-035, was 3.20): the head sinks **1.40 below the crown** and leaves **1.61** of
+  boss material under it. That 1.40 is the **cap** -- `part="cap"`, two per case, printed with the shell: **Ø5.50**
+  in the Ø5.70 bore (0.10 a side), **0.40** lead-in chamfer, flat bottom, and a top cut by the crown's own
+  cylinder, so it seals the hole flush. Its bottom lands on the socket head's top face, which is what sets the
+  flush height; thickness comes out 1.38 / 1.80 / 0.91 across the piece, following the crown. `fitcheck_cap`
+  proves it by boolean.
 - The shell's outer edges are **rolled by 2.00 mm** (ADR-034): both prisms are eroded by r and dilated by a
   ball of radius r, so the front's rim -- 73° on the straight band, 90° at each apex -- comes out tangent to both
   of its surfaces all the way round, and so do the back rim and the two top/bottom ridges. `front_bezel_r = 0`

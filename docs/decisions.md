@@ -1298,3 +1298,53 @@ printer's resolution, but the user measures with a caliper, so it is written dow
 **Left open.** The microphone's path grew with the lift: the two slots are cut in the bottom and did not move, so
 the distance to the unit's own ports went from ~1.6 to ~7.6 mm. The chamber in front of them is what carries the
 sound; a duct or a cone is not modelled, and whether it is needed is a question for a real call, not for a render.
+
+
+## ADR-035: the screw heads go deeper and the holes get a cap, a slice of the crown
+
+**Decision (2026-10-25, his ask):** *"a cabeça do parafuso na lid, eu quero que elas fiquem mais profundas, e
+quero fazer uma tampinha, para aparafusar, e depois fechar o buraco."* The counterbore goes from **3.20 to
+4.40**, so each DIN 912 head sinks **1.40 below the crown** instead of 0.20, and that 1.40 becomes a **printed
+cap** -- its own part (`part = "cap"`, `make cap`), one per screw.
+
+**The cap is a SLICE OF THE CROWN, not a disc with a flat top.** Its top face is cut by the case's own front
+cylinder, so it continues the surface to the faceting: no step to sand, no spot-face to hide, nothing to
+align, and the only witness is the seam of its own Ø5.50 circle sitting in the 1.4 degrees of slope the front
+already has. A flat disc in a curved face would have shown its edge by 0.46 mm at the inner side -- he rejects
+a visible step, and this is the construction that has none.
+
+**Its flat bottom does two jobs, and that is why the stack works.** It is what the cap stands on while
+printing (the lid prints on its face, so the cap's bottom is already the bed side: one rotation lays both down,
+crowned tops up, a 0.46 rise over Ø5.50 = 1.4° from horizontal, no support). And it is what **stops** the cap:
+the bottom lands on the socket head's own top face, which sits exactly `cap_h` below the crown, so pressing it
+in seats it **flush** instead of letting it sink until it disappears. Nothing is set by eye -- both ends of
+that stack come from two numbers: the counterbore's floor is cut from the crown, and `cap_h = m3b_head_h -
+m3b_head_k` (4.40 - 3.00 = **1.40**) is read from the head itself.
+
+**Numbers.** Counterbore Ø5.70 x 4.40: floor at **5.86**, **1.61 mm** of boss material under the head (rule 3
+asks 1.20), and the knob's **ceiling is 4.81** -- past that the boss has nothing left for the head to clamp,
+which is written where the knob lives. Cap Ø**5.50** in that Ø5.70 bore: 0.10 a side, a hand press; its leading
+rim carries a **0.40** chamfer so it finds the bore before it has to be square to it. On the piece, the cap's
+thickness is not constant and should not be: **1.38** at the screw's axis, **1.80** at the inner edge and
+**0.91** at the outer one, following the crown's own 1.46 / 1.025 / 1.90 at those x.
+
+**Measured.** Lid **24 471.90 -> 24 432.45 mm³**, and the delta is the arithmetic: two counterbores 1.20 deeper
+over the annulus between Ø5.70 and the Ø3.40 shank hole = 2 x 19.7 = **39.4**. Base untouched to the thousandth
+(**82 620.511743**). The pair of caps weighs **64.71 mm³** (32.4 each, under half a gram of ASA). `make check`
+clean and `make fit` **14 of 14** -- `fitcheck_cap`, new, is the one that asks whether the cap finds its bore
+and whether a crowned top ever stands on the crown it was cut from.
+
+**Two ways the cap was wrong before it was right, both caught by measuring and not by looking.**
+1. *The crown was translated along with the plug.* `cap_solid` builds the plug in the screw's frame, and the
+   first version translated the crown with it -- which put the crown's surface at **y = 0 on the screw's own
+   axis** instead of at 1.46. The intersection then removed nothing, and out came two **plain 64.97 mm³
+   discs**, 0.46 short of the crown at the inner edge, with flat tops that looked perfectly plausible in a
+   render. The crown has to be brought **back** by `-sx * m3b[0]`; that is why the module takes `sx` at all.
+2. *The crown is a prism that starts at z = -1*, so shifting it by the screw's z = 70 moved its own floor to
+   69.00 and clipped the cap there: the pair's bbox read 3.75 in z instead of 5.50. Undo z too
+   (`-m3b[1]`). The tell was a bbox, not a boolean: both fit checks were green throughout.
+
+**Left open, both his call.** The fit is 0.10 a side, the loose end of "press" in ASA (`cap_d = 5.58` if he
+wants it to need a thumb). And the cap is held by friction alone: there is no slot and no pin hole, so opening
+the case again means drilling it out -- a Ø1.2 blind hole in the middle is the alternative if he would rather
+have a pin, at the cost of a visible dot.

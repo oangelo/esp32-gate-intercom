@@ -40,7 +40,9 @@ Acceptance:
 - `make stl` produces watertight meshes (checked with trimesh).
 - The board volume fits inside the cavity with at least 1 mm clearance everywhere.
 - No wall covers a connector that must stay reachable, checked geometrically, not by eye.
-- Renders (assembled and exploded) are committed under `cad/media/`.
+- Renders are generated into `cad/media/` when they are needed and are NOT committed (see `.gitignore`):
+  `make render`, `make exploded`, `make inside_render`, `make section`. The image in the conversation is the
+  record; the model regenerates it.
 
 Status: **steps 1 to 3 done, and the joint.** `cad/case.scad` revision 2 has the capsule profile, the
 crown on the front face, the cavity, the flat seat and retaining lip the unit's grille face lands on, the

@@ -20,7 +20,7 @@ through their walls:
 | File | What it is |
 |---|---|
 | `case.scad` | The whole enclosure. One file, parameters at the top, `part` selects what to export |
-| `media/` | Renders used for validation and for the documentation |
+| `media/` | Scratch for renders, written by the `make` targets and git-ignored (empty in a fresh clone) |
 
 Status of `case.scad`: **revision 3, steps 1 and 2 done, re-cut around the assembled unit.** Roadmap
 item 5 was decided the other way on 2026-09-24: the Waveshare goes in whole, as it arrives, so the lid
@@ -38,14 +38,18 @@ caliper's height — and the unit sits low (centre at 33.4) to free the upper ha
 `make fit` proves the unit clears both printed parts, that the two parts clear each other across the lap
 (`fitcheck_pair`), and — through the probes (`probe_grille`, `probe_button`, `probe_mic`, `probe_gland`,
 `probe_m4`, `probe_vent`) — that the openings are open through the walls, by boolean instead of by eye.
+`fitcheck_cap` closes the loop on ADR-035's plug: it asks that the cap finds its bore and that its crowned top
+never stands on the crown it was cut from.
 
 The lid-to-base joint is cut as of review 3: two M3 x 12 socket head screws (ISO 4762, stainless A2,
 into brass inserts per ADR-017) pull the lid down onto two carriers that grow off the cavity's side
 walls (ADR-031 — they stood on pillars off the back plate until 2026-10-04), in
 the corridor between the unit and the panel switch. Each screw's counterbore is cut from the crown's
 own surface at the screw's x, and the lid's boss under it (`m3_lid_boss`) is what the head clamps --
-the wall alone is 3.04 mm there and the counterbore is 3.20, so the wall on its own would leave the
-head with nothing to pull against. `fitcheck_joint` answers the whole thing by boolean, and
+the wall alone is 3.01 mm there and the counterbore is 4.40 (ADR-035: the head sinks **1.40 below the
+crown**), so the wall on its own would leave the head with nothing to pull against -- and the boss is what
+leaves it the 1.61 it clamps. The 1.40 the head gives up is a **printed cap** (`part="cap"`, Ø5.50, its top cut
+by the crown's own cylinder so it closes the hole flush, its bottom stopping on the head). `fitcheck_joint` answers the whole thing by boolean, and
 `-D 'fc=...'` narrows the answer when it is not empty -- `screw`, `neighbours`, `cradles` or
 `carriers`. `probe_carrier` asks the one question none of those can: that the carriers' material is
 where it has to be, by cutting its rods out of the base (they must not exist outside it).
@@ -89,6 +93,10 @@ the screws, the unit cradles and the M4, plus `show_solid` for the shell drawn o
 background object. All of them default to on, so an untouched file opens exactly as it always did.
 Note that the shells are background (`%`) objects and `--render` does not draw those, which is why the
 markers show up in the PNGs: in a PNG the shell appears only under `show_solid`.
+
+The print set is **four** parts: base, lid, gasket and, since ADR-035, the two **caps** that close the
+counterbores over the screw heads (`part="cap"`, `make cap`, Ø5.50, printed flat, flush when pressed in) --
+`make stl` exports all of them.
 
 Still to come: nothing. The feature list is complete as of 2026-09-26. The joint's gasket
 is drawn as its own part — `part="gasket"` or `make gasket`: 1.70 mm wide, 1.00 mm of TPU 95A printed soft
